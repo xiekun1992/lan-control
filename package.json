@@ -1,0 +1,20 @@
+{
+  "name": "lan_control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "client.js",
+  "dependencies": {
+    "iohook": "^0.6.2",
+    "request": "^2.88.0",
+    "window-size": "^1.1.1",
+    "worker-threads-pool": "^2.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
