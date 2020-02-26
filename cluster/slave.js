@@ -8,7 +8,7 @@ console.log('slave start with pid:', process.pid)
 const screen = robotjs.getScreenSize();
 process.on('message', (message) => {
     const data = message;        
-    // console.log(Date.now(), data)
+    console.log(Date.now(), data)
     const reqUrl = url.parse(data);
     const reqPath = reqUrl.pathname;
     const reqQuery = querystring.parse(reqUrl.query);

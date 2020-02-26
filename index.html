@@ -31,11 +31,6 @@
 </head>
 <body>
     <div class="overlay"></div>
-    <script>
-    const {ipcRenderer} = require('electron')
-    window.onmousemove = function(e) {
-        ipcRenderer.send('a', {x: e.pageX, y: e.pageY})
-    }
-    </script>
+    <script>require('./client/index.js')</script>
 </body>
 </html>

@@ -22,6 +22,7 @@ module.exports = {
             console.log('server started')
         })
         udp.on('message', (msg, rinfo) => {
+            // console.log(msg)
             slaveProcess[index].send(msg.toString())
             index++
             index = index % slaveNum

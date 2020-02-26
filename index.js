@@ -9,10 +9,9 @@ app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: fa
 app.on('ready', () => {
     createWindow()
     // start udp server with cluster
-    // udpCluster.start({
-    //     slaveNum: 6
-    // })
-    console.log(process.version)
+    udpCluster.start({
+        slaveNum: 6
+    })
 })
 
 app.on('window-all-closed', () => {
@@ -32,36 +31,20 @@ ipcMain.on('a', (event, {x, y}) => {
 
 function createWindow() {
     const win = new BrowserWindow({
-        // x: -100,
-        // y: -100,
-        // width: 0,
-        // height: 0,
         show: false,
-        // center: true,
         hasShadow: false,
         alwaysOnTop: true,
-        // fullscreen: true,
-        // transparent: true,
-        // backgroundColor: '#33000000',
-        // frame: false,
-        // resizable: false,
-        // focusable: false,
         enableLargerThanScreen: true,
         movable: false,
         skipTaskbar: true,
-        // webPreferences: {
-        //     nodeIntegeration: true
-        // }
+        webPreferences: {
+            nodeIntegration: true
+        }
     })
-    // win.webContents.on('dom-ready', (event)=> {
-    //     let css = '* { cursor: none !important; }';
-    //     win.webContents.insertCSS(css);
-    // });
-    // win.loadFile('index.html')
     win.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
     win.setOpacity(0.01)
     win.setResizable(false)
-    win.loadURL(`file://${__dirname}/index.html`)
+    win.loadFile(`${__dirname}/index.html`)
     win.show()
     // win.webContents.openDevTools()
 }
