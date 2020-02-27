@@ -1,12 +1,31 @@
 const {
     app,
     BrowserWindow,
-    ipcMain
+    // ipcMain,
+    screen
 } = require('electron')
 const udpCluster = require('./cluster')
+const client = require('./client')
+let overlayWindowRef
+
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
+    const mainScreen = screen.getPrimaryDisplay()
+    client.init({
+        distIP: '127.0.0.1', 
+        distPort: 8888, 
+        screenWidth: mainScreen.size.width * mainScreen.scaleFactor, 
+        screenHeight: mainScreen.size.height * mainScreen.scaleFactor
+    })
+    client.registOverlayCallback(() => {
+        if (overlayWindowRef) {
+            overlayWindowRef.show()
+            overlayWindowRef.setOpacity(0.01)
+            overlayWindowRef.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
+            overlayWindowRef.setResizable(false)
+        }
+    })
     createWindow()
     // start udp server with cluster
     udpCluster.start({
@@ -25,15 +44,15 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.on('a', (event, {x, y}) => {
-    console.log(x, y)
-})
-
 function createWindow() {
-    const win = new BrowserWindow({
+    overlayWindowRef = new BrowserWindow({
+        x: -9999,
+        y: -9999,
+        width: 10,
+        height: 10,
         show: false,
         hasShadow: false,
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
         enableLargerThanScreen: true,
         movable: false,
         skipTaskbar: true,
@@ -41,10 +60,6 @@ function createWindow() {
             nodeIntegration: true
         }
     })
-    win.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
-    win.setOpacity(0.01)
-    win.setResizable(false)
-    win.loadFile(`${__dirname}/index.html`)
-    win.show()
-    // win.webContents.openDevTools()
+    overlayWindowRef.loadFile(`${__dirname}/index.html`)
+    // overlayWindowRef.webContents.openDevTools()
 }
