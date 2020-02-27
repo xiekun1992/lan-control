@@ -32,7 +32,8 @@ const keymap = {
   145: 'ScrollLock', 144: 'NumLock'
 }
 let x, y;
-let showOverlayCallback
+let showOverlayCallback, hideOverlayCallback
+let shouldForward = false
 function init({distIP, distPort, screenWidth, screenHeight}) {
   connection.init({ip: distIP, port: distPort})
   ioHook.on('mousemove', event => {
@@ -41,24 +42,30 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     x = event.x;
     y = event.y;
     if (x > screenWidth) {
+      shouldForward = true
       showOverlayCallback && showOverlayCallback()
       x = 0;
-      robotjs.moveMouse(x, y);
+      robotjs.moveMouse(x, y)
+    } else if (x < 0) {
+      shouldForward = false
+      x = screenWidth
+      robotjs.moveMouse(x, y)
+      hideOverlayCallback && hideOverlayCallback()
     }
-    connection.send({type: 'mousemove', x: x, y: y, width: screenWidth, height: screenHeight});
+    send({type: 'mousemove', x: x, y: y, width: screenWidth, height: screenHeight});
   });
   ioHook.on('mousedown', event => {
-    connection.send({type: 'mousedown', button: ['', 'left', 'right', 'middle'][event.button]});
+    send({type: 'mousedown', button: ['', 'left', 'right', 'middle'][event.button]});
   });
   // ioHook.on('mouseup', event => {
-  //   connection.send({type: mouseup, button=${['', 'left', 'right', 'middle'][event.button]}`);
+  //   send({type: mouseup, button=${['', 'left', 'right', 'middle'][event.button]}`);
   // });
   ioHook.on('mousewheel', event => {
-    connection.send({type: 'mousewheel', x: 0, y: event.rotation * event.amount});
+    send({type: 'mousewheel', x: 0, y: event.rotation * event.amount});
   });
   ioHook.on('mousedrag', event => {
     // console.log(event)
-    connection.send({type: 'mousedrag', x: event.x, y: event.y, width: screenWidth, height: screenHeight});
+    send({type: 'mousedrag', x: event.x, y: event.y, width: screenWidth, height: screenHeight});
   });
   ioHook.on('keydown', event => {
     const modifier = [];
@@ -67,7 +74,7 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     event.ctrlKey && modifier.push('control');
     event.metaKey && modifier.push('command');
   
-    connection.send({type: 'keydown', key: keymap[event.rawcode] || '', modifier: modifier.join(',')});
+    send({type: 'keydown', key: keymap[event.rawcode] || '', modifier: modifier.join(',')});
   });
   // ioHook.on('keyup', event => {
   //   const modifier = [];
@@ -78,14 +85,18 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
   //     // case event.metaKey: modifier.push('command');
   //   }
   //   console.log({type: keyup&key=${keymap[event.rawcode] || ''}&modifier=${modifier.join(',')}`)
-  //   connection.send({type: keyup&key=${keymap[event.rawcode] || ''}&modifier=${modifier.join(',')}`);
+  //   send({type: keyup&key=${keymap[event.rawcode] || ''}&modifier=${modifier.join(',')}`);
   // });
   
   
   ioHook.start();
 }
-function registOverlayCallback(fn) {
-  showOverlayCallback = fn
+function registOverlayCallback(showFn, hideFn) {
+  showOverlayCallback = showFn
+  hideOverlayCallback = hideFn
+}
+function send(msgObj) {
+  shouldForward && connection.send(msgObj)
 }
 
 module.exports = {

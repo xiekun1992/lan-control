@@ -13,7 +13,8 @@ app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: fa
 app.on('ready', () => {
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
-        distIP: '127.0.0.1', 
+        distIP: '192.168.1.8', 
+        // distIP: '127.0.0.1', 
         distPort: 8888, 
         screenWidth: mainScreen.size.width * mainScreen.scaleFactor, 
         screenHeight: mainScreen.size.height * mainScreen.scaleFactor
@@ -24,6 +25,10 @@ app.on('ready', () => {
             overlayWindowRef.setOpacity(0.01)
             overlayWindowRef.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
             overlayWindowRef.setResizable(false)
+        }
+    }, () => {
+        if (overlayWindowRef) {
+            overlayWindowRef.hide()
         }
     })
     createWindow()
