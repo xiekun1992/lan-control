@@ -10,9 +10,24 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^8.0.1"
+    "electron": "^8.0.2"
   },
   "dependencies": {
+    "iohook": "^0.6.5",
     "robotjs": "^0.6.0"
+  },
+  "iohook": {
+    "targets": [
+      "electron-76"
+    ],
+    "platform": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "arches": [
+      "x64",
+      "ia32"
+    ]
   }
 }
