@@ -4,6 +4,8 @@ const {
     // ipcMain,
     screen
 } = require('electron')
+const tray = require('./ui/tray')
+
 const udpCluster = require('./cluster')
 const client = require('./client')
 let overlayWindowRef
@@ -11,6 +13,9 @@ let overlayWindowRef
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
+    // 初始化托盘
+    tray.getInstance()
+
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
         distIP: '192.168.1.8', 
@@ -33,9 +38,9 @@ app.on('ready', () => {
     })
     createWindow()
     // start udp server with cluster
-    udpCluster.start({
-        slaveNum: 6
-    })
+    // udpCluster.start({
+    //     slaveNum: 6
+    // })
 })
 
 app.on('window-all-closed', () => {
