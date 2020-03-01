@@ -4,9 +4,236 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Settings</title>
+    <title>设置 - lan_control</title>
+    <style>
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background-color: #eee;
+        border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #ccc;
+    }
+    .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    aside {
+        position: relative;
+        width: 300px;
+        height: 100%;
+        border-right: 1px double #ccc;
+    }
+    .hint {
+        color: #aaa;
+        padding-top: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+    ul, li {padding: 0;margin:0;list-style: none;}
+    .filter-box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        padding-top: 30px;
+        box-sizing: border-box;
+    }
+    .filter-search {
+        display: inline-block;
+        width: 100%;
+        font-size: 14px;
+        border: 1px solid #aaa;
+        padding: 5px 8px;
+        position: relative;
+        outline: 0;
+        z-index: 10;
+    }
+    .filter-search:hover,
+    .filter-search:focus {
+        border: 1px solid #555;
+    }
+    .filter-list {
+        height: 100%;
+        overflow: auto;
+        font-size: 13px;
+    }
+    .filter-list .filter-item {
+        padding: 0 10px;
+    }
+    .filter-list .filter-item>div {
+        font-weight: bold;
+        padding: 5px 0;
+        border-bottom: 1px solid #ccc;
+    }
+    .filter-list .filter-item div.detail {
+        display: inline-block;
+    }
+    .filter-list .filter-item div.type-icon {
+        display: inline-block;
+        vertical-align: top;
+        width: calc(187px * 0.3);
+        height: calc(160px * 0.3);
+        background-size: contain;
+        background-position: center top;
+        background-repeat: no-repeat;
+    }
+    .filter-list .filter-item div.type-icon.desktop {
+        background-image: url('../images/desktop.png');
+    }
+    .filter-list .filter-item div.type-icon.laptop {
+        background-image: url('../images/laptop.png');
+    }
+    .filter-list .filter-item .os span,
+    .filter-list .filter-item .resolution span,
+    .filter-list .filter-item .ip span {
+        font-weight: normal;
+    }
+    main {
+        position: absolute;
+        width: calc(100% - 300px);
+        height: 100%;
+        top: 0;
+        right: 0;
+    }
+    .layout-container {
+        display: flex;
+        flex-wrap: wrap;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .layout-container .layout-item {
+        width: 33.33%;
+        height: 33.33%;
+        text-align: center;
+    }
+    .layout-container .layout-item:nth-child(odd) {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    .layout-container .layout-item:nth-child(5) {
+        background-color: #eee;
+        cursor: not-allowed;
+    }
+    </style>
 </head>
 <body>
-    
+    <div class="bg">
+        <aside>
+            <input type="search" placeholder="输入关键词筛选设备" id="searchEl" class="filter-search">
+            <div class="filter-box">
+                <ul id="filterEl" class="filter-list"></ul>
+            </div>
+        </aside> 
+        <main>
+            <div class="layout-container">
+                <div class="layout-item"></div>
+                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="hint">从左侧列表拖拽设备以添加</div>
+                </div>
+                <div class="layout-item"></div>
+                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="hint">从左侧列表拖拽设备以添加</div>
+                </div>
+                <div class="layout-item"></div>
+                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="hint">从左侧列表拖拽设备以添加</div>
+                </div>
+                <div class="layout-item"></div>
+                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="hint">从左侧列表拖拽设备以添加</div>
+                </div>
+                <div class="layout-item"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+    let data = [
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
+        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
+    ]
+    const types = {
+        'desktop': '台式机',
+        'laptop': '笔记本'
+    }
+    render(data, types, filterEl)
+
+    let timer
+    searchEl.onsearch = searchEl.onkeyup = e => {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+            clearTimeout(timer)
+            const keywords = e.target.value.trim().toLowerCase()
+            const res = data.filter(item => 
+                Object
+                    .keys(item)
+                    .some(key => item[key].toLowerCase().indexOf(keywords) > -1)
+            ) || []
+            render(res, types, filterEl)
+        }, 500)
+    }
+
+    function render(data, types, filterEl) {
+        if (data.length > 0) {
+            let html = ''
+            data.map(item => {
+                    item.typeName = types[item.type]
+                    return item
+                })
+                .forEach((item, i) => {
+                    html += `
+                    <li id="dev${i}" class="filter-item" draggable="true" ondragstart="drag(event)">
+                        <div>
+                            <div class="type-icon ${item.type}"></div>
+                            <div class="detail">
+                                <div class="type">${item.typeName} ${item.name}</div>
+                                <div class="os">操作系统: <span>${item.os}</span></div>
+                                <div class="resolution">分辨率: <span>${item.resolution}</span></div>
+                                <div class="ip">IP: <span>${item.IP}</span></div>
+                            </div>
+                        </div>
+                    </li>
+                    `
+                })
+            filterEl.innerHTML = html
+        } else {
+            filterEl.innerHTML = '<li><div class="hint">未找到相关设备<div></li>'
+        }
+    }
+    function drag(event) {
+        event.dataTransfer.setData('text', event.target.id)
+    }
+    function drop(event) {
+        event.preventDefault()
+        const tdata = event.dataTransfer.getData('text')
+        event.target.innerHTML = `<div>${data[+tdata.replace(/^dev/, '')].name}</div>`
+    }
+    function allowDrop(event) {
+        event.preventDefault()
+    }
+    </script>
 </body>
 </html>
