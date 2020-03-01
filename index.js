@@ -8,6 +8,7 @@ const tray = require('./ui/tray')
 
 const udpCluster = require('./cluster')
 const client = require('./client')
+const signal = require('./signal').Signal
 let overlayWindowRef
 
 
@@ -15,6 +16,7 @@ app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: fa
 app.on('ready', () => {
     // 初始化托盘
     tray.getInstance()
+    signal.getInstance().start().discover()
 
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
