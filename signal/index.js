@@ -35,7 +35,8 @@ class Signal {
             server = null
         })
         server.on('message', (msg, rinfo) => {
-            if (addresses.indexOf(rinfo.address) == -1) {
+            // console.log(msg.toString())
+            if (false || addresses.indexOf(rinfo.address) == -1) {
                 const msgObj = JSON.parse(msg.toString())
                 if (msgObj.cmd == 'discover') {
                     // 收到设备发现请求
@@ -44,12 +45,12 @@ class Signal {
                         cmd: 'discover.reply',
                         type: 'desktop', 
                         name: os.hostname(),//'联想E49', 
-                        os: os.release(),// 'Linux Ubuntu x64', 
+                        os: `${os.platform()} ${os.release()}`,// 'Linux Ubuntu x64', 
                         resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
                         IP: ''// 接收方补充 '192.168.1.8'
                     }))
                     server.send(reply, 0, reply.length, PORT, IP)
-                } else if (msgObj.cmd == 'dicover.reply') {
+                } else if (msgObj.cmd == 'discover.reply') {
                     delete msgObj.cmd
                     msgObj.IP = rinfo.address
                     devices.push(msgObj)
