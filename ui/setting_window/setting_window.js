@@ -12,10 +12,13 @@ function getInstance() {
             minWidth: 800,
             minHeight: 600,
             resizable: false,
-            maximizable: false
+            maximizable: false,
+            webPreferences: {
+                nodeIntegration: true
+            }
         })
         win.loadFile(path.resolve(__dirname, 'setting.html'))
-        // win.webContents.openDevTools()
+        win.webContents.openDevTools()
         win.on('closed', () => {
             win = null
         })

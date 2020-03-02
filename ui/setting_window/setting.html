@@ -87,7 +87,7 @@
     .filter-list .filter-item div.type-icon.desktop {
         background-image: url('../images/desktop.png');
     }
-    .filter-list .filter-item div.type-icon.laptop {
+    .filter-list .filter-item div.type-icon.notebook {
         background-image: url('../images/laptop.png');
     }
     .filter-list .filter-item .os span,
@@ -157,29 +157,12 @@
         </main>
     </div>
     <script>
-    let data = [
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-        {type: 'laptop', name: '联想E49', os: 'Linux Ubuntu x64', resolution: '1366x768', IP: '192.168.1.8'},
-        {type: 'desktop', name: '惠普', os: 'Windows10 x64', resolution: '1920x1080', IP: '192.168.1.9'},
-    ]
+    let data = []
     const types = {
         'desktop': '台式机',
-        'laptop': '笔记本'
+        'notebook': '笔记本'
     }
-    render(data, types, filterEl)
+    // render(data, types, filterEl)
 
     let timer
     searchEl.onsearch = searchEl.onkeyup = e => {
@@ -234,6 +217,14 @@
     function allowDrop(event) {
         event.preventDefault()
     }
+    </script>
+    <script>
+    const {ipcRenderer} = require('electron')
+    ipcRenderer.invoke('signal.discover').then(({devices}) => {
+        console.log(devices)
+        data = devices
+        render(data, types, filterEl)
+    })
     </script>
 </body>
 </html>

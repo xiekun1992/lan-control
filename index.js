@@ -1,7 +1,7 @@
 const {
     app,
     BrowserWindow,
-    // ipcMain,
+    ipcMain,
     screen
 } = require('electron')
 const tray = require('./ui/tray')
@@ -11,12 +11,20 @@ const client = require('./client')
 const signal = require('./signal').Signal
 let overlayWindowRef
 
+ipcMain.handle('signal.discover', async (event, args) => {
+    return new Promise((resolve, reject) => {
+        signal.deviceUpdated((devices) => {
+            console.log(devices)
+            resolve({devices})
+        }).discover()
+    })
+})
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
     // 初始化托盘
     tray.getInstance()
-    signal.getInstance().start().discover()
+    signal.getInstance().start()
 
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
