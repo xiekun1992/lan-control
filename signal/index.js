@@ -1,6 +1,8 @@
 const dgram = require('dgram')
 const os = require('os')
 const {screen} = require('electron')
+const si = require('systeminformation')
+const iconv = require('iconv-lite')
 
 const interfaces = os.networkInterfaces()
 const addresses = []
@@ -34,18 +36,18 @@ class Signal {
             server.close()
             server = null
         })
-        server.on('message', (msg, rinfo) => {
+        server.on('message', async (msg, rinfo) => {
             // console.log(msg.toString())
-            if (false || addresses.indexOf(rinfo.address) == -1) {
+            if (true || addresses.indexOf(rinfo.address) == -1) {
                 const msgObj = JSON.parse(msg.toString())
                 if (msgObj.cmd == 'discover') {
                     // 收到设备发现请求
                     const screenSize = screen.getPrimaryDisplay().size
                     const reply = Buffer.from(JSON.stringify({
                         cmd: 'discover.reply',
-                        type: 'desktop', 
+                        type: iconv.encode((await si.osInfo()).distro, 'utf8').toString(), 
                         name: os.hostname(),//'联想E49', 
-                        os: `${os.platform()} ${os.release()}`,// 'Linux Ubuntu x64', 
+                        os: (await si.chassis()).type.toLowerCase(),// 'Linux Ubuntu x64', 
                         resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
                         IP: ''// 接收方补充 '192.168.1.8'
                     }))
