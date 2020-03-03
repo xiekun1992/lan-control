@@ -212,7 +212,10 @@
     function drop(event) {
         event.preventDefault()
         const tdata = event.dataTransfer.getData('text')
-        event.target.innerHTML = `<div>${data[+tdata.replace(/^dev/, '')].name}</div>`
+        const device = data[+tdata.replace(/^dev/, '')]
+        event.currentTarget.innerHTML = `<div>${device.name}</div>`
+        const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
+        ipcRenderer.invoke('signal.display.add', {direction: {3: 0, 1: 1, 5: 2, 7: 3}[positionIndex], device})
     }
     function allowDrop(event) {
         event.preventDefault()

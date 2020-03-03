@@ -34,6 +34,7 @@ const keymap = {
 let x, y;
 let showOverlayCallback, hideOverlayCallback
 let shouldForward = false
+let displayDevices = []
 function init({distIP, distPort, screenWidth, screenHeight}) {
   connection.init({ip: distIP, port: distPort})
   ioHook.on('mousemove', event => {
@@ -41,12 +42,14 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     // console.log(event); // { type: 'mousemove', x: 700, y: 400 }
     x = event.x;
     y = event.y;
-    if (x > screenWidth) {
+    console.log(displayDevices)
+    if (x > screenWidth && displayDevices[2]) {
+      connection.setIP(displayDevices[2].IP)
       shouldForward = true
       showOverlayCallback && showOverlayCallback()
       x = 0;
       robotjs.moveMouse(x, y)
-    } else if (x < 0) {
+    } else if (x < 0 && shouldForward && displayDevices[2]) {
       shouldForward = false
       x = screenWidth
       robotjs.moveMouse(x, y)
@@ -98,8 +101,11 @@ function registOverlayCallback(showFn, hideFn) {
 function send(msgObj) {
   shouldForward && connection.send(msgObj)
 }
-
+function updateDisplays(displays) {
+  displayDevices = displays
+}
 module.exports = {
   init,
-  registOverlayCallback
+  registOverlayCallback,
+  updateDisplays
 }

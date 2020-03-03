@@ -10,6 +10,7 @@ const udpCluster = require('./cluster')
 const client = require('./client')
 const signal = require('./signal').Signal
 let overlayWindowRef
+const displays = [null, null, null, null] // 左上右下
 
 ipcMain.handle('signal.discover', async (event, args) => {
     return new Promise((resolve, reject) => {
@@ -19,17 +20,11 @@ ipcMain.handle('signal.discover', async (event, args) => {
         }).discover()
     })
 })
-
-app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
-app.on('ready', () => {
-    // 初始化托盘
-    tray.getInstance()
-    signal.getInstance().start()
-
+ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
+    displays[direction] = device
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
-        distIP: '192.168.1.8', 
-        // distIP: '127.0.0.1', 
+        distIP: null, 
         distPort: 8888, 
         screenWidth: mainScreen.size.width * mainScreen.scaleFactor, 
         screenHeight: mainScreen.size.height * mainScreen.scaleFactor
@@ -46,6 +41,14 @@ app.on('ready', () => {
             overlayWindowRef.hide()
         }
     })
+    client.updateDisplays(displays)
+})
+
+app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
+app.on('ready', () => {
+    // 初始化托盘
+    tray.getInstance()
+    signal.getInstance().start()
     createWindow()
     // start udp server with cluster
     // udpCluster.start({
