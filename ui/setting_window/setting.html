@@ -180,7 +180,7 @@
     }
 
     function render(data, types, filterEl) {
-        if (data.length > 0) {
+        if (data && data.length > 0) {
             let html = ''
             data.map(item => {
                     item.typeName = types[item.type]
