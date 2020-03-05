@@ -31,10 +31,9 @@ class SignalConnection extends EventEmitter {
             this.server = null
         })
         this.server.on('message', async (msg, rinfo) => {
-            console.log(msg.toString())
-            if (true || (rinfo.address in addresses)) {
+            console.log(msg.toString(), 'from ip:', rinfo.address)
+            if (false || !(rinfo.address in addresses)) {
                 const msgObj = JSON.parse(msg.toString())
-                console.log('msgObj', msgObj)
                 switch (msgObj.cmd) {
                     case 'discover':
                         // 收到设备发现请求
@@ -49,14 +48,17 @@ class SignalConnection extends EventEmitter {
                         })
                     break
                     case 'discover.reply':
-                        if (devices.findIndex(dev => rinfo.address == dev.IP) < 0) {
+                        // if (devices.findIndex(dev => rinfo.address == dev.IP) < 0) {
                             delete msgObj.cmd
                             msgObj.IP = rinfo.address
                             devices.push(msgObj)
                             // console.log(devices)
                             clearTimeout(discoverTimer)
-                            this.emit('devices.update', {devices})
-                        }
+                            discoverTimer = setTimeout(() => {
+                                clearTimeout(discoverTimer)
+                                this.emit('devices.update', {devices})
+                            }, 1000)
+                        // }
                     break
                     case 'downstream.add':
                         console.log(msgObj.deviceIP)
@@ -73,7 +75,9 @@ class SignalConnection extends EventEmitter {
         })
         this.server.bind(PORT, '0.0.0.0', () => {
             // 监听其他设备发送的设备发现请求
+            // console.log(Object.keys(addresses))
             Object.keys(addresses).forEach(ip => this.server.addMembership(IP, ip))
+            // this.server.addMembership(IP, '192.168.1.5')
         })
         return this
     }
@@ -82,12 +86,9 @@ class SignalConnection extends EventEmitter {
         this.server.send(buf, 0, buf.length, PORT, IP)
     }
     discover() {
+        // 可能会受到ssr影响，需要暂时取消代理
         this._send({cmd: 'discover'})
         devices = []
-        // discoverTimer = setTimeout(() => {
-        //     this.emit('devices.update', devices)
-        //     clearTimeout(discoverTimer)
-        // }, 5000)
         return this
     }
     addDownstream(downstreamDevice) {
