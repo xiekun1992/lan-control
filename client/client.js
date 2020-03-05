@@ -42,7 +42,7 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     // console.log(event); // { type: 'mousemove', x: 700, y: 400 }
     x = event.x;
     y = event.y;
-    console.log('mousemove', displayDevices)
+    // console.log('mousemove', displayDevices)
     if (x > screenWidth && displayDevices[2]) {
       connection.setIP(displayDevices[2].IP)
       shouldForward = true

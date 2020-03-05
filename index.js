@@ -37,16 +37,6 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
         overlayWindow.hide()
     })
     client.updateDisplays(displays)
-    signal.getInstance().once('upstream.set', ({device}) => {
-        upstreamDevice = device
-        console.log('upstreamDevice', device)
-        if (upstreamDevice) {
-            // 启动nodejs udp服务集群处理用户动作
-            udpCluster.start({
-                slaveNum: 6
-            })
-        }
-    })
     signal.getInstance().addDownstream(device)
 })
 
@@ -56,6 +46,16 @@ app.on('ready', () => {
     tray.getInstance()
     signal.getInstance().start()
     overlayWindow.getInstance()
+    signal.getInstance().on('upstream.set', ({device}) => {
+        upstreamDevice = device
+        console.log('upstreamDevice', device)
+        if (upstreamDevice) {
+            // 启动nodejs udp服务集群处理用户动作
+            udpCluster.start({
+                slaveNum: 6
+            })
+        }
+    })
 })
 
 app.on('window-all-closed', () => {
