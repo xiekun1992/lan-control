@@ -15,12 +15,13 @@ class SignalConnection extends EventEmitter {
         const interfaces = os.networkInterfaces()
         for (const name in interfaces) {
             interfaces[name].forEach(item => {
-                if (item.family == 'IPv4') {
+                if (item.family == 'IPv4' && item.address != '127.0.0.1') {
                     // console.log(name, item.address)
                     addresses[item.address] = item.mac
                 }
             })
         }
+        console.log(addresses)
         return this
     }
     start() {
@@ -72,7 +73,7 @@ class SignalConnection extends EventEmitter {
         })
         this.server.bind(PORT, '0.0.0.0', () => {
             // 监听其他设备发送的设备发现请求
-            this.server.addMembership(IP, '0.0.0.0')
+            Object.keys(addresses).forEach(ip => this.server.addMembership(IP, ip))
         })
         return this
     }
@@ -82,11 +83,11 @@ class SignalConnection extends EventEmitter {
     }
     discover() {
         this._send({cmd: 'discover'})
-        devices = []
-        discoverTimer = setTimeout(() => {
-            this.emit('devices.update', devices)
-            clearTimeout(discoverTimer)
-        }, 5000)
+        // devices = []
+        // discoverTimer = setTimeout(() => {
+        //     this.emit('devices.update', devices)
+        //     clearTimeout(discoverTimer)
+        // }, 5000)
         return this
     }
     addDownstream(downstreamDevice) {
