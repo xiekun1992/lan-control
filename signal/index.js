@@ -64,6 +64,7 @@ class SignalConnection extends EventEmitter {
                         console.log(msgObj.deviceIP)
                         if (msgObj.deviceIP in addresses) { // 本设备被对方添加为下级节点
                             this.emit('upstream.set', {device: devices.find(dev => dev.IP == rinfo.address)})
+                            console.log(1111)
                         }
                     break
                 }
@@ -81,9 +82,9 @@ class SignalConnection extends EventEmitter {
         })
         return this
     }
-    _send(obj) {
+    _send(obj, ip = IP) {
         const buf = Buffer.from(JSON.stringify(obj))
-        this.server.send(buf, 0, buf.length, PORT, IP)
+        this.server.send(buf, 0, buf.length, PORT, ip)
     }
     discover() {
         // 可能会受到ssr影响，需要暂时取消代理
@@ -92,7 +93,7 @@ class SignalConnection extends EventEmitter {
         return this
     }
     addDownstream(downstreamDevice) {
-        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP})
+        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP}, downstreamDevice.IP)
         return this
     }
 }

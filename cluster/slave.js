@@ -5,7 +5,7 @@ console.log('slave start with pid:', process.pid)
 // slave process
 const screen = robotjs.getScreenSize();
 process.on('message', (message) => {
-    console.log(Date.now(), message)
+    // console.log(Date.now(), message)
     const reqQuery = JSON.parse(message)
     switch (reqQuery.type) {
         case 'mousemove': 
@@ -15,7 +15,7 @@ process.on('message', (message) => {
             // console.log(Date.now());
             break;
         case 'keydown':
-            console.log(reqQuery);
+            // console.log(reqQuery);
                 if (reqQuery.key) {
                     if (reqQuery.modifier) {
                         robotjs.keyTap(reqQuery.key, reqQuery.modifier.split(','));
@@ -25,7 +25,7 @@ process.on('message', (message) => {
                 }
                 break;
         case 'keyup':
-        console.log(reqQuery);
+        // console.log(reqQuery);
             if (reqQuery.key) {
                 if (reqQuery.modifier) {
                     robotjs.keyTap(reqQuery.key, reqQuery.modifier.split(','));

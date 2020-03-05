@@ -224,7 +224,7 @@
     <script>
     const {ipcRenderer} = require('electron')
     ipcRenderer.invoke('signal.discover').then(({devices}) => {
-        console.log(devices)
+        // console.log(devices)
         data = devices
         render(data, types, filterEl)
     })
