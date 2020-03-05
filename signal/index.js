@@ -83,7 +83,7 @@ class SignalConnection extends EventEmitter {
     }
     discover() {
         this._send({cmd: 'discover'})
-        // devices = []
+        devices = []
         // discoverTimer = setTimeout(() => {
         //     this.emit('devices.update', devices)
         //     clearTimeout(discoverTimer)
