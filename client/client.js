@@ -43,7 +43,7 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     x = event.x;
     y = event.y;
     // console.log('mousemove', displayDevices)
-    if (x > screenWidth && displayDevices[2]) {
+    if (x > screenWidth && displayDevices[2] && shouldForward == false) {
       connection.setIP(displayDevices[2].IP)
       shouldForward = true
       showOverlayCallback && showOverlayCallback()
