@@ -27,8 +27,8 @@ class Store {
     getUpstreamDevice() {
         return this.store.get('upstreamDevice')
     }
-    setDisplays() {
-        this.store.set('displays', device)
+    setDisplays(displays) {
+        this.store.set('displays', displays)
     }
     getDisplays() {
         return this.store.get('displays')
