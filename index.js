@@ -4,13 +4,15 @@ const {
     ipcMain,
     screen
 } = require('electron')
+const {Store} = require('./store')
 const tray = require('./ui/tray')
 const overlayWindow = require('./ui/overlay_window').Overlay
 
 const udpCluster = require('./cluster')
 const client = require('./client')
 const signal = require('./signal').Signal
-const displays = [null, null, null, null] // 左上右下
+const store = new Store()
+let displays = [null, null, null, null] // 左上右下
 let upstreamDevice
 
 ipcMain.handle('signal.discover', async (event, args) => {
@@ -24,6 +26,7 @@ ipcMain.handle('signal.discover', async (event, args) => {
 })
 ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
     displays[direction] = device
+    store.setDisplays(displays)
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
         distIP: null, 
@@ -42,6 +45,9 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
+    upstreamDevice = store.getUpstreamDevice()
+    displays = store.getDisplays()
+    console.log('upstreamDevice', upstreamDevice)
     // 初始化托盘
     tray.getInstance()
     signal.getInstance().start()
@@ -50,6 +56,7 @@ app.on('ready', () => {
         upstreamDevice = device
         console.log('upstreamDevice', device)
         if (upstreamDevice) {
+            store.setUpstreamDevice(upstreamDevice)
             // 启动nodejs udp服务集群处理用户动作
             udpCluster.start({
                 slaveNum: 6
