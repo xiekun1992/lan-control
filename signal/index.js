@@ -24,28 +24,32 @@ class SignalConnection extends EventEmitter {
         console.log(addresses)
         return this
     }
+    async getDeviceInfo() {
+        const screenSize = screen.getPrimaryDisplay().size
+        return {
+            type: (await si.chassis()).type.toLowerCase(), 
+            name: os.hostname(),//'联想E49', 
+            os: (await si.osInfo()).distro,// 'Linux Ubuntu x64', 
+            resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
+            IP: ''// 接收方补充 '192.168.1.8'
+        }
+    }
     start() {
         this.server.on('error', err => {
             console.log(`igmp server error: ${err}`)
             this.server.close()
             this.server = null
         })
-        this.server.on('message', async (msg, rinfo) => {
+        this.server.on('message', (msg, rinfo) => {
             console.log(msg.toString(), 'from ip:', rinfo.address)
             if (false || !(rinfo.address in addresses)) {
                 const msgObj = JSON.parse(msg.toString())
                 switch (msgObj.cmd) {
                     case 'discover':
                         // 收到设备发现请求
-                        const screenSize = screen.getPrimaryDisplay().size
-                        this._send({
-                            cmd: 'discover.reply',
-                            type: (await si.chassis()).type.toLowerCase(), 
-                            name: os.hostname(),//'联想E49', 
-                            os: (await si.osInfo()).distro,// 'Linux Ubuntu x64', 
-                            resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
-                            IP: ''// 接收方补充 '192.168.1.8'
-                        })
+                        const deviceInfo = this.getDeviceInfo()
+                        deviceInfo.cmd = 'discover.reply'
+                        this._send(deviceInfo)
                     break
                     case 'discover.reply':
                         // if (devices.findIndex(dev => rinfo.address == dev.IP) < 0) {
@@ -63,7 +67,8 @@ class SignalConnection extends EventEmitter {
                     case 'downstream.add':
                         console.log(msgObj.deviceIP)
                         if (msgObj.deviceIP in addresses) { // 本设备被对方添加为下级节点
-                            this.emit('upstream.set', {device: devices.find(dev => dev.IP == rinfo.address)})
+                            this.emit('upstream.set', {device: msgObj.upstreamDevice})
+                            // this.emit('upstream.set', {device: devices.find(dev => dev.IP == rinfo.address)})
                             console.log(1111)
                         }
                     break
@@ -93,7 +98,7 @@ class SignalConnection extends EventEmitter {
         return this
     }
     addDownstream(downstreamDevice) {
-        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP}, downstreamDevice.IP)
+        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP, upstreamDevice: this.getDeviceInfo()}, downstreamDevice.IP)
         return this
     }
 }

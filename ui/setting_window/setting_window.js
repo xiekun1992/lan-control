@@ -18,7 +18,7 @@ function getInstance() {
             }
         })
         win.loadFile(path.resolve(__dirname, 'setting.html'))
-        win.webContents.openDevTools()
+        // win.webContents.openDevTools()
         win.on('closed', () => {
             win = null
         })
