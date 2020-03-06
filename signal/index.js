@@ -40,14 +40,14 @@ class SignalConnection extends EventEmitter {
             this.server.close()
             this.server = null
         })
-        this.server.on('message', (msg, rinfo) => {
+        this.server.on('message', async (msg, rinfo) => {
             console.log(msg.toString(), 'from ip:', rinfo.address)
             if (false || !(rinfo.address in addresses)) {
                 const msgObj = JSON.parse(msg.toString())
                 switch (msgObj.cmd) {
                     case 'discover':
                         // 收到设备发现请求
-                        const deviceInfo = this.getDeviceInfo()
+                        const deviceInfo = await this.getDeviceInfo()
                         deviceInfo.cmd = 'discover.reply'
                         this._send(deviceInfo, rinfo.address)
                     break
