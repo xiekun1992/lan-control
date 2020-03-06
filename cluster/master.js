@@ -3,12 +3,15 @@ const udp = dgram.createSocket('udp4')
 const childProcess = require('child_process')
 const path = require('path')
 
+let started = false
 module.exports = {
     start({
         slaveNum = 4,
         port = 8888,
         ip = '0.0.0.0'
     }) {
+        if (started) return
+        started = true
         console.log('master start with pid:', process.pid)
         // master process
         const slaveProcess = []
