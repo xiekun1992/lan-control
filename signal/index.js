@@ -49,7 +49,7 @@ class SignalConnection extends EventEmitter {
                         // 收到设备发现请求
                         const deviceInfo = this.getDeviceInfo()
                         deviceInfo.cmd = 'discover.reply'
-                        this._send(deviceInfo)
+                        this._send(deviceInfo, rinfo.address)
                     break
                     case 'discover.reply':
                         // if (devices.findIndex(dev => rinfo.address == dev.IP) < 0) {
