@@ -43,6 +43,9 @@ ipcMain.handle('signal.discover', async (event, args) => {
 ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
     displays[direction] = device
     store.setDisplays(displays)
+    upstreamDevice = {}
+    store.setUpstreamDevice(upstreamDevice)
+
     initClient(displays)
     signal.getInstance().addDownstream(device)
 })
@@ -54,6 +57,8 @@ app.on('ready', () => {
         console.log('upstreamDevice', device)
         if (upstreamDevice) {
             store.setUpstreamDevice(upstreamDevice)
+            displays = [null, null, null, null]
+            store.setDisplays(displays)
             // 启动nodejs udp服务集群处理用户动作
             udpCluster.start({
                 slaveNum: 6
@@ -86,7 +91,7 @@ app.on('ready', () => {
     tray.getInstance()
     signal.getInstance().start()
     overlayWindow.getInstance()
-    
+
     if (upstreamDevice.IP) {
         signal.getInstance().notifyUpstream(upstreamDevice)
     } else {
