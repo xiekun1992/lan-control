@@ -53,6 +53,10 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
+    upstreamDevice = new Device(store.getUpstreamDevice())
+    displays = store.getDisplays()
+    console.log('upstreamDevice', upstreamDevice)
+
     signal.getInstance().on('upstream.set', ({device}) => {
         upstreamDevice = device
         console.log('upstreamDevice', device)
@@ -75,7 +79,7 @@ app.on('ready', () => {
         }
     })
     signal.getInstance().on('client.init', ({downstreamIP}) => {
-        if (displays.findIndex(item => item.IP == downstreamIP) > -1) {
+        if (displays.findIndex(item => item && item.IP == downstreamIP) > -1) {
             // 自动连接每个下游设备
             displays.forEach(downstreamDevice => {
                 if (downstreamDevice) {
@@ -85,9 +89,6 @@ app.on('ready', () => {
             initClient(displays)
         }
     })
-    upstreamDevice = new Device(store.getUpstreamDevice())
-    displays = store.getDisplays()
-    console.log('upstreamDevice', upstreamDevice)
     // 初始化托盘
     tray.getInstance()
     signal.getInstance().start()
