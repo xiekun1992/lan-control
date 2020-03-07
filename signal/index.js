@@ -67,7 +67,7 @@ class SignalConnection extends EventEmitter {
                     case 'downstream.add':
                         console.log(msgObj.deviceIP)
                         if (msgObj.deviceIP in addresses) { // 本设备被对方添加为下级节点
-                            this.emit('upstream.set', {device: msgObj.upstreamDevice})
+                            this.emit('upstream.set', {device: JSON.parse(msgObj.upstreamDevice)})
                             // this.emit('upstream.set', {device: devices.find(dev => dev.IP == rinfo.address)})
                             console.log(1111)
                         }
@@ -97,9 +97,8 @@ class SignalConnection extends EventEmitter {
         devices = []
         return this
     }
-    addDownstream(downstreamDevice) {
-        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP, upstreamDevice: this.getDeviceInfo()}, downstreamDevice.IP)
-        return this
+    async addDownstream(downstreamDevice) {
+        this._send({cmd: 'downstream.add', deviceIP: downstreamDevice.IP, upstreamDevice: JSON.stringify(await this.getDeviceInfo())}, downstreamDevice.IP)
     }
 }
 class Signal {
