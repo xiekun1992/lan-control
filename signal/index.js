@@ -80,6 +80,12 @@ class SignalConnection extends EventEmitter {
                             this.emit('connection.restore', {upstreamIP: rinfo.address})
                         }
                     break
+                    case 'upstream.notify':
+                        msgObj.upstreamDevice.IP = ''
+                        if ((await this._getDeviceInfo()).equals(new Device(msgObj.upstreamDevice))) {
+                            this.emit('client.init', {downstreamIP: rinfo.address})
+                        }
+                    break
                 }
             }
         })
@@ -110,6 +116,9 @@ class SignalConnection extends EventEmitter {
     }
     wakeupDownstream(downstreamDevice) {
         this._send({cmd: 'downstream.wakeup', device: downstreamDevice}, downstreamDevice.IP)
+    }
+    notifyUpstream(upstreamDevice) {
+        this._send({cmd: 'upstream.notify', upstreamDevice}, upstreamDevice.IP)
     }
 }
 class Signal {

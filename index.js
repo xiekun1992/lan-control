@@ -68,20 +68,36 @@ app.on('ready', () => {
             })
         }
     })
-    upstreamDevice = store.getUpstreamDevice()
+    signal.getInstance().on('client.init', ({downstreamIP}) => {
+        if (displays.findIndex(item => item.IP == downstreamIP) > -1) {
+            // 自动连接每个下游设备
+            displays.forEach(downstreamDevice => {
+                if (downstreamDevice) {
+                    signal.getInstance().wakeupDownstream(downstreamDevice)
+                }
+            })
+            initClient(displays)
+        }
+    })
+    upstreamDevice = new Device(store.getUpstreamDevice())
     displays = store.getDisplays()
     console.log('upstreamDevice', upstreamDevice)
     // 初始化托盘
     tray.getInstance()
     signal.getInstance().start()
     overlayWindow.getInstance()
-    // 自动连接每个下游设备
-    displays.forEach(downstreamDevice => {
-        if (downstreamDevice) {
-            signal.getInstance().wakeupDownstream(downstreamDevice)
-        }
-    })
-    initClient(displays)
+    
+    if (upstreamDevice.IP) {
+        signal.getInstance().notifyUpstream(upstreamDevice)
+    } else {
+        // 自动连接每个下游设备
+        displays.forEach(downstreamDevice => {
+            if (downstreamDevice) {
+                signal.getInstance().wakeupDownstream(downstreamDevice)
+            }
+        })
+        initClient(displays)
+    }
 })
 
 app.on('window-all-closed', () => {
