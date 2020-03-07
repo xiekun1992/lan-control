@@ -11,6 +11,7 @@ const overlayWindow = require('./ui/overlay_window').Overlay
 const udpCluster = require('./cluster')
 const client = require('./client')
 const signal = require('./signal').Signal
+const {Device} = require('./signal/Device')
 const store = new Store()
 let displays = [null, null, null, null] // 左上右下
 let upstreamDevice
