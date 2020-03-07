@@ -15,18 +15,7 @@ const store = new Store()
 let displays = [null, null, null, null] // 左上右下
 let upstreamDevice
 
-ipcMain.handle('signal.discover', async (event, args) => {
-    return new Promise((resolve, reject) => {
-        signal.getInstance().once('devices.update', ({devices}) => {
-            // console.log('///////////',devices)
-            resolve({devices})
-        })
-        signal.getInstance().discover()
-    })
-})
-ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
-    displays[direction] = device
-    store.setDisplays(displays)
+function initClient(displays) {
     const mainScreen = screen.getPrimaryDisplay()
     client.init({
         distIP: null, 
@@ -40,6 +29,21 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
         overlayWindow.hide()
     })
     client.updateDisplays(displays)
+}
+
+ipcMain.handle('signal.discover', async (event, args) => {
+    return new Promise((resolve, reject) => {
+        signal.getInstance().once('devices.update', ({devices}) => {
+            // console.log('///////////',devices)
+            resolve({devices})
+        })
+        signal.getInstance().discover()
+    })
+})
+ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
+    displays[direction] = device
+    store.setDisplays(displays)
+    initClient(displays)
     signal.getInstance().addDownstream(device)
 })
 
@@ -77,6 +81,7 @@ app.on('ready', () => {
             signal.getInstance().wakeupDownstream(downstreamDevice)
         }
     })
+    initClient(displays)
 })
 
 app.on('window-all-closed', () => {

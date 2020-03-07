@@ -75,6 +75,7 @@ class SignalConnection extends EventEmitter {
                         }
                     break
                     case 'downstream.wakeup':
+                        msgObj.device.IP = ''
                         if ((await this._getDeviceInfo()).equals(new Device(msgObj.device))) {
                             this.emit('connection.restore', {upstreamIP: rinfo.address})
                         }
