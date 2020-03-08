@@ -43,15 +43,27 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     x = event.x;
     y = event.y;
     // console.log('mousemove', displayDevices)
-    if (x > screenWidth && displayDevices[2] && shouldForward == false) {
+    if (x > screenWidth && shouldForward == false && displayDevices[2]) { // 进入后边屏幕
       connection.setIP(displayDevices[2].IP)
       shouldForward = true
       showOverlayCallback && showOverlayCallback()
       x = 0;
       robotjs.moveMouse(x, y)
-    } else if (x < 0 && shouldForward && displayDevices[2]) {
+    } else if (x < 0 && shouldForward && displayDevices[2]) { // 从右边屏幕回来
       shouldForward = false
       x = screenWidth
+      robotjs.moveMouse(x, y)
+      hideOverlayCallback && hideOverlayCallback()
+    } else if (x < 0 && shouldForward == false && displayDevices[0]) { // 进入左边屏幕
+      shouldForward = true
+      connection.setIP(displayDevices[0].IP)
+      shouldForward = true
+      showOverlayCallback && showOverlayCallback()
+      x = screenWidth
+      robotjs.moveMouse(x, y)
+    } else if (x > screenWidth && shouldForward && displayDevices[0]) { // 从左边屏幕回来
+      shouldForward = false
+      x = 0
       robotjs.moveMouse(x, y)
       hideOverlayCallback && hideOverlayCallback()
     }
