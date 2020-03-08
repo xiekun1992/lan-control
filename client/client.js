@@ -120,6 +120,8 @@ function send(msgObj) {
 }
 function updateDisplays(displays) {
   displayDevices = displays
+  controlingDisplayIndex = -1
+  shouldForward = false
 }
 module.exports = {
   init,

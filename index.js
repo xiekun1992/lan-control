@@ -33,10 +33,15 @@ function initClient(displays) {
 }
 
 ipcMain.handle('signal.discover', async (event, args) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        const thisDevice = await Device.getCurrentDevice()
+        const timer = setTimeout(() => {
+            clearTimeout(timer)
+            resolve({devices: [], displays: [], thisDevice})
+        }, 3000)
         signal.getInstance().once('devices.update', async ({devices}) => {
             // console.log('///////////',devices)
-            resolve({devices, displays, thisDevice: await Device.getCurrentDevice()})
+            resolve({devices, displays, thisDevice})
         })
         signal.getInstance().discover()
     })
@@ -49,6 +54,14 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
 
     initClient(displays)
     signal.getInstance().addDownstream(device)
+})
+ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
+    if (displays[direction] && displays[direction].IP == deviceIP) {
+        displays[direction] = null
+    }
+    client.updateDisplays(displays)
+    store.setDisplays(displays)
+    return true
 })
 
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决

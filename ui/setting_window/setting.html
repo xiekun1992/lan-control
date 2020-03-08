@@ -45,15 +45,28 @@
         padding-top: 30px;
         box-sizing: border-box;
     }
+    .filter-search-container {
+        z-index: 10;
+        position: relative;
+    }
     .filter-search {
         display: inline-block;
-        width: 100%;
+        width: 83.4%;
         font-size: 14px;
         border: 1px solid #aaa;
         padding: 5px 8px;
-        position: relative;
         outline: 0;
-        z-index: 10;
+    }
+    .filter-search+button{
+        outline: 0;
+        float: right;
+        border: 1px solid #aaa;
+        padding: 4.2px 10px;
+    }
+    .filter-search+button:hover{
+        border: 1px solid #555;
+        background: #555;
+        color: #fff;
     }
     .filter-search:hover,
     .filter-search:focus {
@@ -129,7 +142,10 @@
 <body>
     <div class="bg">
         <aside>
-            <input type="search" placeholder="输入关键词筛选设备" id="searchEl" class="filter-search">
+            <div class="filter-search-container">
+                <input type="search" placeholder="输入关键词筛选设备" id="searchEl" class="filter-search">
+                <button id="searchBtnEl">刷新</button>
+            </div>
             <div class="filter-box">
                 <ul id="filterEl" class="filter-list"></ul>
             </div>
@@ -137,9 +153,10 @@
         <main>
             <div class="layout-container" id="layoutContainerEl">
                 <div class="layout-item"></div>
-                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="layout-item"></div>
+                <!-- <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
-                </div>
+                </div> -->
                 <div class="layout-item"></div>
                 <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
@@ -149,9 +166,10 @@
                     <div class="hint">从左侧列表拖拽设备以添加</div>
                 </div>
                 <div class="layout-item"></div>
-                <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <!-- <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
-                </div>
+                </div> -->
+                <div class="layout-item"></div>
                 <div class="layout-item"></div>
             </div>
         </main>
@@ -173,6 +191,7 @@
             const res = data.filter(item => 
                 Object
                     .keys(item)
+                    .filter(item => ['type', 'name', 'os', 'resolution', 'IP'].indexOf(item) > -1)
                     .some(key => item[key].toLowerCase().indexOf(keywords) > -1)
             ) || []
             render(res, types, filterEl)
@@ -213,7 +232,7 @@
 
         displays.forEach((device, i) => {
             if (device) {
-                layoutEl[layoutIndex[i]].innerHTML = `<div>${device.name}</div>`
+                layoutEl[layoutIndex[i]].innerHTML = `<div><div>${device.name}</div><button onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.IP}')">删除设备</button></div>`
             }
         })
     }
@@ -224,8 +243,8 @@
         event.preventDefault()
         const tdata = event.dataTransfer.getData('text')
         const device = data[+tdata.replace(/^dev/, '')]
-        event.currentTarget.innerHTML = `<div>${device.name}</div>`
         const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
+        event.currentTarget.innerHTML = `<div><div>${device.name}</div><button onclick="removeDisplay(${positionIndex}, ${{3: 0, 1: 1, 5: 2, 7: 3}[positionIndex]}, '${device.IP}')">删除设备</button></div>`
         ipcRenderer.invoke('signal.display.add', {direction: {3: 0, 1: 1, 5: 2, 7: 3}[positionIndex], device})
     }
     function allowDrop(event) {
@@ -234,14 +253,27 @@
     </script>
     <script>
     const {ipcRenderer} = require('electron')
-    ipcRenderer.invoke('signal.discover').then(({devices: devicesFound, displays, thisDevice}) => {
-        data = devicesFound
-        // if (data.filter(device => device.)) {
-
-        // }
-        render(data, types, filterEl)
-        renderDisplay(displays)
-    })
+    discoverDevices()
+    searchBtnEl.onclick = discoverDevices
+    function discoverDevices() {
+        ipcRenderer.invoke('signal.discover').then(({devices: devicesFound, displays, thisDevice}) => {
+            data = devicesFound
+            data = data.map(item => {
+                item.disabled = false
+                return item
+            })
+            // if (data.filter(device => device.)) {
+            
+            // }
+            render(data, types, filterEl)
+            renderDisplay(displays)
+        })
+    }
+    function removeDisplay(elIndex, direction, deviceIP) {
+        ipcRenderer.invoke('diaplay.remove', {deviceIP, direction}).then((res) => {
+            layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
+        })
+    }
     </script>
 </body>
 </html>
