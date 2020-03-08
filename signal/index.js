@@ -1,7 +1,5 @@
 const dgram = require('dgram')
 const os = require('os')
-const {screen} = require('electron')
-const si = require('systeminformation')
 const EventEmitter = require('events')
 const {Device} = require('./Device')
 
@@ -26,14 +24,7 @@ class SignalConnection extends EventEmitter {
         return this
     }
     async _getDeviceInfo() {
-        const screenSize = screen.getPrimaryDisplay().size
-        return new Device({
-            type: (await si.chassis()).type.toLowerCase(), 
-            name: os.hostname(),//'联想E49', 
-            os: (await si.osInfo()).distro,// 'Linux Ubuntu x64', 
-            resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
-            IP: ''// 接收方补充 '192.168.1.8'
-        })
+        return await Device.getCurrentDevice()
     }
     start() {
         this.server.on('error', err => {

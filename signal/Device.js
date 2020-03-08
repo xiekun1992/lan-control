@@ -1,3 +1,7 @@
+const os = require('os')
+const {screen} = require('electron')
+const si = require('systeminformation')
+
 class Device {
     constructor({
         type, name, os, resolution, IP
@@ -15,6 +19,16 @@ class Device {
             }
         }
         return true
+    }
+    static async getCurrentDevice() {
+        const screenSize = screen.getPrimaryDisplay().size
+        return new Device({
+            type: (await si.chassis()).type.toLowerCase(), 
+            name: os.hostname(),//'联想E49', 
+            os: (await si.osInfo()).distro,// 'Linux Ubuntu x64', 
+            resolution: `${screenSize.width}x${screenSize.height}`,//'1366x768', 
+            IP: ''// 接收方补充 '192.168.1.8'
+        })
     }
 }
 

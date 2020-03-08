@@ -135,7 +135,7 @@
             </div>
         </aside> 
         <main>
-            <div class="layout-container">
+            <div class="layout-container" id="layoutContainerEl">
                 <div class="layout-item"></div>
                 <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
@@ -206,6 +206,17 @@
             filterEl.innerHTML = '<li><div class="hint">未找到相关设备<div></li>'
         }
     }
+    function renderDisplay(displays) {
+        // 获取左右屏幕的元素
+        const layoutIndex = [3, 1, 5, 7]
+        const layoutEl = Array.prototype.slice.call(layoutContainerEl.children)
+
+        displays.forEach((device, i) => {
+            if (device) {
+                layoutEl[layoutIndex[i]].innerHTML = `<div>${device.name}</div>`
+            }
+        })
+    }
     function drag(event) {
         event.dataTransfer.setData('text', event.target.id)
     }
@@ -223,10 +234,13 @@
     </script>
     <script>
     const {ipcRenderer} = require('electron')
-    ipcRenderer.invoke('signal.discover').then(({devices}) => {
-        // console.log(devices)
-        data = devices
+    ipcRenderer.invoke('signal.discover').then(({devices: devicesFound, displays, thisDevice}) => {
+        data = devicesFound
+        // if (data.filter(device => device.)) {
+
+        // }
         render(data, types, filterEl)
+        renderDisplay(displays)
     })
     </script>
 </body>

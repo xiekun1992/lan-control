@@ -34,9 +34,9 @@ function initClient(displays) {
 
 ipcMain.handle('signal.discover', async (event, args) => {
     return new Promise((resolve, reject) => {
-        signal.getInstance().once('devices.update', ({devices}) => {
+        signal.getInstance().once('devices.update', async ({devices}) => {
             // console.log('///////////',devices)
-            resolve({devices})
+            resolve({devices, displays, thisDevice: await Device.getCurrentDevice()})
         })
         signal.getInstance().discover()
     })
