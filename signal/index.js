@@ -87,14 +87,33 @@ class SignalConnection extends EventEmitter {
         this.server.bind(PORT, '0.0.0.0', () => {
             // 监听其他设备发送的设备发现请求
             // console.log(Object.keys(addresses))
-            Object.keys(addresses).forEach(ip => this.server.addMembership(IP, ip))
-            // this.server.addMembership(IP, '192.168.1.5')
+            Object.keys(addresses).forEach(ip => {
+                this.server.addMembership(IP, ip)
+            })
+            // this.server.addMembership(IP, '192.168.137.1')
+            // this.server.setMulticastInterface('192.168.137.1')
+            this.server.setMulticastLoopback(false)
+            this.server.setMulticastTTL(128)
         })
         return this
     }
     _send(obj, ip = IP) {
         const buf = Buffer.from(JSON.stringify(obj))
-        this.server.send(buf, 0, buf.length, PORT, ip)
+        if (obj.cmd == 'discover') {
+            const addressArr = Object.keys(addresses)
+            for (const address of addressArr) {
+                // 不延迟执行会导致报错
+                const timer = setTimeout(() => {
+                    this.server.setMulticastInterface(address)
+                    this.server.send(buf, 0, buf.length, PORT, ip, (err, bytes) => {
+                        if (err) console.log(err)
+                        clearTimeout(timer)
+                    })
+                }, 500)
+            }
+        } else {
+            this.server.send(buf, 0, buf.length, PORT, ip)
+        }
     }
     discover() {
         // 可能会受到ssr影响，需要暂时取消代理
