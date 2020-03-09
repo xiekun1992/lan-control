@@ -1,5 +1,4 @@
-const {start} = require('./master')
 
 module.exports = {
-    start
+    ...require('./master')
 }
