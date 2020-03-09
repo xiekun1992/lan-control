@@ -78,7 +78,10 @@ class SignalConnection extends EventEmitter {
                         }
                     break
                     case 'downstream.free':
-                        
+                        msgObj.device.IP = ''
+                        if ((await this._getDeviceInfo()).equals(new Device(msgObj.device))) {
+                            this.emit('udp.free', {upstreamIP: rinfo.address})
+                        }
                     break
                 }
             }

@@ -103,8 +103,11 @@ app.on('ready', () => {
             initClient(displays)
         }
     })
-    signal.getInstance().on('', () => {
-        
+    signal.getInstance().on('udp.free', ({upstreamIP}) => {
+        if (upstreamDevice && upstreamDevice.IP == upstreamIP) {
+            console.log('udp free from: ', upstreamIP)
+            udpCluster.stop()
+        }
     })
     // 初始化托盘
     tray.getInstance()
