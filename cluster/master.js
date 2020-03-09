@@ -18,7 +18,6 @@ module.exports = {
         let index = 0
         for (let i = 0; i < slaveNum; i++) {
             const process = childProcess.fork(path.join(__dirname, 'slave.js'))
-            process.
             slaveProcess.push(process)
         }
 
@@ -39,5 +38,6 @@ module.exports = {
         })
         udp.removeAllListeners().unref().close()
         started = false
+        slaveProcess = []
     }
 }
