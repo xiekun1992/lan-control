@@ -4,7 +4,7 @@ const childProcess = require('child_process')
 const path = require('path')
 
 let started = false
-const slaveProcess = []
+let slaveProcess = []
 module.exports = {
     start({
         slaveNum = 4,
