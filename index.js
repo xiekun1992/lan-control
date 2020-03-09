@@ -57,6 +57,7 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
 })
 ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
     if (displays[direction] && displays[direction].IP == deviceIP) {
+        signal.getInstance().freeDownstream(displays[direction])
         displays[direction] = null
     }
     client.updateDisplays(displays)
@@ -101,6 +102,9 @@ app.on('ready', () => {
             })
             initClient(displays)
         }
+    })
+    signal.getInstance().on('', () => {
+        
     })
     // 初始化托盘
     tray.getInstance()

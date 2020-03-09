@@ -4,6 +4,7 @@ const childProcess = require('child_process')
 const path = require('path')
 
 let started = false
+const slaveProcess = []
 module.exports = {
     start({
         slaveNum = 4,
@@ -14,10 +15,10 @@ module.exports = {
         started = true
         console.log('master start with pid:', process.pid)
         // master process
-        const slaveProcess = []
         let index = 0
         for (let i = 0; i < slaveNum; i++) {
             const process = childProcess.fork(path.join(__dirname, 'slave.js'))
+            process.
             slaveProcess.push(process)
         }
 
@@ -30,5 +31,13 @@ module.exports = {
             index++
             index = index % slaveNum
         })
+    },
+    stop() {
+        slaveProcess.forEach(proc => {
+            proc.unref()
+            proc.disconnect()
+        })
+        udp.removeAllListeners().unref().close()
+        started = false
     }
 }

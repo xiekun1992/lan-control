@@ -77,6 +77,9 @@ class SignalConnection extends EventEmitter {
                             this.emit('client.init', {downstreamIP: rinfo.address})
                         }
                     break
+                    case 'downstream.free':
+                        
+                    break
                 }
             }
         })
@@ -126,6 +129,9 @@ class SignalConnection extends EventEmitter {
     }
     wakeupDownstream(downstreamDevice) {
         this._send({cmd: 'downstream.wakeup', device: downstreamDevice}, downstreamDevice.IP)
+    }
+    freeDownstream(downstreamDevice) {
+        this._send({cmd: 'downstream.free', device: downstreamDevice}, downstreamDevice.IP)
     }
     notifyUpstream(upstreamDevice) {
         this._send({cmd: 'upstream.notify', upstreamDevice}, upstreamDevice.IP)
