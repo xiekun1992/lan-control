@@ -32,11 +32,13 @@ module.exports = {
         })
     },
     stop() {
-        slaveProcess.forEach(proc => {
-            proc.kill()
-        })
-        udp.removeAllListeners().unref().close()
-        started = false
-        slaveProcess = []
+        if (started) {
+            slaveProcess.forEach(proc => {
+                proc.kill()
+            })
+            udp.removeAllListeners().unref().close()
+            started = false
+            slaveProcess = []
+        }
     }
 }

@@ -57,7 +57,17 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
 })
 ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
     if (displays[direction] && displays[direction].IP == deviceIP) {
-        signal.getInstance().freeDownstream(displays[direction])
+        // 检测该设备是否存在多个设置
+        let hasMultiConfig = false
+        for (const display of displays) {
+            if (display && display.IP == deviceIP) {
+                hasMultiConfig = true
+                break
+            }
+        }
+        if (!hasMultiConfig) {
+            signal.getInstance().freeDownstream(displays[direction])
+        }
         displays[direction] = null
     }
     client.updateDisplays(displays)
