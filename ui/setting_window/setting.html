@@ -58,6 +58,7 @@
         outline: 0;
     }
     .filter-search+button{
+        transition: background-color .2s, border .2s;
         outline: 0;
         float: right;
         border: 1px solid #aaa;
@@ -68,7 +69,7 @@
         top: 0;
     }
     .filter-search+button:hover{
-        border: 1px solid #555;
+        border-color: #555;
         background: #555;
         color: #fff;
     }
@@ -95,6 +96,24 @@
         text-align: left;
         font-size: 12px;
         border-bottom: 0;
+    }
+    .layout-item {
+        position: relative;
+    }
+    .layout-item .del-btn{
+        transition: background-color .2s, border .2s;
+        outline: 0;
+        border: 1px solid #aaa;
+        padding: 5px 0;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
+    .layout-item .del-btn:hover{
+        border-color: rgb(175, 20, 20);
+        background: rgb(202, 23, 23);
+        color: #fff;
     }
     .layout-item div.detail,
     .filter-list .filter-item div.detail {
@@ -253,7 +272,7 @@
 
         displays.forEach((device, i) => {
             if (device) {
-                layoutEl[layoutIndex[i]].innerHTML = `<div><div>${device.name}</div><button onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.IP}')">删除设备</button></div>`
+                layoutEl[layoutIndex[i]].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.IP}')">删除设备</button></div>`
             }
         })
     }
@@ -265,7 +284,7 @@
         const tdata = event.dataTransfer.getData('text')
         const device = data[+tdata.replace(/^dev/, '')]
         const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
-        event.currentTarget.innerHTML = `<div><div>${device.name}</div><button onclick="removeDisplay(${positionIndex}, ${{3: 0, 1: 1, 5: 2, 7: 3}[positionIndex]}, '${device.IP}')">删除设备</button></div>`
+        event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, ${{3: 0, 1: 1, 5: 2, 7: 3}[positionIndex]}, '${device.IP}')">删除设备</button></div>`
         ipcRenderer.invoke('signal.display.add', {direction: {3: 0, 1: 1, 5: 2, 7: 3}[positionIndex], device})
     }
     function allowDrop(event) {

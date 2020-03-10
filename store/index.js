@@ -1,4 +1,5 @@
 const ElectronStore = require('electron-store')
+const {Device} = require('../signal/Device')
 
 class Store {
     constructor() {
@@ -6,13 +7,7 @@ class Store {
             schema: {
                 upstreamDevice: {
                     type: 'object',
-                    default: {
-                        type: '', 
-                        name: '',
-                        os: '',
-                        resolution: '',
-                        IP: ''
-                    }
+                    default: new Device({})
                 },
                 displays: {
                     type: 'array',
