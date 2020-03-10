@@ -33,8 +33,7 @@ module.exports = {
     },
     stop() {
         slaveProcess.forEach(proc => {
-            proc.unref()
-            proc.disconnect()
+            proc.kill()
         })
         udp.removeAllListeners().unref().close()
         started = false
