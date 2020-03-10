@@ -53,7 +53,7 @@ class SignalConnection extends EventEmitter {
                             discoverTimer = setTimeout(() => {
                                 clearTimeout(discoverTimer)
                                 this.emit('devices.update', {devices})
-                            }, 1000)
+                            }, 100)
                         // }
                     break
                     case 'downstream.add':

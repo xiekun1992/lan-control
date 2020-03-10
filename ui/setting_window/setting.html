@@ -75,19 +75,28 @@
     .filter-list {
         height: 100%;
         overflow: auto;
-        font-size: 13px;
+        font-size: 12px;
     }
     .filter-list .filter-item {
         padding: 0 10px;
     }
+    .layout-item>div,
     .filter-list .filter-item>div {
         font-weight: bold;
         padding: 5px 0;
         border-bottom: 1px solid #ccc;
     }
-    .filter-list .filter-item div.detail {
-        display: inline-block;
+    .layout-item>div {
+        padding: 5px;
+        text-align: left;
+        font-size: 12px;
+        border-bottom: 0;
     }
+    .layout-item div.detail,
+    .filter-list .filter-item div.detail {
+        display: block;
+    }
+    .layout-item div.type-icon,
     .filter-list .filter-item div.type-icon {
         display: inline-block;
         vertical-align: top;
@@ -97,12 +106,17 @@
         background-position: center top;
         background-repeat: no-repeat;
     }
+    .layout-item div.type-icon.desktop,
     .filter-list .filter-item div.type-icon.desktop {
         background-image: url('../images/desktop.png');
     }
+    .layout-item div.type-icon.notebook,
     .filter-list .filter-item div.type-icon.notebook {
         background-image: url('../images/laptop.png');
     }
+    .layout-item .os span,
+    .layout-item .resolution span,
+    .layout-item .ip span,
     .filter-list .filter-item .os span,
     .filter-list .filter-item .resolution span,
     .filter-list .filter-item .ip span {
@@ -161,7 +175,7 @@
                 <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
                 </div>
-                <div class="layout-item"></div>
+                <div class="layout-item" id="thisDeviceEl"></div>
                 <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <div class="hint">从左侧列表拖拽设备以添加</div>
                 </div>
@@ -191,7 +205,7 @@
             const res = data.filter(item => 
                 Object
                     .keys(item)
-                    .filter(item => ['type', 'name', 'os', 'resolution', 'IP'].indexOf(item) > -1)
+                    .filter(item => ['type', 'name', 'os', 'resolution', 'IP', 'hostname'].indexOf(item) > -1)
                     .some(key => item[key].toLowerCase().indexOf(keywords) > -1)
             ) || []
             render(res, types, filterEl)
@@ -201,22 +215,10 @@
     function render(data, types, filterEl) {
         if (data && data.length > 0) {
             let html = ''
-            data.map(item => {
-                    item.typeName = types[item.type]
-                    return item
-                })
-                .forEach((item, i) => {
+            data.forEach((item, i) => {
                     html += `
                     <li id="dev${i}" class="filter-item" draggable="true" ondragstart="drag(event)">
-                        <div>
-                            <div class="type-icon ${item.type}"></div>
-                            <div class="detail">
-                                <div class="type">${item.typeName} ${item.name}</div>
-                                <div class="os">操作系统: <span>${item.os}</span></div>
-                                <div class="resolution">分辨率: <span>${item.resolution}</span></div>
-                                <div class="ip">IP: <span>${item.IP}</span></div>
-                            </div>
-                        </div>
+                        ${deviceToHTML(item)}
                     </li>
                     `
                 })
@@ -224,6 +226,19 @@
         } else {
             filterEl.innerHTML = '<li><div class="hint">未找到相关设备<div></li>'
         }
+    }
+    function deviceToHTML(item) {
+        item.typeName = types[item.type] || item.type
+        return `<div>
+            <div class="type-icon ${item.type}"></div>
+            <div class="detail">
+                <div class="type">${item.name}</div>
+                <div class="type">主机名: ${item.hostname}</div>
+                <div class="os">操作系统: <span>${item.os}</span></div>
+                <div class="resolution">分辨率: <span>${item.resolution}</span></div>
+                <div class="ip">IP: <span>${item.IP}</span></div>
+            </div>
+        </div>`
     }
     function renderDisplay(displays) {
         // 获取左右屏幕的元素
@@ -265,6 +280,7 @@
             // if (data.filter(device => device.)) {
             
             // }
+            thisDeviceEl.innerHTML = deviceToHTML(thisDevice)
             render(data, types, filterEl)
             renderDisplay(displays)
         })
