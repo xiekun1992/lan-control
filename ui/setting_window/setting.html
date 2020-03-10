@@ -114,9 +114,11 @@
     .filter-list .filter-item div.type-icon.notebook {
         background-image: url('../images/laptop.png');
     }
+    .layout-item .type span,
     .layout-item .os span,
     .layout-item .resolution span,
     .layout-item .ip span,
+    .filter-list .filter-item .type span,
     .filter-list .filter-item .os span,
     .filter-list .filter-item .resolution span,
     .filter-list .filter-item .ip span {
@@ -232,8 +234,8 @@
         return `<div>
             <div class="type-icon ${item.type}"></div>
             <div class="detail">
-                <div class="type">${item.name}</div>
-                <div class="type">主机名: ${item.hostname}</div>
+                <div class="type">型号: <span>${item.name}</span></div>
+                <div class="type">主机名: <span>${item.hostname}</span></div>
                 <div class="os">操作系统: <span>${item.os}</span></div>
                 <div class="resolution">分辨率: <span>${item.resolution}</span></div>
                 <div class="ip">IP: <span>${item.IP}</span></div>
