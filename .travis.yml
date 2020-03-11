@@ -1,9 +1,7 @@
-matrix:
-  include:
-    - os: linux
-      language: node_js
-      node_js: stable
-      sudo: true
+os: linux
+language: node_js
+node_js: stable
+sudo: true
 
 before_script:
   - apt update
