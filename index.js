@@ -113,8 +113,8 @@ app.on('ready', () => {
         }
     })
     signal.getInstance().on('udp.free', ({upstreamIP}) => {
+        console.log('udp free from: ', upstreamIP)
         if (upstreamDevice && upstreamDevice.IP == upstreamIP) {
-            console.log('udp free from: ', upstreamIP)
             udpCluster.stop()
         }
     })

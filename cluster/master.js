@@ -39,10 +39,12 @@ module.exports = {
             slaveProcess.forEach(proc => {
                 proc.kill()
             })
-            udp.removeAllListeners().unref().close()
-            udp = null
-            started = false
-            slaveProcess = []
+            udp.removeAllListeners().unref().close(() => {
+                udp = null
+                started = false
+                slaveProcess = []
+                console.log('udp free done!')
+            })
         }
     }
 }

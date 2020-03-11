@@ -33,7 +33,7 @@ class SignalConnection extends EventEmitter {
             this.server = null
         })
         this.server.on('message', async (msg, rinfo) => {
-            console.log(msg.toString(), 'from ip:', rinfo.address)
+            console.log('============================')
             if (false || !(rinfo.address in addresses)) {
                 const msgObj = JSON.parse(msg.toString())
                 switch (msgObj.cmd) {
@@ -79,6 +79,7 @@ class SignalConnection extends EventEmitter {
                     break
                     case 'downstream.free':
                         msgObj.device.IP = ''
+                        // console.log(await this._getDeviceInfo(), msgObj.device)
                         if ((await this._getDeviceInfo()).equals(new Device(msgObj.device))) {
                             this.emit('udp.free', {upstreamIP: rinfo.address})
                         }

@@ -15,8 +15,10 @@ class Device {
     }
     equals(target) {
         for (const key in this) {
-            if (this[key] != target[key]) {
-                return false
+            if (key != 'IP') {
+                if (this[key] != target[key]) {
+                    return false
+                }
             }
         }
         return true
