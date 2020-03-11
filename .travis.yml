@@ -10,5 +10,6 @@ before_script:
   # robotjs
   - apt-get install libxtst-dev libpng++-dev -y
 script:
+  - rm package-lock.json
   - npm install
   - npm run rebuild
