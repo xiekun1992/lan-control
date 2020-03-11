@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"no test specified\" && exit 0"
+    "test": "echo \"no test specified\" && exit 0",
+    "rebuild": "npm rebuild --runtime=electron --target=8.0.2 --disturl=https://atom.io/download/atom-shell --abi=76"
   },
   "keywords": [],
   "author": "",
