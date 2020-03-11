@@ -1,0 +1,13 @@
+matrix:
+  include:
+    - os: linux
+      language: node_js
+      node_js: stable
+      sudo: true
+
+before_script:
+  - apt update
+  - apt install libx11-dev libxtst-dev libxt-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev -y
+script:
+  - npm install
+  - npm run rebuild
