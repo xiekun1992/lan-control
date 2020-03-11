@@ -16,7 +16,7 @@
     "electron-store": "^5.1.1",
     "iohook": "^0.6.5",
     "robotjs": "^0.6.0",
-    "systeminformation": "^4.22.5"
+    "systeminformation": "^4.23.0"
   },
   "iohook": {
     "targets": [
