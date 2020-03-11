@@ -214,7 +214,7 @@
         </main>
     </div>
     <script>
-    let data = []
+    let data = [], deviceDisplays = []
     const types = {
         'desktop': '台式机',
         'notebook': '笔记本'
@@ -284,8 +284,17 @@
         const tdata = event.dataTransfer.getData('text')
         const device = data[+tdata.replace(/^dev/, '')]
         const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
+        
+        for (const display of deviceDisplays) {
+            if (JSON.stringify(display) == JSON.stringify(device)) {
+                return 
+            }
+        }
+        
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, ${{3: 0, 1: 1, 5: 2, 7: 3}[positionIndex]}, '${device.IP}')">删除设备</button></div>`
-        ipcRenderer.invoke('signal.display.add', {direction: {3: 0, 1: 1, 5: 2, 7: 3}[positionIndex], device})
+        deviceDisplays.push(device)
+        const direction = {3: 0, 1: 1, 5: 2, 7: 3}[positionIndex]
+        ipcRenderer.invoke('signal.display.add', {direction, device})
     }
     function allowDrop(event) {
         event.preventDefault()
@@ -298,6 +307,7 @@
     function discoverDevices() {
         ipcRenderer.invoke('signal.discover').then(({devices: devicesFound, displays, thisDevice}) => {
             data = devicesFound
+            deviceDisplays = displays
             data = data.map(item => {
                 item.disabled = false
                 return item
@@ -311,6 +321,12 @@
         })
     }
     function removeDisplay(elIndex, direction, deviceIP) {
+        for (let i = 0; i < deviceDisplays.length; i++) {
+            if (deviceDisplays[i] && deviceDisplays[i].IP == deviceIP) {
+                deviceDisplays.splice(i, 1)
+                break
+            }
+        }
         ipcRenderer.invoke('diaplay.remove', {deviceIP, direction}).then((res) => {
             layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
         })
