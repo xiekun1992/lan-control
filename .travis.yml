@@ -20,3 +20,6 @@ script:
 - npm ci --production
 - npm install
 - npm run rebuild
+- npm install electron-packager -D
+- npx electron-packager .
+- ls -l
