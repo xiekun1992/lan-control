@@ -7,7 +7,10 @@ matrix:
 
 before_script:
   - apt update
+  # iohook
   - apt install libx11-dev libxtst-dev libxt-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev -y
+  # robotjs
+  - apt-get install libxtst-dev libpng++-dev -y
 script:
   - npm install
   - npm run rebuild
