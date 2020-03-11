@@ -9,7 +9,7 @@ before_script:
   - apt install libx11-dev libxtst-dev libxt-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev -y
   # robotjs
   - apt-get install libxtst-dev libpng++-dev -y
-script:
-  - rm package-lock.json
-  - npm install
-  - npm run rebuild
+# script:
+#   - rm package-lock.json
+#   - npm install
+#   - npm run rebuild
