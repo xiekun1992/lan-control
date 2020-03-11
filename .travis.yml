@@ -16,7 +16,7 @@ addons:
     # robotjs
     - libxtst-dev
     - libpng++-dev
-# script:
-#   - rm package-lock.json
-#   - npm install
-#   - npm run rebuild
+script:
+- npm ci --production
+- npm install
+- npm run rebuild
