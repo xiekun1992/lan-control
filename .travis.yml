@@ -3,12 +3,19 @@ language: node_js
 node_js: stable
 sudo: true
 
-before_script:
-  - apt update
-  # iohook
-  - apt install libx11-dev libxtst-dev libxt-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev -y
-  # robotjs
-  - apt-get install libxtst-dev libpng++-dev -y
+addons:
+  apt:
+    packages:
+    # iohook
+    - libx11-dev
+    - libxtst-dev
+    - libxt-dev
+    - libx11-xcb-dev
+    - libxkbcommon-dev
+    - libxkbcommon-x11-dev
+    # robotjs
+    - libxtst-dev
+    - libpng++-dev
 # script:
 #   - rm package-lock.json
 #   - npm install
