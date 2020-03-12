@@ -1,7 +1,6 @@
 os: linux
 language: node_js
 node_js: stable
-sudo: required
 
 addons:
   apt:
@@ -24,7 +23,7 @@ addons:
 
 before_install:
 - echo 'before_install'
-- dpkg --add-architecture i386 
+- sudo dpkg --add-architecture i386 
 install:
 - echo 'install'
 before_script:
