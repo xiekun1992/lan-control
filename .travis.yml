@@ -43,22 +43,30 @@ script:
 # - zip -r lan_control-linux-arm64.zip lan_control-linux-arm64
 # - zip -r lan_control-linux-armv7l.zip lan_control-linux-armv7l
 - zip -r lan_control-linux-ia32.zip lan_control-linux-ia32
-# - zip -r lan_control-linux-x64.zip lan_control-linux-x64
+- zip -r lan_control-linux-x64.zip lan_control-linux-x64
 # - zip -r lan_control-mas-x64.zip lan_control-mas-x64
 # - zip -r lan_control-win32-arm64.zip lan_control-win32-arm64
 - zip -r lan_control-win32-ia32.zip lan_control-win32-ia32
-# - zip -r lan_control-win32-x64.zip lan_control-win32-x64
+- zip -r lan_control-win32-x64.zip lan_control-win32-x64
 
 # - cp ./.travis-ci/upload_release_file.sh . && sudo chmod +x upload_release_file.sh
+- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
+  --header \"Authorization: token $github_personal_access_token\" \
+  --header 'Content-Type: application/zip' \
+  --data-binary '@lan_control-linux-x64.zip'"
 - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-ia32.zip'
   --header \"Authorization: token $github_personal_access_token\" \
   --header 'Content-Type: application/zip' \
   --data-binary '@lan_control-linux-ia32.zip'"
 
-- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-ia32.zip'
+- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
   --header \"Authorization: token $github_personal_access_token\" \
   --header 'Content-Type: application/zip' \
-  --data-binary '@lan_control-win32-ia32.zip'"
+  --data-binary '@lan_control-win32-x64.zip'"
+- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-ia32.zip'
+  --header \"Authorization: token $github_personal_access_token\" \
+  --header 'Content-Type: application/zip' \
+  --data-binary '@lan_control-linux-ia32.zip'"
 
 after_success:
 - echo 'after_success'
