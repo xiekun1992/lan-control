@@ -35,33 +35,31 @@ script:
 - npm install
 - npm run rebuild
 - npm install electron-packager -D
-- npx electron-packager .
-- ls -l
+- npx electron-packager . --platform=win32 --arch=ia32
+- npx electron-packager . --platform=linux --arch=ia32
+# - ls -l
 
 # - zip -r lan_control-darwin-x64.zip lan_control-darwin-x64
 # - zip -r lan_control-linux-arm64.zip lan_control-linux-arm64
 # - zip -r lan_control-linux-armv7l.zip lan_control-linux-armv7l
-# - zip -r lan_control-linux-ia32.zip lan_control-linux-ia32
-- zip -r lan_control-linux-x64.zip lan_control-linux-x64
+- zip -r lan_control-linux-ia32.zip lan_control-linux-ia32
+# - zip -r lan_control-linux-x64.zip lan_control-linux-x64
 # - zip -r lan_control-mas-x64.zip lan_control-mas-x64
 # - zip -r lan_control-win32-arm64.zip lan_control-win32-arm64
-# - zip -r lan_control-win32-ia32.zip lan_control-win32-ia32
+- zip -r lan_control-win32-ia32.zip lan_control-win32-ia32
 # - zip -r lan_control-win32-x64.zip lan_control-win32-x64
-- 
+
 # - cp ./.travis-ci/upload_release_file.sh . && sudo chmod +x upload_release_file.sh
-- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
+- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-ia32.zip'
   --header \"Authorization: token $github_personal_access_token\" \
-  --header 'Content-Type: application/x-msdownload' \
-  --data-binary '@lan_control-linux-x64.zip'"
-# - ./upload_release_file.sh lan_control-darwin-x64.zip
-# - ./upload_release_file.sh lan_control-linux-arm64.zip
-# - ./upload_release_file.sh lan_control-linux-armv7l.zip
-# - ./upload_release_file.sh lan_control-linux-ia32.zip
-# - ./upload_release_file.sh lan_control-linux-x64.zip
-# - ./upload_release_file.sh lan_control-mas-x64.zip
-# - ./upload_release_file.sh lan_control-win32-arm64.zip
-# - ./upload_release_file.sh lan_control-win32-ia32.zip
-# - ./upload_release_file.sh lan_control-win32-x64.zip
+  --header 'Content-Type: application/zip' \
+  --data-binary '@lan_control-linux-ia32.zip'"
+
+- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-ia32.zip'
+  --header \"Authorization: token $github_personal_access_token\" \
+  --header 'Content-Type: application/zip' \
+  --data-binary '@lan_control-win32-ia32.zip'"
+
 after_success:
 - echo 'after_success'
 after_failure:
