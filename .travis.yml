@@ -67,7 +67,8 @@ after_failure:
 # - echo 'before_deploy'
 deploy:
   provider: releases
-  api_key: 'cc7077f99bcb4f12f69399d6e7abd83b70305012'
+  api_key: 
+    secure: 'cc7077f99bcb4f12f69399d6e7abd83b70305012'
   file: ./lan_control-linux-x64.zip
   skip_cleanup: true
   draft: true
