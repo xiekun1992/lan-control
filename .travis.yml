@@ -5,6 +5,9 @@ sudo: true
 
 addons:
   apt:
+    sources:
+    - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
+      key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
     packages:
     # iohook
     - libx11-dev
@@ -16,6 +19,16 @@ addons:
     # robotjs
     - libxtst-dev
     - libpng++-dev
+    # wine
+    - winehq-stable
+
+before_install:
+- echo 'before_install'
+- dpkg --add-architecture i386 
+install:
+- echo 'install'
+before_script:
+- echo 'before_script'
 script:
 - npm ci --production
 - npm install
@@ -24,3 +37,15 @@ script:
 - npx electron-packager . --all
 - ls -l
 # - zip -r 
+after_success:
+- echo 'after_success'
+after_failure:
+- echo 'after_failure'
+before_deploy:
+- echo 'before_deploy'
+deploy:
+- echo 'deploy'
+after_deploy:
+- echo 'after_deploy'
+after_script:
+- echo 'after_script'
