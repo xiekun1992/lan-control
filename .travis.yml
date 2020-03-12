@@ -59,22 +59,21 @@ script:
 # - ./upload_release_file.sh lan_control-win32-arm64.zip
 # - ./upload_release_file.sh lan_control-win32-ia32.zip
 # - ./upload_release_file.sh lan_control-win32-x64.zip
-- "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip' --header 'Authorization: token cc7077f99bcb4f12f69399d6e7abd83b70305012' --header 'Content-Type: application/zip' --data-binary '@./lan_control-linux-x64.zip'"
-
 after_success:
 - echo 'after_success'
 after_failure:
 - echo 'after_failure'
 # before_deploy:
 # - echo 'before_deploy'
-# deploy:
-#   provider: releases
-#   api_key: 
-#     secure: 'cc7077f99bcb4f12f69399d6e7abd83b70305012'
-#   file: ./lan_control-linux-x64.zip
-#   skip_cleanup: true
-#   draft: true
-#   overwrite: true
+deploy:
+  provider: releases
+  # api_key: 'cc7077f99bcb4f12f69399d6e7abd83b70305012'
+  user: 'xiekun1992'
+  password: 'xiekun4559610300'
+  file: ./lan_control-linux-x64.zip
+  skip_cleanup: true
+  draft: true
+  overwrite: true
   # on:
   #   tags: true
 # - echo 'deploy'
