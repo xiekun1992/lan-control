@@ -21,5 +21,6 @@ script:
 - npm install
 - npm run rebuild
 - npm install electron-packager -D
-- npx electron-packager .
+- npx electron-packager . --all
 - ls -l
+# - zip -r 
