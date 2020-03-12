@@ -2,11 +2,16 @@ os: linux
 language: node_js
 node_js: stable
 
+before_install:
+- echo 'before_install'
+- sudo dpkg --add-architecture i386 
+
 addons:
   apt:
     sources:
     - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
       key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
+    update: true
     packages:
     # iohook
     - libx11-dev
@@ -21,9 +26,6 @@ addons:
     # wine
     - winehq-stable
 
-before_install:
-- echo 'before_install'
-- sudo dpkg --add-architecture i386 
 install:
 - echo 'install'
 before_script:
@@ -35,16 +37,36 @@ script:
 - npm install electron-packager -D
 - npx electron-packager . --all
 - ls -l
-# - zip -r 
+
+- zip -r lan_control-darwin-x64.zip lan_control-darwin-x64
+- zip -r lan_control-linux-arm64.zip lan_control-linux-arm64
+- zip -r lan_control-linux-armv7l.zip lan_control-linux-armv7l
+- zip -r lan_control-linux-ia32.zip lan_control-linux-ia32
+- zip -r lan_control-linux-x64.zip lan_control-linux-x64
+- zip -r lan_control-mas-x64.zip lan_control-mas-x64
+- zip -r lan_control-win32-arm64.zip lan_control-win32-arm64
+- zip -r lan_control-win32-ia32.zip lan_control-win32-ia32
+- zip -r lan_control-win32-x64.zip lan_control-win32-x64
+
+- cp ./.travis-ci/upload_release_file.sh . && sudo chmod +x upload_release_file.sh
+- ./upload_release_file.sh lan_control-darwin-x64.zip
+- ./upload_release_file.sh lan_control-linux-arm64.zip
+- ./upload_release_file.sh lan_control-linux-armv7l.zip
+- ./upload_release_file.sh lan_control-linux-ia32.zip
+- ./upload_release_file.sh lan_control-linux-x64.zip
+- ./upload_release_file.sh lan_control-mas-x64.zip
+- ./upload_release_file.sh lan_control-win32-arm64.zip
+- ./upload_release_file.sh lan_control-win32-ia32.zip
+- ./upload_release_file.sh lan_control-win32-x64.zip
 after_success:
 - echo 'after_success'
 after_failure:
 - echo 'after_failure'
-before_deploy:
-- echo 'before_deploy'
-deploy:
-- echo 'deploy'
-after_deploy:
-- echo 'after_deploy'
+# before_deploy:
+# - echo 'before_deploy'
+# deploy:
+# - echo 'deploy'
+# after_deploy:
+# - echo 'after_deploy'
 after_script:
 - echo 'after_script'
