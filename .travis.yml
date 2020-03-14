@@ -14,7 +14,7 @@ jobs:
       - npm install electron-packager -D
       script:
       - npx electron-packager .
-      - zip -qr lan_control-win32-x64.zip lan_control-win32-x64
+      - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
       - dir
       - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
         --header \"Authorization: token $github_personal_access_token\" \
