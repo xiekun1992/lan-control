@@ -38,7 +38,7 @@ jobs:
       - echo $TRAVIS_TAG
       - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
           --header 'Content-Type: application/json' \
-          --header 'Authorization: token $github_personal_access_token' \
+          --header \"Authorization: token $github_personal_access_token\" \
           --data-raw '{
             \"tag_name\": \"$TRAVIS_TAG\",
             \"target_commitish\": \"master\",
