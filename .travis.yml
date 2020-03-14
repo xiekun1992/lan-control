@@ -35,12 +35,12 @@ jobs:
       - ls
       after_script:
       - echo $TRAVIS_TAG
-      - data_row='{"tag_name":\"$TRAVIS_TAG\","target_commitish":"master","name":\"$TRAVIS_TAG\","body":"","draft":false,"prerelease":false}'
+      - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
       - echo $data_row
       - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
           --header 'Content-Type: application/json' \
           --header \"Authorization: token $github_personal_access_token\" \
-          --data-raw \"$data_row\" > res.txt"
+          --data-raw $data_row > res.txt"
       # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
       - node .travis-ci/jattr.js res.txt id r.txt
