@@ -5,9 +5,9 @@ node_js:
 jobs:
   include:
     - stage: test
-      - os: linux
-        script: ls /
-      - os: windows
+      # - os: linux
+      #   script: ls /
+      os: windows
         script: dir 
 # os: linux
 # language: node_js
