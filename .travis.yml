@@ -33,20 +33,21 @@ jobs:
       script: 
       # - npx electron-packager .
       # - 7z a lan_control-linux-x64.zip lan_control-linux-x64/
-      # - ls /
+      - ls
       # - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
       #   --header \"Authorization: token $github_personal_access_token\" \
       #   --header 'Content-Type: application/zip' \
       #   --data-binary '@lan_control-linux-x64.zip'"
 
     - os: windows
+      stage: win_build
       before_script:
       - npm run rebuild
       - npm install electron-packager -D
       script:
       # - npx electron-packager .
       # - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
-      # - dir
+      - dir
       # - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
       #   --header \"Authorization: token $github_personal_access_token\" \
       #   --header 'Content-Type: application/zip' \
