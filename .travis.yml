@@ -9,12 +9,13 @@ jobs:
       # - os: linux
       #   script: ls /
     - os: windows
-      script:
+      before_script:
       - npm run rebuild
       - npm install electron-packager -D
+      script:
       - npx electron-packager .
       - dir
-      - curl
+      - curl --help
 # os: linux
 # language: node_js
 # node_js: stable
