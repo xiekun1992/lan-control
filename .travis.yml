@@ -45,7 +45,6 @@ jobs:
       - cat res.txt
       - node .travis-ci/jattr.js res.txt id r.txt
       - releaseId=$(cat r.txt)
-      # - releaseId=(cat res.txt | ./jattr.sh id)
       - echo $releaseId
       - echo $github_personal_access_token
       - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
@@ -62,11 +61,28 @@ jobs:
       - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
       - dir
       after_script:
-      - releaseId=("curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\"" | ./.travis-ci/jattr.sh id)
+      # - releaseId=("curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\"" | ./.travis-ci/jattr.sh id)
+      # - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
+      #   --header \"Authorization: token $github_personal_access_token\" \
+      #   --header 'Content-Type: application/zip' \
+      #   --data-binary '@lan_control-win32-x64.zip'"
+      - echo $TRAVIS_TAG
+      - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
+      - echo $data_row
+      - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
+          --header 'Content-Type: application/json' \
+          --header \"Authorization: token $github_personal_access_token\" \
+          --data-raw $data_row > res.txt"
+      # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
+      - cat res.txt
+      - node .travis-ci/jattr.js res.txt id r.txt
+      - releaseId=$(cat r.txt)
+      - echo $releaseId
+      - echo $github_personal_access_token
       - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
         --header \"Authorization: token $github_personal_access_token\" \
         --header 'Content-Type: application/zip' \
-        --data-binary '@lan_control-win32-x64.zip'"
+        --data-binary '@lan_control-linux-x64.zip'"
 
 
 # os: linux
