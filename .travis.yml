@@ -5,7 +5,19 @@ cache: npm
 
 jobs:
   include:
-    - os: linux
+    - stage: prepare_release
+      os: windows
+      script:
+      - echo $TRAVIS_TAG
+      - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
+      - echo $data_row
+      - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
+          --header 'Content-Type: application/json' \
+          --header \"Authorization: token $github_personal_access_token\" \
+          --data-raw $data_row"
+
+    - stage: build_and_deploy
+      os: linux
       addons:
         apt:
           sources:
@@ -34,14 +46,7 @@ jobs:
       - 7z a lan_control-linux-x64.zip lan_control-linux-x64/ > /dev/null
       - ls
       after_script:
-      - echo $TRAVIS_TAG
-      - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
-      - echo $data_row
-      - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
-          --header 'Content-Type: application/json' \
-          --header \"Authorization: token $github_personal_access_token\" \
-          --data-raw $data_row > res.txt"
-      # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
+      - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
       - node .travis-ci/jattr.js res.txt id r.txt
       - releaseId=$(cat r.txt)
@@ -52,7 +57,7 @@ jobs:
         --header 'Content-Type: application/zip' \
         --data-binary '@lan_control-linux-x64.zip'"
 
-    - os: windows
+      os: windows
       before_script:
       - npm run rebuild
       - npm install electron-packager -D
@@ -66,14 +71,14 @@ jobs:
       #   --header \"Authorization: token $github_personal_access_token\" \
       #   --header 'Content-Type: application/zip' \
       #   --data-binary '@lan_control-win32-x64.zip'"
-      - echo $TRAVIS_TAG
-      - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
-      - echo $data_row
-      - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
-          --header 'Content-Type: application/json' \
-          --header \"Authorization: token $github_personal_access_token\" \
-          --data-raw $data_row > res.txt"
-      # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
+      # - echo $TRAVIS_TAG
+      # - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
+      # - echo $data_row
+      # - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
+      #     --header 'Content-Type: application/json' \
+      #     --header \"Authorization: token $github_personal_access_token\" \
+      #     --data-raw $data_row > res.txt"
+      - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
       - node .travis-ci/jattr.js res.txt id r.txt
       - releaseId=$(cat r.txt)
