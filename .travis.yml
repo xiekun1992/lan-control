@@ -15,8 +15,7 @@ jobs:
           --header 'Content-Type: application/json' \
           --header \"Authorization: token $github_personal_access_token\" \
           --data-raw $data_row"
-      install:
-      - exit(0)
+      install: skip
       # - { check_preconditions && actually_build; true; }
 
     - stage: build_and_deploy
