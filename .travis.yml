@@ -35,7 +35,7 @@ jobs:
       - ls
       after_script:
       - echo $TRAVIS_TAG
-      - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\"" > res.txt
+      - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - releaseId=(cat res.txt | ./.travis-ci/jattr.sh id)
       - echo $releaseId
       - echo $github_personal_access_token
