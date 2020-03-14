@@ -7,7 +7,7 @@ jobs:
   include:
     - stage: prepare_release
       os: windows
-      script:
+      before_install:
       - echo $TRAVIS_TAG
       - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
       - echo $data_row
@@ -15,6 +15,8 @@ jobs:
           --header 'Content-Type: application/json' \
           --header \"Authorization: token $github_personal_access_token\" \
           --data-raw $data_row"
+      install:
+      - { check_preconditions && actually_build: true; }
 
     - stage: build_and_deploy
       os: linux
