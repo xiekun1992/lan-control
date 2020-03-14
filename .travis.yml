@@ -6,51 +6,53 @@ cache: npm
 jobs:
   include:
     - os: linux
-      addons:
-        apt:
-          sources:
-          - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
-            key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
-          update: true
-          packages:
-          - p7zip-full
-          # iohook
-          - libx11-dev
-          - libxtst-dev
-          - libxt-dev
-          - libx11-xcb-dev
-          - libxkbcommon-dev
-          - libxkbcommon-x11-dev
-          # robotjs
-          - libxtst-dev
-          - libpng++-dev
-          # wine
-          # - winehq-stable
-      before_script:
-      - npm run rebuild
-      - npm install electron-packager -D
-      script: 
-      - npx electron-packager .
-      - 7z a lan_control-linux-x64.zip lan_control-linux-x64/
-      - ls /
-      - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
-        --header \"Authorization: token $github_personal_access_token\" \
-        --header 'Content-Type: application/zip' \
-        --data-binary '@lan_control-linux-x64.zip'"
+      - state: build
+        addons:
+          apt:
+            sources:
+            - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
+              key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
+            update: true
+            packages:
+            - p7zip-full
+            # iohook
+            - libx11-dev
+            - libxtst-dev
+            - libxt-dev
+            - libx11-xcb-dev
+            - libxkbcommon-dev
+            - libxkbcommon-x11-dev
+            # robotjs
+            - libxtst-dev
+            - libpng++-dev
+            # wine
+            # - winehq-stable
+        before_script:
+        - npm run rebuild
+        - npm install electron-packager -D
+        script: 
+        # - npx electron-packager .
+        # - 7z a lan_control-linux-x64.zip lan_control-linux-x64/
+        # - ls /
+        # - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
+        #   --header \"Authorization: token $github_personal_access_token\" \
+        #   --header 'Content-Type: application/zip' \
+        #   --data-binary '@lan_control-linux-x64.zip'"
 
     - os: windows
       before_script:
       - npm run rebuild
       - npm install electron-packager -D
       script:
-      - npx electron-packager .
-      - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
-      - dir
-      - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
-        --header \"Authorization: token $github_personal_access_token\" \
-        --header 'Content-Type: application/zip' \
-        --data-binary '@lan_control-win32-x64.zip'"
-      # - curl --help
+      # - npx electron-packager .
+      # - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
+      # - dir
+      # - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
+      #   --header \"Authorization: token $github_personal_access_token\" \
+      #   --header 'Content-Type: application/zip' \
+      #   --data-binary '@lan_control-win32-x64.zip'"
+
+
 # os: linux
 # language: node_js
 # node_js: stable
