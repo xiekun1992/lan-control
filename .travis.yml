@@ -8,7 +8,11 @@ jobs:
       # - os: linux
       #   script: ls /
     - os: windows
-      script: dir 
+      script:
+      - npm run rebuild
+      - npm install electron-packager -D
+      - npx electron-packager .
+      - dir
 # os: linux
 # language: node_js
 # node_js: stable
