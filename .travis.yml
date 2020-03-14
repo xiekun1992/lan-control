@@ -49,7 +49,8 @@ jobs:
           }' > res.txt"
       # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
-      - releaseId=(node jattr.js res.txt id)
+      - node jattr.js res.txt id r.txt
+      - releaseId=$(cat r.txt)
       # - releaseId=(cat res.txt | ./jattr.sh id)
       - echo $releaseId
       - echo $github_personal_access_token
