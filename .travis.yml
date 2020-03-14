@@ -41,7 +41,7 @@ jobs:
           --data-raw '{
             'tag_name': \'$TRAVIS_TAG\',
             'target_commitish': 'master',
-            'name': \'$TRAVIS_TAG\'',
+            'name': \'$TRAVIS_TAG\',
             'body': '',
             'draft': false,
             'prerelease': false
