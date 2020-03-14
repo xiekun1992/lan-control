@@ -57,6 +57,7 @@ jobs:
         --header 'Content-Type: application/zip' \
         --data-binary '@lan_control-linux-x64.zip'"
 
+    - stage: build_and_deploy
       os: windows
       before_script:
       - npm run rebuild
@@ -67,7 +68,7 @@ jobs:
       - dir
       after_script:
       # - releaseId=("curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\"" | ./.travis-ci/jattr.sh id)
-      # - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
+      # - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-win32-x64.zip\"
       #   --header \"Authorization: token $github_personal_access_token\" \
       #   --header 'Content-Type: application/zip' \
       #   --data-binary '@lan_control-win32-x64.zip'"
@@ -84,10 +85,10 @@ jobs:
       - releaseId=$(cat r.txt)
       - echo $releaseId
       - echo $github_personal_access_token
-      - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
+      - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-win32-x64.zip\"
         --header \"Authorization: token $github_personal_access_token\" \
         --header 'Content-Type: application/zip' \
-        --data-binary '@lan_control-linux-x64.zip'"
+        --data-binary '@lan_control-win32-x64.zip'"
 
 
 # os: linux
