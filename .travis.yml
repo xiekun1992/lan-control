@@ -1,6 +1,7 @@
 language: node_js
 node_js: 
   - 'node'
+cache: npm
 
 jobs:
   include:
@@ -13,6 +14,7 @@ jobs:
       - npm install electron-packager -D
       - npx electron-packager .
       - dir
+      - curl
 # os: linux
 # language: node_js
 # node_js: stable
