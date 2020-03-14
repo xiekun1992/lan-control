@@ -34,7 +34,6 @@ jobs:
       - 7z a lan_control-linux-x64.zip lan_control-linux-x64/ > /dev/null
       - ls
       after_script:
-      - cp .travis-ci/jattr.sh .
       - echo $TRAVIS_TAG
       - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
           --header 'Content-Type: application/json' \
@@ -49,7 +48,7 @@ jobs:
           }' > res.txt"
       # - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
-      - node jattr.js res.txt id r.txt
+      - node .travis-ci/jattr.js res.txt id r.txt
       - releaseId=$(cat r.txt)
       # - releaseId=(cat res.txt | ./jattr.sh id)
       - echo $releaseId
