@@ -13,6 +13,7 @@ jobs:
             key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
           update: true
           packages:
+          - p7zip-full
           # iohook
           - libx11-dev
           - libxtst-dev
@@ -36,7 +37,7 @@ jobs:
         --header \"Authorization: token $github_personal_access_token\" \
         --header 'Content-Type: application/zip' \
         --data-binary '@lan_control-linux-x64.zip'"
-        
+
     - os: windows
       before_script:
       - npm run rebuild
