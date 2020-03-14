@@ -4,11 +4,11 @@ node_js:
 
 jobs:
   include:
-    - stage: test
+    # - stage: test
       # - os: linux
       #   script: ls /
-      os: windows
-        script: dir 
+    - os: windows
+      script: dir 
 # os: linux
 # language: node_js
 # node_js: stable
