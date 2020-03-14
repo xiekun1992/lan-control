@@ -34,9 +34,11 @@ jobs:
       - 7z a lan_control-linux-x64.zip lan_control-linux-x64/ > /dev/null
       - ls
       after_script:
+      - cp .travis-ci/jattr.sh .
       - echo $TRAVIS_TAG
       - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
-      - releaseId=(cat res.txt | ./.travis-ci/jattr.sh id)
+      - cat res.txt
+      - releaseId=(cat res.txt | ./jattr.sh id)
       - echo $releaseId
       - echo $github_personal_access_token
       - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
