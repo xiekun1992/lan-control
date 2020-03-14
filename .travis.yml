@@ -38,7 +38,8 @@ jobs:
       - echo $TRAVIS_TAG
       - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
-      - releaseId=(cat res.txt | ./jattr.sh id)
+      - releaseId=(node jattr.js res.txt id)
+      # - releaseId=(cat res.txt | ./jattr.sh id)
       - echo $releaseId
       - echo $github_personal_access_token
       - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-linux-x64.zip\"
