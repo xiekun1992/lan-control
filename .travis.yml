@@ -35,7 +35,7 @@ jobs:
       - ls
       after_script:
       - echo $TRAVIS_TAG
-      - data_row='{ "tag_name": \"$TRAVIS_TAG\", "target_commitish": "master", "name": \"$TRAVIS_TAG\", "body": "", "draft": false, "prerelease": false }'
+      - data_row='{"tag_name":\"$TRAVIS_TAG\","target_commitish":"master","name":\"$TRAVIS_TAG\","body":"","draft":false,"prerelease":false}'
       - echo $data_row
       - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
           --header 'Content-Type: application/json' \
