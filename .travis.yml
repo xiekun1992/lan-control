@@ -9,6 +9,7 @@ jobs:
       os: windows
       before_install:
       - echo $TRAVIS_TAG
+      - echo $TRAVIS_BRANCH
       - if [ -z "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" != "master" ]; then exit 1; fi
 
       - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
@@ -22,11 +23,13 @@ jobs:
 
     - stage: build_and_deploy
       os: linux
+      before_install:
+      # - sudo dpkg --add-architecture i386
       addons:
         apt:
-          sources:
-          - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
-            key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
+          # sources:
+          # - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
+          #   key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
           update: true
           packages:
           - p7zip-full
