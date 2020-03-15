@@ -5,6 +5,7 @@ cache: npm
 
 jobs:
   include:
+    - if: branch = master
     - stage: prepare_release
       os: windows
       before_install:
@@ -16,7 +17,6 @@ jobs:
           --header \"Authorization: token $github_personal_access_token\" \
           --data-raw $data_row"
       install: skip
-      # - { check_preconditions && actually_build; true; }
 
     - stage: build_and_deploy
       os: linux
@@ -69,18 +69,6 @@ jobs:
       - 7z a lan_control-win32-x64.zip lan_control-win32-x64/
       - dir
       after_script:
-      # - releaseId=("curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\"" | ./.travis-ci/jattr.sh id)
-      # - "curl --location --request POST \"https://uploads.github.com/repos/xiekun1992/lan_control/releases/$releaseId/assets?name=lan_control-win32-x64.zip\"
-      #   --header \"Authorization: token $github_personal_access_token\" \
-      #   --header 'Content-Type: application/zip' \
-      #   --data-binary '@lan_control-win32-x64.zip'"
-      # - echo $TRAVIS_TAG
-      # - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
-      # - echo $data_row
-      # - "curl --location --request POST 'https://api.github.com/repos/xiekun1992/lan_control/releases' \
-      #     --header 'Content-Type: application/json' \
-      #     --header \"Authorization: token $github_personal_access_token\" \
-      #     --data-raw $data_row > res.txt"
       - "curl --location --request GET \"https://api.github.com/repos/xiekun1992/lan_control/releases/tags/$TRAVIS_TAG\" > res.txt"
       - cat res.txt
       - node .travis-ci/jattr.js res.txt id r.txt
@@ -91,95 +79,3 @@ jobs:
         --header \"Authorization: token $github_personal_access_token\" \
         --header 'Content-Type: application/zip' \
         --data-binary '@lan_control-win32-x64.zip'"
-
-
-# os: linux
-# language: node_js
-# node_js: stable
-
-# before_install:
-# - echo 'before_install'
-# - sudo dpkg --add-architecture i386 
-
-# addons:
-#   apt:
-#     sources:
-#     - sourceline: 'deb https://dl.winehq.org/wine-builds/ubuntu/ xenial main'
-#       key_url: 'https://dl.winehq.org/wine-builds/winehq.key'
-#     update: true
-#     packages:
-#     # iohook
-#     - libx11-dev
-#     - libxtst-dev
-#     - libxt-dev
-#     - libx11-xcb-dev
-#     - libxkbcommon-dev
-#     - libxkbcommon-x11-dev
-#     # robotjs
-#     - libxtst-dev
-#     - libpng++-dev
-#     # wine
-#     - winehq-stable
-
-# install:
-# - echo 'install'
-# before_script:
-# - echo 'before_script'
-# script:
-# - npm ci --production
-# - npm install
-# - npm run rebuild
-# - npm install electron-packager -D
-# - npx electron-packager . --platform=win32 --arch=ia32
-# - npx electron-packager . --platform=linux --arch=ia32
-# # - ls -l
-
-# # - zip -r lan_control-darwin-x64.zip lan_control-darwin-x64
-# # - zip -r lan_control-linux-arm64.zip lan_control-linux-arm64
-# # - zip -r lan_control-linux-armv7l.zip lan_control-linux-armv7l
-# - zip -r lan_control-linux-ia32.zip lan_control-linux-ia32
-# - zip -r lan_control-linux-x64.zip lan_control-linux-x64
-# # - zip -r lan_control-mas-x64.zip lan_control-mas-x64
-# # - zip -r lan_control-win32-arm64.zip lan_control-win32-arm64
-# - zip -r lan_control-win32-ia32.zip lan_control-win32-ia32
-# - zip -r lan_control-win32-x64.zip lan_control-win32-x64
-
-# # - cp ./.travis-ci/upload_release_file.sh . && sudo chmod +x upload_release_file.sh
-# - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-x64.zip'
-#   --header \"Authorization: token $github_personal_access_token\" \
-#   --header 'Content-Type: application/zip' \
-#   --data-binary '@lan_control-linux-x64.zip'"
-# - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-ia32.zip'
-#   --header \"Authorization: token $github_personal_access_token\" \
-#   --header 'Content-Type: application/zip' \
-#   --data-binary '@lan_control-linux-ia32.zip'"
-
-# - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-win32-x64.zip'
-#   --header \"Authorization: token $github_personal_access_token\" \
-#   --header 'Content-Type: application/zip' \
-#   --data-binary '@lan_control-win32-x64.zip'"
-# - "curl --location --request POST 'https://uploads.github.com/repos/xiekun1992/lan_control/releases/24450983/assets?name=lan_control-linux-ia32.zip'
-#   --header \"Authorization: token $github_personal_access_token\" \
-#   --header 'Content-Type: application/zip' \
-#   --data-binary '@lan_control-linux-ia32.zip'"
-
-# after_success:
-# - echo 'after_success'
-# after_failure:
-# - echo 'after_failure'
-# # before_deploy:
-# # - echo 'before_deploy'
-# # deploy:
-# #   provider: releases
-#   # api_key: 'cc7077f99bcb4f12f69399d6e7abd83b70305012'
-#   # file: ./lan_control-linux-x64.zip
-#   # skip_cleanup: true
-#   # draft: true
-#   # overwrite: true
-#   # on:
-#   #   tags: true
-# # - echo 'deploy'
-# # after_deploy:
-# # - echo 'after_deploy'
-# after_script:
-# - echo 'after_script'
