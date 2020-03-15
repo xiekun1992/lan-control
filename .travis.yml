@@ -9,7 +9,7 @@ jobs:
       os: windows
       before_install:
       - echo $TRAVIS_TAG
-      - if [ -z "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" != "master" ]; then exit 0; fi
+      - if [ -z "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" != "master" ]; then exit 1; fi
 
       - data_row="{\"tag_name\":\"$TRAVIS_TAG\",\"target_commitish\":\"master\",\"name\":\"$TRAVIS_TAG\"}"
       - echo $data_row
