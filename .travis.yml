@@ -2,10 +2,13 @@ language: node_js
 node_js: 
   - 'node'
 cache: npm
+stages:
+  - name: prepare_release
+    if: branch = master AND tag != ""
+  - build_and_deploy
 
 jobs:
   include:
-    - if: branch = master
     - stage: prepare_release
       os: windows
       before_install:
@@ -17,6 +20,7 @@ jobs:
           --header \"Authorization: token $github_personal_access_token\" \
           --data-raw $data_row"
       install: skip
+      script: echo 'prepared'
 
     - stage: build_and_deploy
       os: linux
