@@ -121,7 +121,14 @@ app.on('ready', () => {
     // 初始化托盘
     tray.getInstance()
     signal.getInstance().start()
-    overlayWindow.getInstance()
+    // if (process.platform == 'linux') {
+    //     const ot = setTimeout(() => {
+    //         overlayWindow.getInstance()
+    //         clearTimeout(ot)
+    //     }, 300)
+    // } else {
+    //     overlayWindow.getInstance()
+    // }
 
     if (upstreamDevice.IP) {
         signal.getInstance().notifyUpstream(upstreamDevice)
