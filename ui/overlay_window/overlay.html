@@ -158,13 +158,13 @@
     x = e.x;
     y = e.y;
     if (x <= 1 && displayDevices[2]) { // 从右边屏幕回来
-      ipcRenderer.invoke('overlay.hide', {y})
-      return
-    }
-    if (!mouseHold) {
-      send({type: 'mousemove', x: x, y: y, width: screenWidth, height: screenHeight});
+      ipcRenderer.invoke('overlay.hide', {y: y * devicePixelRatio})
     } else {
-      send({type: 'mousedrag', x: x, y: y, width: screenWidth, height: screenHeight});
+      if (!mouseHold) {
+        send({type: 'mousemove', x: x, y: y, width: screenWidth, height: screenHeight});
+      } else {
+        send({type: 'mousedrag', x: x, y: y, width: screenWidth, height: screenHeight});
+      }
     }
   }
   window.onmouseup = e => {
