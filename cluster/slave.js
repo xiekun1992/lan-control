@@ -35,15 +35,15 @@ process.on('message', (message) => {
             }
             break;
         case 'mousedown': 
-            robotjs.mouseClick(reqQuery.button, false);
-            // robotjs.mouseToggle('down', reqQuery.button);
+            // robotjs.mouseClick(reqQuery.button, false);
+            robotjs.mouseToggle('down', reqQuery.button);
             break;
         case 'mouseup': 
-            // robotjs.mouseToggle('up', reqQuery.button);
+            robotjs.mouseToggle('up', reqQuery.button);
             break;
         case 'mousewheel':
             if (process.platform == 'linux') {
-                robotjs.scrollMouse(+reqQuery.x, -reqQuery.y);
+                robotjs.scrollMouse(+reqQuery.x, -reqQuery.y / Math.abs(+reqQuery.y));
             } else {
                 robotjs.scrollMouse(+reqQuery.x, +reqQuery.y);
             }
