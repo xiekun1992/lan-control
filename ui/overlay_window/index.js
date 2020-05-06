@@ -9,24 +9,45 @@ const taskQueue = []
 class Overlay {
     static getInstance() {
         if (!win) {
-            win = new BrowserWindow({
-                // x: -9999,
-                // y: -9999,
-                // width: 10,
-                // height: 10,
-                show: false,
-                hasShadow: false,
-                autoHideMenuBar: true,
-                frame: false,
-                // alwaysOnTop: true,
-                // fullscreen: true,
-                enableLargerThanScreen: true,
-                movable: false,
-                skipTaskbar: true,
-                webPreferences: {
-                    nodeIntegration: true
-                }
-            })
+            switch (process.platform) {
+                case 'win32': 
+                    win = new BrowserWindow({
+                        // x: -9999,
+                        // y: -9999,
+                        // width: 10,
+                        // height: 10,
+                        show: false,
+                        hasShadow: false,
+                        autoHideMenuBar: true,
+                        frame: false,
+                        // alwaysOnTop: true,
+                        // fullscreen: true,
+                        enableLargerThanScreen: true,
+                        movable: false,
+                        skipTaskbar: true,
+                        webPreferences: {
+                            nodeIntegration: true
+                        }
+                    })
+                    break;
+                case 'linux':
+                    win = new BrowserWindow({
+                        show: false,
+                        hasShadow: false,
+                        alwaysOnTop: true,
+                        enableLargerThanScreen: true,
+                        movable: false,
+                        transparent: true,
+                        fullscreen: true,
+                        backgroundColor: '#00ffffff',
+                        frame: false,
+                        skipTaskbar: true,
+                        webPreferences: {
+                            nodeIntegration: true
+                        }
+                    })
+                    break
+            }
             win.loadFile(path.join(__dirname, 'overlay.html'))
             // win.webContents.openDevTools()
             // win.once('ready-to-show', () => {
@@ -50,10 +71,12 @@ class Overlay {
             Overlay.getInstance()
         }
         win.show()
-        win.setOpacity(0.01)
-        win.setFullScreen(true)
-        // win.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
-        // win.setResizable(false)
+        if (process.platform == 'win32') {
+            win.setOpacity(0.01)
+            win.setFullScreen(true)
+            // win.setBounds({ x: -10, y: -100, width: 2000, height: 1600 })
+            // win.setResizable(false)
+        }
         return Overlay
     }
     static hide() {
