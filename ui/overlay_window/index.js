@@ -59,6 +59,7 @@ class Overlay {
             // })
             win.on('show', () => {
                 console.log('=======')
+                win.webContents.send('overlay.displays', {displays})
             })
             win.on('closed', () => {
                 win = null

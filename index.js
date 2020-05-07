@@ -39,7 +39,7 @@ ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
     upstreamDevice = {}
     store.setUpstreamDevice(upstreamDevice)
 
-    overlayWindow.updateDisplays(global.displays)
+    // overlayWindow.updateDisplays(global.displays)
     signal.getInstance().addDownstream(device)
 })
 ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
@@ -76,8 +76,8 @@ app.on('ready', () => {
         return true
     })
     ioHook.on('mousemove', event => {
-        console.log(mainScreen.size.width * mainScreen.scaleFactor, event.x)
-        if (!shouldForward && event.x >= mainScreen.size.width * mainScreen.scaleFactor - 1) {
+        // console.log(mainScreen.size.width * mainScreen.scaleFactor, event.x)
+        if (!shouldForward && event.x >= mainScreen.size.width * mainScreen.scaleFactor - 1 && global.displays[2]) {
             shouldForward = true
             robotjs.moveMouse(2, event.y)
             overlayWindow.getInstance().show()
@@ -114,7 +114,7 @@ app.on('ready', () => {
                     signal.getInstance().wakeupDownstream(downstreamDevice)
                 }
             })
-            overlayWindow.updateDisplays(global.displays)
+            // overlayWindow.updateDisplays(global.displays)
         }
     })
     signal.getInstance().on('udp.free', ({upstreamIP}) => {
@@ -144,9 +144,9 @@ app.on('ready', () => {
                 signal.getInstance().wakeupDownstream(downstreamDevice)
             }
         })
-        overlayWindow.updateDisplays(global.displays)
+        // overlayWindow.updateDisplays(global.displays)
     }
-    overlayWindow.updateDisplays(global.displays)
+    // overlayWindow.updateDisplays(global.displays)
 })
 
 app.on('window-all-closed', () => {
