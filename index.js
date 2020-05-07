@@ -17,7 +17,7 @@ const store = new Store()
 // let displays = [null, null, null, null] // 左上右下
 let upstreamDevice
 global.displays = [null, null, null, null] // 左上右下
-let shouldForward = false
+let shouldForward = false, forwardDisplayIndex = -1
 
 ipcMain.handle('signal.discover', async (event, args) => {
     return new Promise(async (resolve, reject) => {
@@ -25,7 +25,7 @@ ipcMain.handle('signal.discover', async (event, args) => {
         const timer = setTimeout(() => {
             clearTimeout(timer)
             resolve({devices: [], displays: [], thisDevice})
-        }, 3000)
+        }, 5000)
         signal.getInstance().once('devices.update', async ({devices}) => {
             // console.log('///////////',devices)
             resolve({devices, displays: global.displays, thisDevice})
@@ -72,15 +72,27 @@ app.on('ready', () => {
         shouldForward = false
         overlayWindow.getInstance().hide()
         const mainScreen = screen.getPrimaryDisplay()
-        robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, y)
+        if (forwardDisplayIndex == 2) {
+            robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, y)
+        } else {
+            robotjs.moveMouse(2, y)
+        }
         return true
     })
     ioHook.on('mousemove', event => {
         // console.log(mainScreen.size.width * mainScreen.scaleFactor, event.x)
-        if (!shouldForward && event.x >= mainScreen.size.width * mainScreen.scaleFactor - 1 && global.displays[2]) {
-            shouldForward = true
-            robotjs.moveMouse(2, event.y)
-            overlayWindow.getInstance().show()
+        if (!shouldForward) {
+            if (event.x >= mainScreen.size.width * mainScreen.scaleFactor - 1 && global.displays[2]) {
+                forwardDisplayIndex = 2
+                shouldForward = true
+                robotjs.moveMouse(2, event.y)
+                overlayWindow.getInstance().show()
+            } else if (event.x <= - 1 && global.displays[0]) {
+                forwardDisplayIndex = 0
+                shouldForward = true
+                robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, event.y)
+                overlayWindow.getInstance().show()
+            }
         }
     })
     ioHook.start()
