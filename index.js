@@ -87,7 +87,7 @@ app.on('ready', () => {
                 shouldForward = true
                 robotjs.moveMouse(2, event.y)
                 overlayWindow.getInstance().show()
-            } else if (event.x <= - 1 && global.displays[0]) {
+            } else if (event.x <= 1 && global.displays[0]) {
                 forwardDisplayIndex = 0
                 shouldForward = true
                 robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, event.y)
