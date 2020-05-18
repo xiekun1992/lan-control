@@ -24,12 +24,168 @@
         right: 0;
         width: 100%;
         height: 100%;
-        background: gray;
+        background: transparent;
     }
     </style>
 
 </head>
 <body>
-    <div class="overlay"></div>
+  <div class="overlay"></div>
+  <script>
+  const {ipcRenderer} = require('electron')
+  const robotjs = require('robotjs');
+  const Device = require('../../signal/Device')
+  const connection = require('../../client/connection').UDPClient;
+  let captureStarted = false
+
+  let x, y;
+  let showOverlayCallback
+  let shouldForward = false
+  let displayDevices = require('electron').remote.getGlobal('displays') || []
+  let mouseHold = false
+
+  if (displayDevices.some(d => d != null)) {
+    shouldForward = true
+  }
+  function send(msgObj) {
+    console.log(shouldForward, msgObj)
+    shouldForward && connection.send(msgObj)
+  }
+  ipcRenderer.on('overlay.displays', (event, {displays}) => {
+    displayDevices = displays
+    if (displayDevices.some(d => d != null)) {
+      shouldForward = true
+    } else {
+      shouldForward = false
+    }
+    updateConnection()
+  })
+  function updateConnection() {
+    const targetDevice = displayDevices.find(d => d != null)
+    if (targetDevice) {
+      connection.init({ip: targetDevice.IP, port: 8888})
+    } else {
+      connection.init({ip: null, port: 8888})
+    }
+  }
+  updateConnection()
+  const screenWidth = screen.width - 1, screenHeight = screen.height
+  let prevKey
+  window.onkeydown = e => {
+    // if (['Shift', 'Alt', 'Control', 'Meta'].indexOf(e.key) > -1) {
+    //   return;
+    // }
+    let modifiers = [];
+    e.altKey && modifiers.push('alt');
+    e.ctrlKey && modifiers.push('control');
+    e.shiftKey && modifiers.push('shift');
+    e.metaKey && modifiers.push('command');
+    let key = e.key.toLowerCase()
+    if (key == prevKey) {
+      return
+    }
+    prevKey = key
+    if (key == 'arrowup') {
+      key = 'up';
+    }
+    if (key == 'arrowdown') {
+      key = 'down';
+    }
+    if (key == 'arrowright') {
+      key = 'right';
+    }
+    if (key == 'arrowleft') {
+      key = 'left';
+    }
+    if (key == ' ') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'shift') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'alt') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'control') {
+      key = e.code.toLowerCase()
+    }
+    send({type: 'keydown', key: key, modifier: modifiers.join()});
+  }
+  window.onkeyup = e => {
+    prevKey = null
+    // if (['Shift', 'Alt', 'Control'].indexOf(e.key) > -1) {
+    //   return;
+    // }
+    let modifiers = [];
+    e.altKey && modifiers.push('alt');
+    e.ctrlKey && modifiers.push('control');
+    e.shiftKey && modifiers.push('shift');
+    e.metaKey && modifiers.push('command');
+    let key = e.key.toLowerCase()
+    if (key == 'arrowup') {
+      key = 'up';
+    }
+    if (key == 'arrowdown') {
+      key = 'down';
+    }
+    if (key == 'arrowright') {
+      key = 'right';
+    }
+    if (key == 'arrowleft') {
+      key = 'left';
+    }
+    if (key == ' ') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'shift') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'alt') {
+      key = e.code.toLowerCase()
+    }
+    if (key == 'control') {
+      key = e.code.toLowerCase()
+    }
+    send({type: 'keyup', key: key, modifier: modifiers.join()});
+    // send({type: 'mouseup', button: ['left', 'middle', 'right'][e.button]});
+  }
+  window.onmousedown = e => {
+    // console.log(e)
+    mouseHold = true
+    send({type: 'mousedown', button: ['left', 'middle', 'right'][e.button]});
+  }
+  window.onmousemove = e => {
+    x = e.x;
+    y = e.y;
+    if (x <= 1 && displayDevices[2]) { // 从右边屏幕回来
+      ipcRenderer.invoke('overlay.hide', {y: y * devicePixelRatio})
+    } else if(x >= screenWidth && displayDevices[0]) {
+      ipcRenderer.invoke('overlay.hide', {y: y * devicePixelRatio})
+    } else {
+      if (!mouseHold) {
+        send({type: 'mousemove', x: x, y: y, width: screenWidth, height: screenHeight});
+      } else {
+        send({type: 'mousedrag', x: x, y: y, width: screenWidth, height: screenHeight});
+      }
+    }
+  }
+  window.onmouseup = e => {
+    mouseHold = false
+    send({type: 'mouseup', button: ['left', 'middle', 'right'][e.button]});
+  }
+  window.onmousewheel = e => {
+    send({type: 'mousewheel', x: e.deltaX, y: e.deltaY});
+  }
+
+  window.onclick = e => {
+
+  }
+  window.ondblclick = e => {
+
+  }
+  window.oncontextmenu = e => {
+
+  }
+  </script>
 </body>
 </html>

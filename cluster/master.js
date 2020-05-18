@@ -19,8 +19,9 @@ module.exports = {
         console.log('master start with pid:', process.pid)
         // master process
         let index = 0
+        slaveNum = 1
         for (let i = 0; i < slaveNum; i++) {
-            const process = childProcess.fork(path.join(__dirname, 'slave.js'))
+            const process = childProcess.fork(path.join(__dirname, 'slave.js'), [`${i}`])
             slaveProcess.push(process)
         }
 

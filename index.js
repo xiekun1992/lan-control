@@ -4,33 +4,20 @@ const {
     ipcMain,
     screen
 } = require('electron')
+const ioHook = require('iohook');
+const robotjs = require('robotjs');
 const {Store} = require('./store')
 const tray = require('./ui/tray')
 const overlayWindow = require('./ui/overlay_window').Overlay
 
 const udpCluster = require('./cluster')
-const client = require('./client')
 const signal = require('./signal').Signal
 const {Device} = require('./signal/Device')
 const store = new Store()
-let displays = [null, null, null, null] // 左上右下
+// let displays = [null, null, null, null] // 左上右下
 let upstreamDevice
-
-function initClient(displays) {
-    const mainScreen = screen.getPrimaryDisplay()
-    client.init({
-        distIP: null, 
-        distPort: 8888, 
-        screenWidth: mainScreen.size.width * mainScreen.scaleFactor, 
-        screenHeight: mainScreen.size.height * mainScreen.scaleFactor
-    })
-    client.registOverlayCallback(() => {
-        overlayWindow.show()
-    }, () => {
-        overlayWindow.hide()
-    })
-    client.updateDisplays(displays)
-}
+global.displays = [null, null, null, null] // 左上右下
+let shouldForward = false, forwardDisplayIndex = -1
 
 ipcMain.handle('signal.discover', async (event, args) => {
     return new Promise(async (resolve, reject) => {
@@ -38,21 +25,21 @@ ipcMain.handle('signal.discover', async (event, args) => {
         const timer = setTimeout(() => {
             clearTimeout(timer)
             resolve({devices: [], displays: [], thisDevice})
-        }, 3000)
+        }, 5000)
         signal.getInstance().once('devices.update', async ({devices}) => {
             // console.log('///////////',devices)
-            resolve({devices, displays, thisDevice})
+            resolve({devices, displays: global.displays, thisDevice})
         })
         signal.getInstance().discover()
     })
 })
 ipcMain.handle('signal.display.add', async (event, {direction, device}) => {
-    displays[direction] = device
-    store.setDisplays(displays)
+    global.displays[direction] = device
+    store.setDisplays(global.displays)
     upstreamDevice = {}
     store.setUpstreamDevice(upstreamDevice)
 
-    initClient(displays)
+    // overlayWindow.updateDisplays(global.displays)
     signal.getInstance().addDownstream(device)
 })
 ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
@@ -69,7 +56,6 @@ ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
         }
         displays[direction] = null
     }
-    client.updateDisplays(displays)
     store.setDisplays(displays)
     return true
 })
@@ -77,8 +63,39 @@ ipcMain.handle('diaplay.remove', async (event, {deviceIP, direction}) => {
 app.disableHardwareAcceleration() // BrowserWindow transparent: true和frame: false时导致cpu飙升问题，使用此代码解决
 app.on('ready', () => {
     upstreamDevice = new Device(store.getUpstreamDevice())
-    displays = store.getDisplays()
+    global.displays = store.getDisplays()
     console.log('upstreamDevice', upstreamDevice)
+    // main process capture mouse position to decide whether mouse move to other screen 
+    const mainScreen = screen.getPrimaryDisplay()
+    ipcMain.handle('overlay.hide', async (event, {y}) => {
+        console.log('overlay.hide', y)
+        shouldForward = false
+        overlayWindow.getInstance().hide()
+        const mainScreen = screen.getPrimaryDisplay()
+        if (forwardDisplayIndex == 2) {
+            robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, y)
+        } else {
+            robotjs.moveMouse(2, y)
+        }
+        return true
+    })
+    ioHook.on('mousemove', event => {
+        // console.log(mainScreen.size.width * mainScreen.scaleFactor, event.x)
+        if (!shouldForward) {
+            if (event.x >= mainScreen.size.width * mainScreen.scaleFactor - 1 && global.displays[2]) {
+                forwardDisplayIndex = 2
+                shouldForward = true
+                robotjs.moveMouse(2, event.y)
+                overlayWindow.getInstance().show()
+            } else if (event.x <= 1 && global.displays[0]) {
+                forwardDisplayIndex = 0
+                shouldForward = true
+                robotjs.moveMouse(mainScreen.size.width * mainScreen.scaleFactor - 2, event.y)
+                overlayWindow.getInstance().show()
+            }
+        }
+    })
+    ioHook.start()
 
     signal.getInstance().on('upstream.set', ({device}) => {
         upstreamDevice = device
@@ -102,14 +119,14 @@ app.on('ready', () => {
         }
     })
     signal.getInstance().on('client.init', ({downstreamIP}) => {
-        if (displays.findIndex(item => item && item.IP == downstreamIP) > -1) {
+        if (global.displays.findIndex(item => item && item.IP == downstreamIP) > -1) {
             // 自动连接每个下游设备
-            displays.forEach(downstreamDevice => {
+            global.displays.forEach(downstreamDevice => {
                 if (downstreamDevice) {
                     signal.getInstance().wakeupDownstream(downstreamDevice)
                 }
             })
-            initClient(displays)
+            // overlayWindow.updateDisplays(global.displays)
         }
     })
     signal.getInstance().on('udp.free', ({upstreamIP}) => {
@@ -121,19 +138,27 @@ app.on('ready', () => {
     // 初始化托盘
     tray.getInstance()
     signal.getInstance().start()
-    overlayWindow.getInstance()
+    // if (process.platform == 'linux') {
+    //     const ot = setTimeout(() => {
+    //         overlayWindow.getInstance()
+    //         clearTimeout(ot)
+    //     }, 300)
+    // } else {
+    //     overlayWindow.getInstance()
+    // }
 
     if (upstreamDevice.IP) {
         signal.getInstance().notifyUpstream(upstreamDevice)
     } else {
         // 自动连接每个下游设备
-        displays.forEach(downstreamDevice => {
+        global.displays.forEach(downstreamDevice => {
             if (downstreamDevice) {
                 signal.getInstance().wakeupDownstream(downstreamDevice)
             }
         })
-        initClient(displays)
+        // overlayWindow.updateDisplays(global.displays)
     }
+    // overlayWindow.updateDisplays(global.displays)
 })
 
 app.on('window-all-closed', () => {

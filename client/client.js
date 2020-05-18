@@ -38,10 +38,15 @@ let displayDevices = []
 let controlingDisplayIndex = -1
 
 function init({distIP, distPort, screenWidth, screenHeight}) {
+	let screenLeft = 0, screenTop = 0
+	if (process.platform == 'linux' && process.env.DESKTOP_SESSION == 'ubuntu') {
+		screenWidth = screenWidth - 2
+		screenLeft = screenLeft + 1
+	}
   connection.init({ip: distIP, port: distPort})
   ioHook.on('mousemove', event => {
     // console.log('mousemove', Date.now())
-    // console.log(event); // { type: 'mousemove', x: 700, y: 400 }
+    // console.log(event, screenWidth); // { type: 'mousemove', x: 700, y: 400 }
     x = event.x;
     y = event.y;
     // console.log('mousemove', displayDevices)
@@ -50,15 +55,15 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
       connection.setIP(displayDevices[2].IP)
       shouldForward = true
       showOverlayCallback && showOverlayCallback()
-      x = 0;
+      x = screenLeft;
       robotjs.moveMouse(x, y)
-    } else if (x < 0 && shouldForward && controlingDisplayIndex == 2 && displayDevices[2]) { // 从右边屏幕回来
+    } else if (x < screenLeft && shouldForward && controlingDisplayIndex == 2 && displayDevices[2]) { // 从右边屏幕回来
       controlingDisplayIndex = -1
       shouldForward = false
       x = screenWidth
       robotjs.moveMouse(x, y)
       hideOverlayCallback && hideOverlayCallback()
-    } else if (x < 0 && !shouldForward && controlingDisplayIndex < 0 && displayDevices[0]) { // 进入左边屏幕
+    } else if (x < screenLeft && !shouldForward && controlingDisplayIndex < 0 && displayDevices[0]) { // 进入左边屏幕
       controlingDisplayIndex = 0
       connection.setIP(displayDevices[0].IP)
       shouldForward = true
@@ -68,7 +73,7 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     } else if (x > screenWidth && shouldForward && controlingDisplayIndex == 0 && displayDevices[0]) { // 从左边屏幕回来
       controlingDisplayIndex = -1
       shouldForward = false
-      x = 0
+      x = screenLeft
       robotjs.moveMouse(x, y)
       hideOverlayCallback && hideOverlayCallback()
     }
@@ -93,7 +98,7 @@ function init({distIP, distPort, screenWidth, screenHeight}) {
     event.shiftKey && modifier.push('shift');
     event.ctrlKey && modifier.push('control');
     event.metaKey && modifier.push('command');
-  
+  	console.log(event)
     send({type: 'keydown', key: keymap[event.rawcode] || '', modifier: modifier.join(',')});
   });
   // ioHook.on('keyup', event => {

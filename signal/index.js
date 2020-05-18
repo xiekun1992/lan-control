@@ -108,15 +108,17 @@ class SignalConnection extends EventEmitter {
         const buf = Buffer.from(JSON.stringify(obj))
         if (obj.cmd == 'discover') {
             const addressArr = Object.keys(addresses)
-            for (const address of addressArr) {
+            for (let i = 1; i <= addressArr.length; i++) {
+                const address = addressArr[i - 1]
                 // 不延迟执行会导致报错
                 const timer = setTimeout(() => {
                     this.server.setMulticastInterface(address)
                     this.server.send(buf, 0, buf.length, PORT, ip, (err, bytes) => {
                         if (err) console.log(err)
+                        console.log(address)
                         clearTimeout(timer)
                     })
-                }, 500)
+                }, 500 * i)
             }
         } else {
             this.server.send(buf, 0, buf.length, PORT, ip)
