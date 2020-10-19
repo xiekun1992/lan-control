@@ -1,8 +1,14 @@
 const { app } = require('electron')
 const os = require('os')
+
+global.linux = os.platform() === 'linux'
+
 const AutoLaunch = require('auto-launch')
 const discover = require('./src/discover/discover')
-const capture = require('./src/capture/capture')
+let capture
+if (!global.linux) {
+  capture = require('./src/capture/capture')
+}
 const clipboardNet = require('./src/clipboard/clipboard')
 const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
@@ -11,7 +17,6 @@ global.device = {
   remote: null,
   local: null
 }
-global.linux = os.platform() === 'linux'
 
 app.whenReady().then(async () => {
   // auto startup
