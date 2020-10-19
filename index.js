@@ -31,8 +31,8 @@ app.whenReady().then(async () => {
   discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
     global.device.remote = devices[0]
     global.device.local = thisDevice
-    tray.updateMenu(global.device.local)
-    tray.updateMenu(global.device.remote)
+    // tray.updateMenu(global.device.local)
+    // tray.updateMenu(global.device.remote)
     
     if (!global.linux) {
       console.log(devices, newDevice, thisDevice)
