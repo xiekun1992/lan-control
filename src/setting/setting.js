@@ -32,11 +32,7 @@ function createWindow() {
     window.hide()
   })
   window.webContents.on('did-finish-load', () => {
-    // let prev
-    // if (prev != JSON.stringify(global.device)) {
-      // prev = JSON.stringify(global.device)
     window.webContents.send('devices', { devices: global.device.remotes, thisDevice: global.device.local })
-    // }
     discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
       window.webContents.send('devices', { devices, thisDevice })
     })
@@ -44,7 +40,6 @@ function createWindow() {
   // window.webContents.openDevTools()
 }
 function show() {
-  console.log(window)
   if (!window) {
     createWindow()
   }
