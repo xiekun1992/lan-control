@@ -2,14 +2,11 @@ const http = require('http')
 const { clipboard } = require('electron')
 const clipboardAuto = require('@xiekun1992/node-addon-clipboard-auto')
 
-let skip = false
+let prevContent = ''
 
 module.exports = {
   capture() {
     clipboardAuto.capture(() => {
-      if (skip) {
-        return
-      }
       this.sync()
     })
   },
@@ -18,7 +15,7 @@ module.exports = {
   },
   sync() {
     const text = clipboard.readText()
-    if (text) {
+    if (text && prevContent !== text) {
       this.send(text)
     }
   },
@@ -29,7 +26,9 @@ module.exports = {
       path: '/text',
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'proxy-connection': 'keep-alive',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'
       }
     }, (res) => {
       // console.log(`STATUS: ${res.statusCode}`)
@@ -54,9 +53,8 @@ module.exports = {
         body = JSON.parse(body)
         switch (req.url) {
           case '/text': 
-            skip = true
+            prevContent = body.text
             clipboard.writeText(body.text)
-            skip = false
             break
         }
         res.statusCode = 200
