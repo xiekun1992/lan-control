@@ -26,6 +26,7 @@ function createWindow() {
     }
   })
   window.loadFile(path.resolve(__dirname, 'index.html'))
+  // keep window alive to prevent default quit main process
   window.on('close', (event) => {
     event.preventDefault()
     window.hide()
@@ -43,6 +44,7 @@ function createWindow() {
   // window.webContents.openDevTools()
 }
 function show() {
+  console.log(window)
   if (!window) {
     createWindow()
   }
