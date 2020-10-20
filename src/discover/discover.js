@@ -67,5 +67,18 @@ module.exports = {
         resolve()
       })
     })
+  },
+  addToRemotesDevice(device) {
+    const key = device.nic.map(item => item.mac).join('-')
+    if (!remoteDevicesMap[key]) {
+      remoteDevicesMap[key] = true
+      remoteDevices.push(device)
+
+      discoverEmitter.emit('discover', {
+        devices: remoteDevices,
+        thisDevice: hostInfo,
+        newDevice: device
+      })
+    }
   }
 }

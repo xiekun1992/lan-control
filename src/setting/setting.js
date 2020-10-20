@@ -70,12 +70,13 @@ function startServer() {
       const urlObj = new URL('http://localhost' + req.url)
       if (urlObj.pathname === '/connection') {
         const position = urlObj.searchParams.get('position')
+        const device = JSON.parse(urlObj.searchParams.get('device'))
         const ip = req.socket.remoteAddress
-        const remoteDeviceFound = global.device.remotes.find(dev => dev.if === ip)
-        if (!remoteDeviceFound) {
-          res.statusCode = 404
-          res.end()
-        }
+        const remoteDeviceFound = global.device.remotes.find(dev => dev.if === ip) || device
+        // add to remotes
+        discover.addToRemotesDevice(remoteDeviceFound)
+        console.log(remoteDeviceFound)
+        
         switch(req.method.toLowerCase()) {
           case 'post': 
             global.device.remote = remoteDeviceFound

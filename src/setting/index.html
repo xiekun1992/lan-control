@@ -43,7 +43,7 @@
   </div>
   <script>
     const {ipcRenderer} = require('electron')
-    let data = [], deviceDisplays = []
+    let data = [], deviceDisplays = [], _thisDevice = {}
     const types = {
         'desktop': '台式机',
         'notebook': '笔记本'
@@ -110,7 +110,7 @@
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
         deviceDisplays.push(device)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
-        fetch(`http://${device.if}:2001/connection?position=${position}`, {
+        fetch(`http://${device.if}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
           method: 'POST'
         }).then(() => {
           ipcRenderer.send('device.connect', {
@@ -126,6 +126,7 @@
   <script>
       
     ipcRenderer.on('devices', (event, { devices, thisDevice }) => {
+      _thisDevice = thisDevice
       // console.log(devices, thisDevice)
       data = devices
       // deviceDisplays = displays

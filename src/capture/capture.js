@@ -5,6 +5,7 @@ const server = dgram.createSocket('udp4')
 const { screen } = require('electron')
 // const clipboardNet = require('../clipboard/clipboard')
 
+let initialized = false
 let address = null
 const port = 8888
 let shouldForward = false
@@ -124,13 +125,18 @@ module.exports = {
   startCapture() {
     // sync clipboard content
     // clipboardNet.sync()
-
-    const { width } = screen.getPrimaryDisplay().workAreaSize
-    startEdge = 0
-    stopEdge = width
-    inputAuto.init()
+    if (!initialized) {
+      initialized = true
+      const { width } = screen.getPrimaryDisplay().workAreaSize
+      startEdge = 0
+      stopEdge = width
+      inputAuto.init()
+    }
   },
   closeCapture() {
-    inputAuto.release()
+    if (initialized) {
+      initialized = false
+      inputAuto.release()
+    }
   }
 }

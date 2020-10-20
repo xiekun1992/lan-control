@@ -7,6 +7,7 @@ const {
 const path = require('path')
 const setting = require('../setting/setting')
 const clipboardNet = require('../clipboard/clipboard')
+const capture = require('../capture/capture')
 
 let tray
 const contextMenu = Menu.buildFromTemplate([
@@ -17,7 +18,9 @@ const contextMenu = Menu.buildFromTemplate([
   },
   { 
     id: 0,  label: '退出', click() {
+      global.manualExit = true
       clipboardNet.release()
+      capture.closeCapture()
       app.exit(0)
       // app.quit()
     } 

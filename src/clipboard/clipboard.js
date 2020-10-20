@@ -20,6 +20,9 @@ module.exports = {
     }
   },
   send(content) {
+    if (!global.device.remote) {
+      return
+    }
     const req = http.request({
       hostname: global.device.remote.if,
       port: 2000,

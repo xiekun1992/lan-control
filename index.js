@@ -14,6 +14,7 @@ global.device = {
   remote: null, // connected device
   local: null // self
 }
+global.manualExit = false
 
 app.whenReady().then(async () => {
   // auto startup
@@ -30,6 +31,9 @@ app.whenReady().then(async () => {
   tray.initTray()
   await replay.start()
   await discover.start()
+  clipboardNet.start()
+  clipboardNet.capture()
+  
   discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
     global.device.remotes = devices
     global.device.local = thisDevice
@@ -41,7 +45,11 @@ app.whenReady().then(async () => {
     //   capture.setConnectionPeer(devices[0].if)
     //   capture.startCapture('right')
     // }
-    clipboardNet.start()
-    clipboardNet.capture()
   })
+})
+
+app.on('will-quit', (event) => {
+  if (!global.manualExit) {
+    event.preventDefault()
+  }
 })
