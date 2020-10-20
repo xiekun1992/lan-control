@@ -5,15 +5,26 @@ const {
   MenuItem
 } = require('electron')
 const path = require('path')
+const setting = require('../setting/setting')
 
 let tray
 const contextMenu = Menu.buildFromTemplate([
-  { id: 0,  label: 'exit', click() {
-    app.quit()
-  } }
+  { 
+    id: 1,  label: '设置', click() {
+      setting.show()
+    } 
+  },
+  { 
+    id: 0,  label: '退出', click() {
+      app.exit()
+      // app.quit()
+    } 
+  }
 ])
 module.exports = {
   initTray() {
+    setting.startServer()
+
     tray = new Tray(path.resolve(__dirname, '../../assets/lan_control.png'))
     tray.setIgnoreDoubleClickEvents(true)
     tray.setToolTip('lan control')

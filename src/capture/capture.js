@@ -108,7 +108,7 @@ function checkInsideValidRange(event) {
   }
 }
 function send(msg) {
-  if (shouldForward) {
+  if (shouldForward && address) {
     server.send(JSON.stringify(msg), port, address)
   }
 }

@@ -29,12 +29,12 @@ function sendAllInterfaces() {
 
 server.on('message', (msg, rinfo) => {
   // console.log(JSON.parse(msg), rinfo)
-  if (!hostInfo.nic.find(item => item.address === rinfo.address)) {
+  if (true || !hostInfo.nic.find(item => item.address === rinfo.address)) {
     // console.log(JSON.parse(msg), rinfo)
     const newDevice = JSON.parse(msg)
     newDevice.if = rinfo.address
     const rnetId = newDevice.nic.find(item => item.address === newDevice.if).netId
-    console.log(rnetId)
+    // console.log(rnetId)
     const key = newDevice.nic.map(item => item.mac).join('-')
     if (!remoteDevicesMap[key]) {
       remoteDevicesMap[key] = true

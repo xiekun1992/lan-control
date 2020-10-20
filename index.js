@@ -5,17 +5,14 @@ global.linux = os.platform() === 'linux'
 
 const AutoLaunch = require('auto-launch')
 const discover = require('./src/discover/discover')
-let capture
-if (!global.linux) {
-  capture = require('./src/capture/capture')
-}
 const clipboardNet = require('./src/clipboard/clipboard')
 const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
 
 global.device = {
-  remote: null,
-  local: null
+  remotes: [], // devices found in LAN
+  remote: null, // connected device
+  local: null // self
 }
 
 app.whenReady().then(async () => {
@@ -34,16 +31,16 @@ app.whenReady().then(async () => {
   await replay.start()
   await discover.start()
   discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
-    global.device.remote = devices[0]
+    global.device.remotes = devices
     global.device.local = thisDevice
     // tray.updateMenu(global.device.local)
     // tray.updateMenu(global.device.remote)
     
-    if (!global.linux) {
-      console.log(devices, newDevice, thisDevice)
-      capture.setConnectionPeer(devices[0].if)
-      capture.startCapture('right')
-    }
+    // if (!global.linux) {
+    //   console.log(devices, newDevice, thisDevice)
+    //   capture.setConnectionPeer(devices[0].if)
+    //   capture.startCapture('right')
+    // }
     clipboardNet.start()
     clipboardNet.capture()
   })

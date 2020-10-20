@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设置</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="bg">
+    <aside>
+      <!-- <div class="filter-search-container">
+        <input type="search" placeholder="输入关键词筛选设备" id="searchEl" class="filter-search">
+        <button id="searchBtnEl">刷新</button>
+      </div> -->
+      <div class="filter-box">
+        <ul id="filterEl" class="filter-list"></ul>
+      </div>
+    </aside> 
+    <main>
+      <div class="layout-container" id="layoutContainerEl">
+        <div class="layout-item"></div>
+        <div class="layout-item"></div>
+        <!-- <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="hint">从左侧列表拖拽设备以添加</div>
+        </div> -->
+        <div class="layout-item"></div>
+        <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+          <div class="hint">从左侧列表拖拽设备以添加</div>
+        </div>
+        <div class="layout-item" id="thisDeviceEl"></div>
+        <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+          <div class="hint">从左侧列表拖拽设备以添加</div>
+        </div>
+        <div class="layout-item"></div>
+        <!-- <div class="layout-item" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="hint">从左侧列表拖拽设备以添加</div>
+        </div> -->
+        <div class="layout-item"></div>
+        <div class="layout-item"></div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let data = [], deviceDisplays = []
+    const types = {
+        'desktop': '台式机',
+        'notebook': '笔记本'
+    }
+
+    function render(data, types, filterEl) {
+        if (data && data.length > 0) {
+            let html = ''
+            data.forEach((item, i) => {
+                    html += `
+                    <li id="dev${i}" class="filter-item" draggable="true" ondragstart="drag(event)">
+                        ${deviceToHTML(item)}
+                    </li>
+                    `
+                })
+            filterEl.innerHTML = html
+        } else {
+            filterEl.innerHTML = '<li><div class="hint">未找到相关设备<div></li>'
+        }
+    }
+    function deviceToHTML(item) {
+        item.typeName = types[item.type] || item.type
+        return `<div>
+            <div class="type-icon ${item.type}"></div>
+            <div class="detail">
+                <div class="type"><b>型号: </b><div>${item.name}</div></div>
+                <div class="type"><b>主机名: </b><div>${item.hostname}</div></div>
+                <div class="type"><b>用户名: </b><div>${item.username}</div></div>
+                <div class="os"><b>系统: </b><div>${item.osInfo}</div></div>
+                <div class="os"><b>处理器: </b><div>${item.cpuCores}核 ${item.cpuDesc}</div></div>
+                <div class="os"><b>内存: </b><div>${item.memory}</div></div>
+                <div class="resolution"><b>显示器: </b><div>${item.resolution}</div></div>
+                <div class="ip"><b>IP: </b><div>${item.nic.map(item => `<span>${item.address} - ${item.mask} - ${item.mac}</span>`).join('<br>')}</div></div>
+            </div>
+        </div>`
+    }
+    function renderDisplay(displays) {
+        // 获取左右屏幕的元素
+        const layoutIndex = [3, 1, 5, 7]
+        const layoutEl = Array.prototype.slice.call(layoutContainerEl.children)
+
+        displays.forEach((device, i) => {
+            if (device) {
+                layoutEl[layoutIndex[i]].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.if}')">删除设备</button></div>`
+            }
+        })
+    }
+    function drag(event) {
+        event.dataTransfer.setData('text', event.target.id)
+    }
+    function drop(event) {
+        event.preventDefault()
+        const tdataId = event.dataTransfer.getData('text')
+        const device = data[+tdataId.replace(/^dev/, '')]
+        const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
+        
+        for (const display of deviceDisplays) {
+            if (JSON.stringify(display) == JSON.stringify(device)) {
+                return 
+            }
+        }
+        
+        const position = {3: 'left', 1: 'up', 5: 'right', 7: 'down'}[positionIndex]
+        event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
+        deviceDisplays.push(device)
+        // ipcRenderer.invoke('signal.display.add', {direction, device})
+        fetch(`http://${device.if}:2001/connection?position=${position}`, {
+          method: 'POST'
+        })
+    }
+    function allowDrop(event) {
+        event.preventDefault()
+    }
+  </script>
+  <script>
+    const {ipcRenderer} = require('electron')
+      
+    ipcRenderer.on('devices', (event, { devices, thisDevice }) => {
+      // console.log(devices, thisDevice)
+      data = devices
+      // deviceDisplays = displays
+      data = data.map(item => {
+          item.disabled = false
+          return item
+      })
+      thisDeviceEl.innerHTML = deviceToHTML(thisDevice)
+      render(data, types, filterEl)
+      // renderDisplay(displays)
+    })
+    function removeDisplay(elIndex, position, deviceIP) {
+      for (let i = 0; i < deviceDisplays.length; i++) {
+        if (deviceDisplays[i] && deviceDisplays[i].if == deviceIP) {
+          deviceDisplays.splice(i, 1)
+          break
+        }
+      }
+      fetch(`http://${deviceIP}:2001/connection?position=${position}`, {
+        method: 'DELETE'
+      }).then(() => {
+        layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
+      })
+    }
+  </script>
+</body>
+</html>

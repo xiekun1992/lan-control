@@ -1,0 +1,203 @@
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #eee;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ccc;
+}
+.bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+aside {
+  position: relative;
+  width: 250px;
+  height: 100%;
+  border-right: 1px double #ccc;
+}
+.hint {
+  color: #aaa;
+  padding-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+ul, li {padding: 0;margin:0;list-style: none;}
+.filter-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  /* padding-top: 30px; */
+  box-sizing: border-box;
+}
+.filter-search-container {
+  z-index: 10;
+  position: relative;
+}
+.filter-search {
+  display: inline-block;
+  width: 83.4%;
+  font-size: 14px;
+  border: 1px solid #aaa;
+  padding: 5px 8px;
+  outline: 0;
+}
+.filter-search+button{
+  transition: background-color .2s, border .2s;
+  outline: 0;
+  float: right;
+  border: 1px solid #aaa;
+  padding: 0 10px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.filter-search+button:hover{
+  border-color: #555;
+  background: #555;
+  color: #fff;
+}
+.filter-search:hover,
+.filter-search:focus {
+  border: 1px solid #555;
+}
+.filter-list {
+  height: 100%;
+  overflow: auto;
+  font-size: 12px;
+}
+.filter-list .filter-item {
+  padding: 0 10px;
+}
+.layout-item>div,
+.filter-list .filter-item>div {
+  font-weight: bold;
+  padding: 5px 0;
+  border-bottom: 1px solid #ccc;
+}
+.layout-item>div {
+  padding: 5px;
+  text-align: left;
+  font-size: 12px;
+  border-bottom: 0;
+}
+.layout-item {
+  position: relative;
+}
+.layout-item .detail>div {
+  position: relative;
+}
+.layout-item .detail>div>b {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.layout-item .detail>div>b+div {
+  font-weight: normal;
+  margin-left: 50px;
+}
+.layout-item .del-btn{
+  transition: background-color .2s, border .2s;
+  outline: 0;
+  border: 1px solid #aaa;
+  padding: 5px 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+.layout-item .del-btn:hover{
+  border-color: rgb(175, 20, 20);
+  background: rgb(202, 23, 23);
+  color: #fff;
+}
+.layout-item div.detail,
+.filter-list .filter-item div.detail {
+  display: block;
+}
+.filter-list .filter-item div.detail>div {
+  /* display: flex; */
+  position: relative;
+}
+.filter-list .filter-item div.detail>div>b {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.filter-list .filter-item div.detail>div>b+div {
+  font-weight: normal;
+  margin-left: 50px;
+}
+.layout-item div.type-icon,
+.filter-list .filter-item div.type-icon {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(187px * 0.3);
+  height: calc(160px * 0.3);
+  background-size: contain;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+.layout-item div.type-icon.desktop,
+.filter-list .filter-item div.type-icon.desktop {
+  background-image: url('./images/desktop.png');
+}
+.layout-item div.type-icon.notebook,
+.filter-list .filter-item div.type-icon.notebook {
+  background-image: url('./images/laptop.png');
+}
+.layout-item .type span,
+.layout-item .os span,
+.layout-item .resolution span,
+.layout-item .ip span,
+.filter-list .filter-item .type span,
+.filter-list .filter-item .os span,
+.filter-list .filter-item .resolution span,
+.filter-list .filter-item .ip span {
+  font-weight: normal;
+}
+main {
+  position: absolute;
+  width: calc(100% - 250px);
+  height: 100%;
+  top: 0;
+  right: 0;
+}
+.layout-container {
+  display: flex;
+  flex-wrap: wrap;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.layout-container .layout-item {
+  width: 33.33%;
+  height: 100%;
+  text-align: center;
+}
+.layout-container .layout-item:nth-child(odd) {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+.layout-container .layout-item:nth-child(5) {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+.layout-container .layout-item:nth-child(1),
+.layout-container .layout-item:nth-child(2),
+.layout-container .layout-item:nth-child(3),
+.layout-container .layout-item:nth-child(7),
+.layout-container .layout-item:nth-child(8),
+.layout-container .layout-item:nth-child(9) {
+  display: none;
+}
