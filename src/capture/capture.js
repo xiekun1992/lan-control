@@ -70,6 +70,9 @@ inputAuto.event.on('keyup', event => {
 })
 
 function checkInsideValidRange(event) {
+  if (!position) {
+    return
+  }
   if (!controlling && event.x >= stopEdge && position === 'right') {
     controlling = true
     // console.log(event, controlling, stopEdge, position)
@@ -114,17 +117,17 @@ function send(msg) {
 }
 
 module.exports = {
-  setConnectionPeer(targetAddress) {
+  setConnectionPeer(targetAddress, devicePosition) {
     address = targetAddress
+    position = devicePosition
   },
-  startCapture(devicePosition) {
+  startCapture() {
     // sync clipboard content
     // clipboardNet.sync()
 
     const { width } = screen.getPrimaryDisplay().workAreaSize
     startEdge = 0
     stopEdge = width
-    position = devicePosition
     inputAuto.init()
   },
   closeCapture() {

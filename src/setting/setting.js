@@ -1,5 +1,5 @@
 const {
-  BrowserWindow
+  BrowserWindow, app, ipcMain
 } = require('electron')
 const path = require('path')
 const http = require('http')
@@ -37,6 +37,25 @@ function createWindow() {
       window.webContents.send('devices', { devices, thisDevice })
     })
   })
+  ipcMain.on('device.connect', (event, { remoteIP, position }) => {
+    // console.log( remoteIP, position)
+    const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
+    if (remoteDevice) {
+      global.device.remote = remoteDevice
+      
+      capture.setConnectionPeer(global.device.remote.if, position)
+      capture.startCapture()
+    }
+  })
+  ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
+    const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
+    if (remoteDevice) {
+      global.device.remote = null
+
+      capture.setConnectionPeer(null, null)
+      capture.closeCapture()
+    }
+  })
   // window.webContents.openDevTools()
 }
 function show() {
@@ -48,8 +67,8 @@ function show() {
 function startServer() {
   if (!server) {
     server = http.createServer((req, res) => {
-      if (req.url === '/connection') {
-        const urlObj = new URL('http://localhost' + req.url)
+      const urlObj = new URL('http://localhost' + req.url)
+      if (urlObj.pathname === '/connection') {
         const position = urlObj.searchParams.get('position')
         const ip = req.socket.remoteAddress
         const remoteDeviceFound = global.device.remotes.find(dev => dev.if === ip)
@@ -60,19 +79,19 @@ function startServer() {
         switch(req.method.toLowerCase()) {
           case 'post': 
             global.device.remote = remoteDeviceFound
-            capture.setConnectionPeer(global.device.remote.if)
-            capture.startCapture(position) // left or right
+            // capture.setConnectionPeer(global.device.remote.if)
+            // capture.startCapture(position) // left or right
             res.statusCode = 201
             res.end()
             break
           case 'delete': 
             if (global.device.remote === remoteDeviceFound) {
               global.device.remote = null
-              capture.setConnectionPeer(null)
-              capture.startCapture(null)
-              res.statusCode = 200
-              res.end()
+              // capture.setConnectionPeer(null)
+              // capture.startCapture(null)
             }
+            res.statusCode = 200
+            res.end()
             break
           default: res.end('settings http server respond')
         }
@@ -81,7 +100,9 @@ function startServer() {
         res.end()
       }
     })
-    server.listen(port, '0.0.0.0')
+    server.listen(port, '0.0.0.0', () => {
+      console.log('setting server started')
+    })
   }
 }
 

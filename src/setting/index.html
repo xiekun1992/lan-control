@@ -42,6 +42,7 @@
     </main>
   </div>
   <script>
+    const {ipcRenderer} = require('electron')
     let data = [], deviceDisplays = []
     const types = {
         'desktop': '台式机',
@@ -111,6 +112,11 @@
         // ipcRenderer.invoke('signal.display.add', {direction, device})
         fetch(`http://${device.if}:2001/connection?position=${position}`, {
           method: 'POST'
+        }).then(() => {
+          ipcRenderer.send('device.connect', {
+            remoteIP: device.if,
+            position
+          })
         })
     }
     function allowDrop(event) {
@@ -118,7 +124,6 @@
     }
   </script>
   <script>
-    const {ipcRenderer} = require('electron')
       
     ipcRenderer.on('devices', (event, { devices, thisDevice }) => {
       // console.log(devices, thisDevice)
@@ -143,6 +148,10 @@
         method: 'DELETE'
       }).then(() => {
         layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
+        ipcRenderer.send('device.disconnect', {
+          remoteIP: deviceIP,
+          position
+        })
       })
     }
   </script>

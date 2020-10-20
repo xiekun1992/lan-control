@@ -29,7 +29,7 @@ function sendAllInterfaces() {
 
 server.on('message', (msg, rinfo) => {
   // console.log(JSON.parse(msg), rinfo)
-  if (true || !hostInfo.nic.find(item => item.address === rinfo.address)) {
+  if (!hostInfo.nic.find(item => item.address === rinfo.address)) {
     // console.log(JSON.parse(msg), rinfo)
     const newDevice = JSON.parse(msg)
     newDevice.if = rinfo.address

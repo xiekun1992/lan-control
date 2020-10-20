@@ -33,11 +33,11 @@ app.whenReady().then(async () => {
   discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
     global.device.remotes = devices
     global.device.local = thisDevice
+    // console.log(devices, newDevice, thisDevice)
     // tray.updateMenu(global.device.local)
     // tray.updateMenu(global.device.remote)
     
     // if (!global.linux) {
-    //   console.log(devices, newDevice, thisDevice)
     //   capture.setConnectionPeer(devices[0].if)
     //   capture.startCapture('right')
     // }
