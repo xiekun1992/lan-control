@@ -6,6 +6,7 @@ const {
 } = require('electron')
 const path = require('path')
 const setting = require('../setting/setting')
+const clipboardNet = require('../clipboard/clipboard')
 
 let tray
 const contextMenu = Menu.buildFromTemplate([
@@ -16,7 +17,8 @@ const contextMenu = Menu.buildFromTemplate([
   },
   { 
     id: 0,  label: '退出', click() {
-      app.exit()
+      clipboardNet.release()
+      app.exit(0)
       // app.quit()
     } 
   }
@@ -30,6 +32,9 @@ module.exports = {
     tray.setToolTip('lan control')
     tray.setTitle('lan control')
     tray.setContextMenu(contextMenu)
+    tray.on('click', () => {
+      setting.show()
+    })
   },
   updateMenu(device) {
     contextMenu.insert(0, new MenuItem({

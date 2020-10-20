@@ -13,6 +13,9 @@ module.exports = {
       this.sync()
     })
   },
+  release() {
+    clipboardAuto.release()
+  },
   sync() {
     const text = clipboard.readText()
     if (text) {
