@@ -37,8 +37,8 @@
   },
   "dependencies": {
     "@xiekun1992/node-addon-clipboard-auto": "github:xiekun1992/node-addon-clipboard-auto",
-    "auto-launch": "^5.0.5",
     "@xiekun1992/node-addon-keyboard-auto": "github:xiekun1992/node-addon-keyboard-auto",
+    "auto-launch": "^5.0.5",
     "systeminformation": "^4.27.10"
   }
 }
