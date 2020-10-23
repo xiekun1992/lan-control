@@ -23,6 +23,7 @@
     "linux": {
       "target": "deb",
       "icon": "assets/",
+      "category": "Utility",
       "maintainer": "${author}"
     }
   },
