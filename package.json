@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
@@ -18,10 +19,17 @@
     "win": {
       "target": "nsis",
       "icon": "assets/lan_control.png"
+    },
+    "linux": {
+      "target": "deb",
+      "icon": "assets/lan_control.png",
+      "maintainer": "${author}"
     }
   },
   "keywords": [],
   "author": "xkfront",
+  "email": "xkfront@outlook.com",
+  "url": "https://xiekun1992.github.io/",
   "license": "ISC",
   "devDependencies": {
     "electron": "^10.1.3",
