@@ -18,11 +18,11 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/lan_control.png"
+      "icon": "assets/app.ico"
     },
     "linux": {
       "target": "deb",
-      "icon": "assets/lan_control.png",
+      "icon": "assets/",
       "maintainer": "${author}"
     }
   },

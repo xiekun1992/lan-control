@@ -30,7 +30,7 @@ module.exports = {
   initTray() {
     setting.startServer()
 
-    tray = new Tray(path.resolve(__dirname, '../../assets/lan_control.png'))
+    tray = new Tray(path.resolve(__dirname, '../../assets/256x256.png'))
     tray.setIgnoreDoubleClickEvents(true)
     tray.setToolTip('lan control')
     tray.setTitle('lan control')
