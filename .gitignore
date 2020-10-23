@@ -1,3 +1,2 @@
-node_modules/
-*.7z
-test.js
+node_modules*/
+dist/
