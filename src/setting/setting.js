@@ -4,10 +4,7 @@ const {
 const path = require('path')
 const http = require('http')
 const discover = require('../discover/discover')
-let capture
-if (!global.linux) {
-  capture = require('../capture/capture')
-}
+let capture = require('../capture/capture')
 
 let window, server
 const port = 2001
