@@ -1,4 +1,4 @@
-const inputAuto = require('node-addon-keyboard-auto')()
+const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
 const dgram = require('dgram')
 const { release } = require('process')
 const server = dgram.createSocket('udp4')
