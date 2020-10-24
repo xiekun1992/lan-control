@@ -13,6 +13,9 @@ const remoteDevices = []
 const remoteDevicesMap = {}
 
 function loop() {
+  if (hostInfo.length <= 0) {
+    return
+  }
   const item = hostInfo.nic[i]
   server.setMulticastInterface(item.address)
   const msg = Buffer.from(JSON.stringify(hostInfo))
