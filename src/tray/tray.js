@@ -29,8 +29,8 @@ const contextMenu = Menu.buildFromTemplate([
 module.exports = {
   initTray() {
     setting.startServer()
-
-    tray = new Tray(path.resolve(__dirname, '../../assets/app.ico'))
+    const iconName = global.linux? '64x64.png': 'app.ico'
+    tray = new Tray(path.resolve(__dirname, `../../assets/${iconName}`))
     tray.setIgnoreDoubleClickEvents(true)
     tray.setToolTip('lan control')
     tray.setTitle('lan control')
