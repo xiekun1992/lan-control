@@ -18,6 +18,7 @@
     },
     "win": {
       "target": "nsis",
+      "requestedExecutionLevel": "requireAdministrator",
       "icon": "assets/app.ico"
     },
     "linux": {
