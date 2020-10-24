@@ -38,19 +38,11 @@ if (!singleInstanceLock) {
     await replay.start()
     await discover.start()
     clipboardNet.start()
-    clipboardNet.capture()
+    // clipboardNet.capture()
     
     discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
       global.device.remotes = devices
       global.device.local = thisDevice
-      // console.log(devices, newDevice, thisDevice)
-      // tray.updateMenu(global.device.local)
-      // tray.updateMenu(global.device.remote)
-      
-      // if (!global.linux) {
-      //   capture.setConnectionPeer(devices[0].if)
-      //   capture.startCapture('right')
-      // }
     })
   })
 }

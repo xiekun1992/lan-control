@@ -6,7 +6,9 @@ let prevContent = ''
 
 module.exports = {
   capture() {
+    console.log('clipboard capture')
     clipboardAuto.capture(() => {
+      console.log('clipboard capture callback')
       this.sync()
     })
   },
@@ -15,11 +17,13 @@ module.exports = {
   },
   sync() {
     const text = clipboard.readText()
+    // console.log('clipboard sync', text)
     if (text && prevContent !== text) {
       this.send(text)
     }
   },
   send(content) {
+    // console.log('clipboard send', global.device.remote)
     if (!global.device.remote) {
       return
     }

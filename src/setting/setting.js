@@ -5,6 +5,7 @@ const path = require('path')
 const http = require('http')
 const discover = require('../discover/discover')
 let capture = require('../capture/capture')
+const clipboardNet = require('../clipboard/clipboard')
 
 let window, server
 const port = 2001
@@ -46,15 +47,19 @@ function createWindow() {
       
       capture.setConnectionPeer(global.device.remote.if, position)
       capture.startCapture()
+
+      clipboardNet.capture()
     }
   })
   ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
     const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
     if (remoteDevice) {
       global.device.remote = null
-
+      
       capture.setConnectionPeer(null, null)
       capture.closeCapture()
+
+      clipboardNet.release()
     }
   })
   // window.webContents.openDevTools()
