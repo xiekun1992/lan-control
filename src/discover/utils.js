@@ -41,12 +41,11 @@ async function getHostInfo() {
 class NetworkStatusEvent extends EventEmitter {}
 const netEvent = new NetworkStatusEvent()
 let nicNum = 0
-let prevNicInfo = []
 
 async function nicCheck() {
   const ifs = os.networkInterfaces()
   let currentNicNum = 0
-  for (const name in ifs) {
+  for (const name in ifs) { // count available interfaces
     if (ifs[name].some(item => item.internal === false)) {
       currentNicNum++
     }
@@ -56,31 +55,10 @@ async function nicCheck() {
     nicNum = currentNicNum
     // update global device info
     const hostInfo = await getHostInfo()
-    
-    let diffAdd = [], diffMinus = []
-    if (prevNicInfo.length === 0) {
-      diffAdd = hostInfo.nic
-    } else if (hostInfo.nic.length === 0) {
-      diffMinus = prevNicInfo // all interfaces down
-    } else {
-      for (const item of hostInfo.nic) { // part of interfaces up
-        if (!prevNicInfo.find(oldItem => oldItem.mac === item.mac)) {
-          diffAdd.push(item)
-        }
-      }
-      for (const oldItem of prevNicInfo) { // part of interfaces down
-        if (!hostInfo.nic.find(newItem => newItem.mac === oldItem.mac)) {
-          diffMinus.push(oldItem)
-        }
-      }
-    }
-    prevNicInfo = hostInfo.nic
 
     global.device.local = hostInfo
     netEvent.emit('update', {
-      hostInfo,
-      diffAdd, // tells wether interface up or down
-      diffMinus
+      hostInfo
     })
   }
 }
