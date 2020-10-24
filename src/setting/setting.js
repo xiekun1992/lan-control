@@ -33,6 +33,10 @@ function createWindow() {
     discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
       window.webContents.send('devices', { devices, thisDevice })
     })
+    window.webContents.send('devices.local', { device: global.device.local })
+    discover.event.on('discover.local', ({ device }) => {
+      window.webContents.send('devices.local', { device })
+    })
   })
   ipcMain.on('device.connect', (event, { remoteIP, position }) => {
     // console.log( remoteIP, position)
