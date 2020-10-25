@@ -155,12 +155,11 @@
       }
       fetch(`http://${deviceIP}:2001/connection?position=${position}`, {
         method: 'DELETE'
-      }).then(() => {
-        layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
-        ipcRenderer.send('device.disconnect', {
-          remoteIP: deviceIP,
-          position
-        })
+      })
+      layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
+      ipcRenderer.send('device.disconnect', {
+        remoteIP: deviceIP,
+        position
       })
     }
   </script>
