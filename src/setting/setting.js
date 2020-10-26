@@ -46,7 +46,7 @@ function createWindow() {
       global.device.remote = remoteDevice
       
       capture.setConnectionPeer(global.device.remote.if, position)
-      capture.startCapture()
+      // capture.startCapture()
 
       clipboardNet.capture()
     }
@@ -57,7 +57,7 @@ function createWindow() {
       global.device.remote = null
       
       capture.setConnectionPeer(null, null)
-      capture.closeCapture()
+      // capture.closeCapture()
 
       clipboardNet.release()
     }
