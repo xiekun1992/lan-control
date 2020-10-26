@@ -34,7 +34,11 @@ async function getHostInfo() {
     nic: ifIpv4,
     osInfo: `${os.type()} ${os.release()} ${os.arch()}`,
     hostname: os.hostname(),
-    username: os.userInfo().username
+    username: os.userInfo().username,
+    mapArea: {
+      width: 800,
+      height: 600
+    }
   }
 }
 

@@ -5,12 +5,17 @@ const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
 const port = 8888
 const address = '0.0.0.0'
 
+let width, height
+
 server.on('message', (msg, rinfo) => {
   msg = JSON.parse(msg)
   // console.log(msg)
   switch(msg.type) {
     case 'mousemove': 
-      inputAuto.mousemove(msg.x, msg.y)
+      inputAuto.mousemove(
+        msg.x * width / global.device.remote.mapArea.width,
+        msg.y * height / global.device.remote.mapArea.height
+      )
       break
     case 'mousedown': 
       inputAuto.mousedown(msg.button)
@@ -44,6 +49,7 @@ server.on('message', (msg, rinfo) => {
 
 module.exports = {
   start() {
+    ({ width, height} = screen.getPrimaryDisplay().bounds)
     return new Promise((resolve, reject) => {
       server.bind(port, address, () => {
         resolve()

@@ -12,7 +12,7 @@ let controlling = false, mouseSet = false
 let position // left, right
 let leftmost = 0, rightmost = 0
 // use a small area to capture mouse movement, 800x600 is the smallest screen resolution
-// the least screen size recommended is 1024x768
+// the least screen size recommended is 1024x768, considering windows taskbar height is 40
 let mapArea = {
   width: 800,
   height: 600,
@@ -36,8 +36,8 @@ inputAuto.event.on('mousemove', event => {
 
   send({
     type: 'mousemove',
-    x: event.x,
-    y: event.y
+    x: event.x - mapArea.left,
+    y: event.y - mapArea.top
   })
 })
 inputAuto.event.on('mousedown', event => {
@@ -79,44 +79,65 @@ function checkInsideValidRange(event) {
   if (!position) {
     return
   }
-  if (!controlling && event.x >= rightmost && position === 'right') {
+  if (!controlling && ((event.x >= rightmost && position === 'right') || (event.x <= leftmost && position === 'left'))) {
+    console.log(mapArea)
     controlling = true
     
-    require('../overlay/overlay').createWindow(function() {
-      const timer1 = setTimeout(() => {
-        const timer2 = setTimeout(() => {
-          clearTimeout(timer2)
+    // require('../overlay/overlay').createWindow(function() {
+      // const timer1 = setTimeout(() => {
+      //   const timer2 = setTimeout(() => {
+      //     clearTimeout(timer2)
           shouldForward = true
           mouseSet = true
-        }, 10)
-        inputAuto.mousemove(mapArea.left + 2, event.y)// 鼠标位置设置有问题
-        clearTimeout(timer1)
-      }, 100)
-    })
+        // }, 10)
+        if (position === 'left') {
+          inputAuto.mousemove(mapArea.right - 2, event.y)
+        } else if (position === 'right') {
+          inputAuto.mousemove(mapArea.left + 2, event.y)// 鼠标位置设置有问题
+        }
+    //     clearTimeout(timer1)
+    //   }, 100)
+    // })
     return
   }
   if (controlling && mouseSet) {
     if (event.x >= mapArea.left && event.x <= mapArea.right && event.y >= mapArea.top && event.y <= mapArea.bottom) {
       shouldForward = true
     } else if (event.x > mapArea.right) {
-      shouldForward = true
-      inputAuto.mousemove(mapArea.right, event.y)
+      if (position === 'left') {
+        controlling = false
+        shouldForward = false
+        // require('../overlay/overlay').hide()
+        inputAuto.mousemove(leftmost + 2, event.y)
+        mouseSet = false
+      } else {
+        shouldForward = true
+        inputAuto.mousemove(mapArea.right, event.y)
+      }
+    } else if (event.x < mapArea.left) {
+      if (position === 'right') {
+        controlling = false
+        shouldForward = false
+        // require('../overlay/overlay').hide()
+        inputAuto.mousemove(rightmost - 2, event.y)
+        mouseSet = false
+      } else {
+        shouldForward = true
+        inputAuto.mousemove(mapArea.left, event.y)
+      }
     } else if (event.y > mapArea.bottom) {
       shouldForward = true
       inputAuto.mousemove(event.x, mapArea.bottom)
-    } else if (event.x <= mapArea.left) {
-      // inputAuto.release()
-      controlling = false
-      shouldForward = false
-      require('../overlay/overlay').hide()
-      inputAuto.mousemove(mapArea.right - 2, event.y)
-      mouseSet = false
+    } else if (event.y < mapArea.top) {
+      shouldForward = true
+      inputAuto.mousemove(event.x, mapArea.top)
     } else {
       // shouldForward = false
     }
   }
 }
 function send(msg) {
+  console.log(msg)
   if (shouldForward && address) {
     server.send(JSON.stringify(msg), port, address)
   }
