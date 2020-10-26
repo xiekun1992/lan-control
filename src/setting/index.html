@@ -153,7 +153,7 @@
           break
         }
       }
-      fetch(`http://${deviceIP}:2001/connection?position=${position}`, {
+      fetch(`http://${deviceIP}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
         method: 'DELETE'
       })
       layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
