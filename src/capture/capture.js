@@ -80,24 +80,24 @@ function checkInsideValidRange(event) {
     return
   }
   if (!controlling && ((event.x >= rightmost && position === 'right') || (event.x <= leftmost && position === 'left'))) {
-    console.log(mapArea)
+    // console.log(mapArea)
     controlling = true
     
-    // require('../overlay/overlay').createWindow(function() {
-      // const timer1 = setTimeout(() => {
-      //   const timer2 = setTimeout(() => {
-      //     clearTimeout(timer2)
+    require('../overlay/overlay').createWindow(function() {
+      const timer1 = setTimeout(() => {
+        const timer2 = setTimeout(() => {
+          clearTimeout(timer2)
           shouldForward = true
           mouseSet = true
-        // }, 10)
+        }, 10)
         if (position === 'left') {
           inputAuto.mousemove(mapArea.right - 2, event.y)
         } else if (position === 'right') {
           inputAuto.mousemove(mapArea.left + 2, event.y)// 鼠标位置设置有问题
         }
-    //     clearTimeout(timer1)
-    //   }, 100)
-    // })
+        clearTimeout(timer1)
+      }, 100)
+    })
     return
   }
   if (controlling && mouseSet) {
@@ -107,7 +107,7 @@ function checkInsideValidRange(event) {
       if (position === 'left') {
         controlling = false
         shouldForward = false
-        // require('../overlay/overlay').hide()
+        require('../overlay/overlay').hide()
         inputAuto.mousemove(leftmost + 2, event.y)
         mouseSet = false
       } else {
@@ -118,7 +118,7 @@ function checkInsideValidRange(event) {
       if (position === 'right') {
         controlling = false
         shouldForward = false
-        // require('../overlay/overlay').hide()
+        require('../overlay/overlay').hide()
         inputAuto.mousemove(rightmost - 2, event.y)
         mouseSet = false
       } else {
@@ -137,7 +137,7 @@ function checkInsideValidRange(event) {
   }
 }
 function send(msg) {
-  console.log(msg)
+  // console.log(msg)
   if (shouldForward && address) {
     server.send(JSON.stringify(msg), port, address)
   }

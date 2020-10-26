@@ -1,6 +1,7 @@
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
 const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
+const { screen } = require('electron')
 
 const port = 8888
 const address = '0.0.0.0'
