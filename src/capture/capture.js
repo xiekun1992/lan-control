@@ -11,6 +11,9 @@ let shouldForward = false
 let controlling = false, mouseSet = false
 let position // left, right
 let leftmost = 0, rightmost = 0
+// linux ubuntu with 1920x1080 resolution, the mouse movement range is 1919x1079
+const screenWidthGap = global.linux? 1: 0
+const screenHeightGap = global.linux? 1: 0
 // use a small area to capture mouse movement, 800x600 is the smallest screen resolution
 // the least screen size recommended is 1024x768, considering windows taskbar height is 40
 let mapArea = {
@@ -162,7 +165,7 @@ module.exports = {
       
       const edge = require('./utils').calcEdge()
       leftmost = edge.leftmost
-      rightmost = edge.rightmost
+      rightmost = edge.rightmost - screenWidthGap
       
       inputAuto.init()
     }
