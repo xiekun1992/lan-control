@@ -3,17 +3,24 @@ const { clipboard } = require('electron')
 const clipboardAuto = require('@xiekun1992/node-addon-clipboard-auto')
 
 let prevContent = ''
+let captureInited = false
 
 module.exports = {
   capture() {
+    if (!captureInited) {
+      captureInited = true
     console.log('clipboard capture')
     clipboardAuto.capture(() => {
       console.log('clipboard capture callback')
       this.sync()
     })
+    }
   },
   release() {
+    if (captureInited) {
+      captureInited = false
     clipboardAuto.release()
+    }
   },
   sync() {
     const text = clipboard.readText()

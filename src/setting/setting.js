@@ -86,16 +86,14 @@ function startServer() {
         switch(req.method.toLowerCase()) {
           case 'post': 
             global.device.remote = remoteDeviceFound
-            // capture.setConnectionPeer(global.device.remote.if)
-            // capture.startCapture(position) // left or right
+            clipboardNet.capture()
             res.statusCode = 201
             res.end()
             break
           case 'delete': 
             if (global.device.remote === remoteDeviceFound) {
               global.device.remote = null
-              // capture.setConnectionPeer(null)
-              // capture.startCapture(null)
+              clipboardNet.release()
             }
             res.statusCode = 200
             res.end()
