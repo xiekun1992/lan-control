@@ -42,6 +42,6 @@
     "@xiekun1992/node-addon-keyboard-auto": "*",
     "@xiekun1992/node-addon-transparent-window": "*",
     "auto-launch": "^5.0.5",
-    "systeminformation": "^4.27.10"
+    "systeminformation": "^4.27.11"
   }
 }
