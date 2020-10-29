@@ -1,10 +1,17 @@
 const { BrowserWindow, screen } = require('electron')
 const path = require('path')
+const transparentWindow = require('@xiekun1992/node-addon-transparent-window')
 
 let win
 
 module.exports = {
   createWindow (callback) {
+    if (global.linux) {
+      transparentWindow.create(function() {
+        callback && callback()
+      })
+      return
+    }
     if (win) {
       this.show()
       // if (callback) {
@@ -50,6 +57,10 @@ module.exports = {
     return win
   },
   hide() {
+    if (global.linux) {
+      transparentWindow.close()
+      return
+    }
     win.hide()
   },
   show() {
