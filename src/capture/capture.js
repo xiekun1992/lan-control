@@ -87,19 +87,21 @@ function checkInsideValidRange(event) {
     controlling = true
     
     require('../overlay/overlay').createWindow(function() {
-      const timer1 = setTimeout(() => {
-        const timer2 = setTimeout(() => {
-          clearTimeout(timer2)
-          shouldForward = true
-          mouseSet = true
-        }, 10)
+      // const timer1 = setTimeout(() => {
+      //   const timer2 = setTimeout(() => {
+      //     clearTimeout(timer2)
+          // shouldForward = true
+          // mouseSet = true
+        // }, 10)
         if (position === 'left') {
           inputAuto.mousemove(mapArea.right - 2, event.y)
         } else if (position === 'right') {
           inputAuto.mousemove(mapArea.left + 2, event.y)// 鼠标位置设置有问题
         }
-        clearTimeout(timer1)
-      }, 100)
+        shouldForward = true
+        mouseSet = true
+      //   clearTimeout(timer1)
+      // }, 100)
     })
     return
   }
