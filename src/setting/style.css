@@ -104,6 +104,11 @@ ul, li {padding: 0;margin:0;list-style: none;}
   font-weight: normal;
   margin-left: 50px;
 }
+.layout-item .detail>div>b+div>span.connected {
+  background-color: #2cb52c;
+  color: #fff;
+  padding: 0 2px;
+}
 .layout-item .del-btn{
   transition: background-color .2s, border .2s;
   outline: 0;

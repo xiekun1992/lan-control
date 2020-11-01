@@ -65,36 +65,36 @@
             filterEl.innerHTML = '<li><div class="hint">未找到相关设备<div></li>'
         }
     }
-    function deviceToHTML(item) {
-      if (!item) {
+    function deviceToHTML(device) {
+      if (!device) {
         return '<div>正在查询本机信息</div>'
       }
-      item.typeName = types[item.type] || item.type
+      device.typeName = types[device.type] || device.type
       return `<div>
-          <div class="type-icon ${item.type}"></div>
+          <div class="type-icon ${device.type}"></div>
           <div class="detail">
-              <div class="type"><b>型号: </b><div>${item.name}</div></div>
-              <div class="type"><b>主机名: </b><div>${item.hostname}</div></div>
-              <div class="type"><b>用户名: </b><div>${item.username}</div></div>
-              <div class="os"><b>系统: </b><div>${item.osInfo}</div></div>
-              <div class="os"><b>处理器: </b><div>${item.cpuCores}核 ${item.cpuDesc}</div></div>
-              <div class="os"><b>内存: </b><div>${item.memory}</div></div>
-              <div class="resolution"><b>显示器: </b><div>${item.resolution}</div></div>
-              <div class="ip"><b>IP: </b><div>${item.nic.map(item => `<span>${item.address} - ${item.mask} - ${item.mac}</span>`).join('<br>')}</div></div>
+              <div class="type"><b>型号: </b><div>${device.name}</div></div>
+              <div class="type"><b>主机名: </b><div>${device.hostname}</div></div>
+              <div class="type"><b>用户名: </b><div>${device.username}</div></div>
+              <div class="os"><b>系统: </b><div>${device.osInfo}</div></div>
+              <div class="os"><b>处理器: </b><div>${device.cpuCores}核 ${device.cpuDesc}</div></div>
+              <div class="os"><b>内存: </b><div>${device.memory}</div></div>
+              <div class="resolution"><b>显示器: </b><div>${device.resolution}</div></div>
+              <div class="ip"><b>IP: </b><div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address}</span>`).join('<br>')}</div></div>
           </div>
       </div>`
     }
-    function renderDisplay(displays) {
-        // 获取左右屏幕的元素
-        const layoutIndex = [3, 1, 5, 7]
-        const layoutEl = Array.prototype.slice.call(layoutContainerEl.children)
+    // function renderDisplay(displays) {
+    //     // 获取左右屏幕的元素
+    //     const layoutIndex = [3, 1, 5, 7]
+    //     const layoutEl = Array.prototype.slice.call(layoutContainerEl.children)
 
-        displays.forEach((device, i) => {
-            if (device) {
-                layoutEl[layoutIndex[i]].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.if}')">删除设备</button></div>`
-            }
-        })
-    }
+    //     displays.forEach((device, i) => {
+    //         if (device) {
+    //             layoutEl[layoutIndex[i]].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${layoutIndex[i]}, ${i}, '${device.if}')">删除设备</button></div>`
+    //         }
+    //     })
+    // }
     function drag(event) {
         event.dataTransfer.setData('text', event.target.id)
     }
@@ -111,6 +111,8 @@
         }
         
         const position = {3: 'left', 1: 'up', 5: 'right', 7: 'down'}[positionIndex]
+
+        device.netId = device.nic.find(item => item.address === device.if).netId
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
         deviceDisplays.push(device)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
