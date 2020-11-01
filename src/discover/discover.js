@@ -52,8 +52,13 @@ function createServerInstance() {
     if (!hostInfo.nic.find(item => item.address === rinfo.address)) {
       // console.log(JSON.parse(msg), rinfo)
       const newDevice = JSON.parse(msg)
+      // mark which ip the remote connects from
       newDevice.if = rinfo.address
-      const rnetId = newDevice.nic.find(item => item.address === newDevice.if).netId
+      const deviceNIC = newDevice.nic.find(item => item.address === newDevice.if)
+      if (!deviceNIC) {
+        return
+      }
+      const rnetId = deviceNIC.netId
       // console.log(rnetId)
       const key = newDevice.nic.map(item => item.mac).join('-')
       if (!remoteDevicesMap[key]) {
