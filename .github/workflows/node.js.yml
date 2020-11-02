@@ -29,8 +29,7 @@ jobs:
     # - run: npm ci
     # - run: npm run build:linux --if-present
 #     - run: npm test
-    - run: echo ${{env.HEAD_TAG}}
-    - run: echo ${{github.tag}}
+    - run: echo ${{github.ref}}
     # - name: Upload binaries to release
     #   if: github.tag != ''
     #   uses: svenstaro/upload-release-action@v2
