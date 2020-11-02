@@ -31,8 +31,8 @@ jobs:
 #     - run: npm test
     
     - name: Extract tag
-        id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      id: vars
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     - run: echo ${{ steps.vars.outputs.tag }}
     # - name: Upload binaries to release
     #   if: github.tag != ''
