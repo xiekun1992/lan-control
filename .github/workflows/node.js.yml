@@ -29,7 +29,11 @@ jobs:
     # - run: npm ci
     # - run: npm run build:linux --if-present
 #     - run: npm test
-    - run: echo ${{github.ref}}
+    
+    - name: Extract tag
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    - run: echo ${{ steps.vars.outputs.tag }}
     # - name: Upload binaries to release
     #   if: github.tag != ''
     #   uses: svenstaro/upload-release-action@v2
