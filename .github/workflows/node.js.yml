@@ -20,6 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install packages
+    - run: sudo apt update && sudo apt install libxfixes-dev libxtst-dev libx11-dev -y
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
