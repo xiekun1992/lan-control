@@ -14,13 +14,17 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.config.os}}
 
     strategy:
       matrix:
         node-version: [12.x]
+        config:
+          - os: ubuntu-latest
+          - os: windows-latest
 
     steps:
+    - if: matrix.config.os == 'ubuntu-latest'
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
@@ -48,3 +52,26 @@ jobs:
         asset_name: lan_control-linux-amd64.deb
         tag: ${{ github.ref }}
         overwrite: true
+    
+    steps:
+      - if: matrix.config.os == 'ubuntu-latest'
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build:win --if-present
+  
+      - name: Upload binaries to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_name: xiekun1992/lan_control
+          # A personal access token for the GitHub repository in which the release will be created and edited.
+          # It is recommended to create the access token with the following scopes: `repo, user, admin:repo_hook`.
+          repo_token: ${{ secrets.DEPLOY_TOKEN  }}
+          file: dist/lan_control-win32-x64.exe
+          asset_name: lan_control-win32-x64.exe
+          tag: ${{ github.ref }}
+          overwrite: true
