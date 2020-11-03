@@ -54,7 +54,7 @@ jobs:
         overwrite: true
     
     steps:
-      - if: matrix.config.os == 'ubuntu-latest'
+      - if: matrix.config.os == 'windows-latest'
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
