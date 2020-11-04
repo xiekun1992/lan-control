@@ -12,7 +12,7 @@
   "build": {
     "appId": "me.xk.lan_control",
     "productName": "lan_control",
-    "artifactName": "${productName}-${platform}-${arch}.${ext}",
+    "artifactName": "${productName}-${platform}-x64.${ext}",
     "copyright": "Copyright © 2020 ${author}",
     "electronDownload": {
       "mirror": "https://npm.taobao.org/mirrors/electron/"
