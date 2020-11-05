@@ -33,6 +33,13 @@ if (!singleInstanceLock) {
         autoLaunch.enable()
       }
     })
+    // run as administrator can not auto launch, use schedule tasks instead
+    if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
+      const { exec } = require('child_process')
+      const path = require('path')
+      // __dirname will be app.asar path after install
+      exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onstart /rl highest`)
+    }
   
     tray.initTray()
     await replay.start()

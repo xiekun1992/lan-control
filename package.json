@@ -4,7 +4,7 @@
   "description": "a remote control in LAN, support keyboard, mouse, clipboard capture and replay",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --dev",
     "build:win": "electron-builder --win --x64 --publish=never",
     "build:linux": "electron-builder --linux --x64",
     "test": "echo \"Error: no test specified\" && exit 1"
