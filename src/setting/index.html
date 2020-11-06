@@ -43,7 +43,7 @@
   </div>
   <script>
     const {ipcRenderer} = require('electron')
-    let data = [], deviceDisplays = [], _thisDevice = {}
+    let data = [], deviceDisplays = { left: null, right: null}, _thisDevice = {}
     const types = {
         'desktop': '台式机',
         'mini tower': '台式机',
@@ -70,6 +70,22 @@
         return '<div>正在查询本机信息</div>'
       }
       device.typeName = types[device.type] || device.type
+      let ipFragHTML = ''
+      if (device === _thisDevice) {
+        ipFragHTML += '<div>'
+        device.nic.forEach((item) => {
+          if (deviceDisplays.left && item.netId === deviceDisplays.left.netId) {
+            ipFragHTML += `<span class="connected left">${item.address}</span><br>`
+          } else if (deviceDisplays.right && item.netId === deviceDisplays.right.netId) {
+            ipFragHTML += `<span class="connected right">${item.address}</span><br>`
+          } else {
+            ipFragHTML += `<span>${item.address}</span><br>`
+          }
+        })
+        ipFragHTML += '</div>'
+      } else {
+        ipFragHTML = `<div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address}</span>`).join('<br>')}</div>`
+      }
       return `<div>
           <div class="type-icon ${device.type}"></div>
           <div class="detail">
@@ -80,7 +96,7 @@
               <div class="os"><b>处理器: </b><div>${device.cpuCores}核 ${device.cpuDesc}</div></div>
               <div class="os"><b>内存: </b><div>${device.memory}</div></div>
               <div class="resolution"><b>显示器: </b><div>${device.resolution}</div></div>
-              <div class="ip"><b>IP: </b><div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address}</span>`).join('<br>')}</div></div>
+              <div class="ip"><b>IP: </b>${ipFragHTML}</div>
           </div>
       </div>`
     }
@@ -104,17 +120,20 @@
         const device = data[+tdataId.replace(/^dev/, '')]
         const positionIndex = Array.prototype.slice.call(event.currentTarget.offsetParent.children).findIndex(el => el == event.currentTarget)
         
-        for (const display of deviceDisplays) {
-            if (JSON.stringify(display) == JSON.stringify(device)) {
-                return 
-            }
+        if (deviceDisplays.left === device || deviceDisplays.right === device) {
+          return
         }
         
         const position = {3: 'left', 1: 'up', 5: 'right', 7: 'down'}[positionIndex]
+        if (deviceDisplays[position]) { // dropped on existed device, stop this
+          return
+        }
+        deviceDisplays[position] = device
 
         device.netId = device.nic.find(item => item.address === device.if).netId
+        device.position = position
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
-        deviceDisplays.push(device)
+        thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
         fetch(`http://${device.if}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
           method: 'POST'
@@ -150,12 +169,7 @@
       thisDeviceEl.innerHTML = deviceToHTML(device)
     })
     function removeDisplay(elIndex, position, deviceIP) {
-      for (let i = 0; i < deviceDisplays.length; i++) {
-        if (deviceDisplays[i] && deviceDisplays[i].if == deviceIP) {
-          deviceDisplays.splice(i, 1)
-          break
-        }
-      }
+      deviceDisplays[position] = null
       fetch(`http://${deviceIP}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
         method: 'DELETE'
       })
@@ -164,6 +178,7 @@
         remoteIP: deviceIP,
         position
       })
+      thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
     }
   </script>
 </body>

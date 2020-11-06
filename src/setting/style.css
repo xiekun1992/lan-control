@@ -105,9 +105,16 @@ ul, li {padding: 0;margin:0;list-style: none;}
   margin-left: 50px;
 }
 .layout-item .detail>div>b+div>span.connected {
-  background-color: #2cb52c;
   color: #fff;
   padding: 0 2px;
+}
+.layout-item:nth-child(4) .detail>div>b+div>span.connected,
+.layout-item .detail>div>b+div>span.connected.left {
+  background-color: #2cb52c;
+}
+.layout-item:nth-child(6) .detail>div>b+div>span.connected,
+.layout-item .detail>div>b+div>span.connected.right {
+  background-color: #b52c2c;
 }
 .layout-item .del-btn{
   transition: background-color .2s, border .2s;
