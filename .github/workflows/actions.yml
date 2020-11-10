@@ -26,6 +26,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: mkdir ~/.ssh
     - run: echo ${{secrets.CI_KEY}} > ~/.ssh/id_rsa
+    - run: cat ~/.ssh/id_rsa
     - run: echo 'test' > test.a
     - run: scp -P 5022 test.a xk@home.xuexuesoft.com:/home/xk/apt_tmp_archive
 #     - run: sudo apt update && sudo apt install libxfixes-dev libxtst-dev libx11-dev -y
