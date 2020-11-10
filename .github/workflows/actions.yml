@@ -24,8 +24,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: echo ${{secrets.CI_KEY}} > ssh-private.key
-    - run: scp -P 5022 -i ssh-private.key ssh-private.key xk@home.xuexuesoft.com:/home/xk/apt_tmp_archive
+    - run: mkdir ~/.ssh
+    - run: echo ${{secrets.CI_KEY}} > ~/.ssh/id_rsa
+    - run: echo 'test' > test.a
+    - run: scp -P 5022 test.a xk@home.xuexuesoft.com:/home/xk/apt_tmp_archive
 #     - run: sudo apt update && sudo apt install libxfixes-dev libxtst-dev libx11-dev -y
 #     - run: npm ci
 #     - run: npm run build:linux --if-present
