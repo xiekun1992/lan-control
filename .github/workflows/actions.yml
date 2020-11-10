@@ -24,9 +24,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: echo "${{secrets.CD_KEY}}" > id_rsa
     - run: echo 'test' > test.a
-    - run: scp -P 5022 -i id_rsa test.a xk@home.xuexuesoft.com:/home/xk/apt_tmp_archive
+    - name: copy file via ssh password
+      uses: appleboy/scp-action@master
+      with:
+        host: home.xuexuesoft.com
+        username: xk
+        key: ${{ secrets.CD_KEY }}
+        port: 5022
+        source: "test.a"
+        target: "/home/xk/apt_tmp_archive"
 #     - run: sudo apt update && sudo apt install libxfixes-dev libxtst-dev libx11-dev -y
 #     - run: npm ci
 #     - run: npm run build:linux --if-present
