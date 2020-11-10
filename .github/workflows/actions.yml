@@ -25,7 +25,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: mkdir ~/.ssh
-    - run: echo ${{secrets.CI_KEY}} > ~/.ssh/id_rsa
+    - run: echo "${{secrets.CD_KEY}}" > ~/.ssh/id_rsa
     - run: cat ~/.ssh/id_rsa
     - run: echo 'test' > test.a
     - run: scp -P 5022 test.a xk@home.xuexuesoft.com:/home/xk/apt_tmp_archive
