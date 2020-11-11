@@ -35,8 +35,8 @@ jobs:
         username: ${{ secrets.CD_NAME }}
         password: ${{ secrets.CD_KEY }}
         port: 22
-        source: "dist/lan_control-linux-x64.deb"
-        target: "/var/www/debian_tmp_archive/lan_control-linux-x64.deb"
+        source: "dist/*.deb"
+        target: "/var/www/debian_tmp_archive/"
 
     - name: update package in private repo
       uses: appleboy/ssh-action@master
