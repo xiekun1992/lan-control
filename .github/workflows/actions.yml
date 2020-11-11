@@ -1,6 +1,3 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: LAN Control CI
 
 on:
@@ -29,6 +26,7 @@ jobs:
     - run: npm run build:linux --if-present
       
     - name: upload deb to private repo server
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.CD_HOST }}
@@ -39,6 +37,7 @@ jobs:
         target: "/var/www/debian_tmp_archive/"
 
     - name: update package in private repo
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.CD_HOST }}
@@ -47,51 +46,43 @@ jobs:
         port: 22
         script: "cd /var/www/debian_repo && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../debian_tmp_archive/dist/lan_control-linux-x64.deb"
 #     - run: npm test
-    
-    # - name: Extract tag
-    #   id: vars
-    #   run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
-    # - run: echo ${{ steps.vars.outputs.tag }}
 
-#     - name: Upload binaries to release
-#       if: startsWith(github.ref, 'refs/tags/v')
-#       uses: svenstaro/upload-release-action@v2
-#       with:
-#         repo_name: xiekun1992/lan_control
-#         # A personal access token for the GitHub repository in which the release will be created and edited.
-#         # It is recommended to create the access token with the following scopes: `repo, user, admin:repo_hook`.
-#         repo_token: ${{ secrets.DEPLOY_TOKEN  }}
-#         file: dist/lan_control-linux-x64.deb
-#         asset_name: lan_control-linux-x64.deb
-#         tag: ${{ github.ref }}
-#         overwrite: true
-#   build-win:
-#     runs-on: windows-latest  
-#     strategy:
-#       matrix:
-#         node-version: [12.x]
-#         python-version: ['2.x']
-#     steps:
-#     - uses: actions/checkout@v2
-#     - name: Use Node.js ${{ matrix.node-version }}
-#       uses: actions/setup-node@v1
-#       with:
-#         node-version: ${{ matrix.node-version }}
-#     - uses: actions/setup-python@v2
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#     - run: npm ci
-#     - run: npm run build:win --if-present
+    - name: Upload binaries to release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_name: xiekun1992/lan_control
+        repo_token: ${{ secrets.DEPLOY_TOKEN  }}
+        file: dist/lan_control-linux-x64.deb
+        asset_name: lan_control-linux-x64.deb
+        tag: ${{ github.ref }}
+        overwrite: true
 
-#     - name: Upload binaries to release
-#       if: startsWith(github.ref, 'refs/tags/v')
-#       uses: svenstaro/upload-release-action@v2
-#       with:
-#         repo_name: xiekun1992/lan_control
-#         # A personal access token for the GitHub repository in which the release will be created and edited.
-#         # It is recommended to create the access token with the following scopes: `repo, user, admin:repo_hook`.
-#         repo_token: ${{ secrets.DEPLOY_TOKEN  }}
-#         file: dist/lan_control-win32-x64.exe
-#         asset_name: lan_control-win32-x64.exe
-#         tag: ${{ github.ref }}
-#         overwrite: true
+  build-win:
+    runs-on: windows-latest  
+    strategy:
+      matrix:
+        node-version: [12.x]
+        python-version: ['2.x']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: npm ci
+    - run: npm run build:win --if-present
+
+    - name: Upload binaries to release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_name: xiekun1992/lan_control
+        repo_token: ${{ secrets.DEPLOY_TOKEN  }}
+        file: dist/lan_control-win32-x64.exe
+        asset_name: lan_control-win32-x64.exe
+        tag: ${{ github.ref }}
+        overwrite: true
