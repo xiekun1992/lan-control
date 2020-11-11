@@ -31,18 +31,18 @@ jobs:
     - name: upload deb to private repo server
       uses: appleboy/scp-action@master
       with:
-        host: 141.164.55.180
-        username: root
+        host: ${{ secrets.CD_HOST }}
+        username: ${{ secrets.CD_NAME }}
         password: ${{ secrets.CD_KEY }}
         port: 22
         source: "dist/lan_control-linux-x64.deb"
-        target: "/var/www/debian_repo"
+        target: "/var/www/debian_tmp_archive/lan_control-linux-x64.deb"
 
     - name: update package in private repo
       uses: appleboy/ssh-action@master
       with:
-        host: 141.164.55.180
-        username: root
+        host: ${{ secrets.CD_HOST }}
+        username: ${{ secrets.CD_NAME }}
         password: ${{ secrets.CD_KEY }}
         port: 22
         script: "ls"
