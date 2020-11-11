@@ -45,8 +45,7 @@ jobs:
         username: ${{ secrets.CD_NAME }}
         password: ${{ secrets.CD_KEY }}
         port: 22
-        script: "ls"
-#         script: "cd apt_source && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../apt_tmp_archive/lan_control-linux-x64.deb"
+        script: "cd /var/www/debian_repo && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../debian_tmp_archive/dist/lan_control-linux-x64.deb"
 #     - run: npm test
     
     # - name: Extract tag
