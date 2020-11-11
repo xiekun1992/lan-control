@@ -31,21 +31,22 @@ jobs:
     - name: upload deb to private repo server
       uses: appleboy/scp-action@master
       with:
-        host: home.xuexuesoft.com
-        username: xk
+        host: 141.164.55.180
+        username: root
         key: ${{ secrets.CD_KEY }}
-        port: 5022
+        port: 22
         source: "dist/lan_control-linux-x64.deb"
-        target: "/home/xk/apt_tmp_archive"
+        target: "/root"
 
     - name: update package in private repo
       uses: appleboy/ssh-action@master
       with:
-        host: home.xuexuesoft.com
-        username: xk
+        host: 141.164.55.180
+        username: root
         key: ${{ secrets.CD_KEY }}
-        port: 5022
-        script: "cd apt_source && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../apt_tmp_archive/lan_control-linux-x64.deb"
+        port: 22
+        script: "ls"
+#         script: "cd apt_source && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../apt_tmp_archive/lan_control-linux-x64.deb"
 #     - run: npm test
     
     # - name: Extract tag
