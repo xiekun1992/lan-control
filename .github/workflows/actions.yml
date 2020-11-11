@@ -33,17 +33,17 @@ jobs:
       with:
         host: 141.164.55.180
         username: root
-        key: ${{ secrets.CD_KEY }}
+        password: ${{ secrets.CD_KEY }}
         port: 22
         source: "dist/lan_control-linux-x64.deb"
-        target: "/root"
+        target: "/var/www/debian_repo"
 
     - name: update package in private repo
       uses: appleboy/ssh-action@master
       with:
         host: 141.164.55.180
         username: root
-        key: ${{ secrets.CD_KEY }}
+        password: ${{ secrets.CD_KEY }}
         port: 22
         script: "ls"
 #         script: "cd apt_source && reprepro remove xkfront lan-control && reprepro includedeb xkfront ../apt_tmp_archive/lan_control-linux-x64.deb"
