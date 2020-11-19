@@ -15,21 +15,19 @@ class store {
     }
   }
   set(content) {
-    fs.writeFileSync(this.storePath, content)
+    fs.writeFileSync(this.storePath, JSON.stringify(content, null, 2))
   }
   get() {
     try {
       return JSON.parse(fs.readFileSync(this.storePath))
     } catch(e) {
       console.log('store.getItem fail')
-      return {}
+      return null
     }
   }
   clear() {
-    this.set('')
+    this.set({})
   }
 }
 
-module.exports = {
-  store: new store()
-}
+module.exports = new store()

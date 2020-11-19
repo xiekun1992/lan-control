@@ -8,6 +8,10 @@ const discover = require('./src/discover/discover')
 const clipboardNet = require('./src/clipboard/clipboard')
 const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
+const store = require('./src/store/store')
+const capture = require('./src/capture/capture')
+const { connectDevice } = require('./src/setting/utils')
+const { getHostInfo } = require('./src/discover/utils')
 
 global.device = {
   remotes: [], // devices found in LAN
@@ -41,6 +45,21 @@ if (!singleInstanceLock) {
       exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
     }
   
+    const config = store.get()
+    if (config) {
+      if (config.remote) {
+        getHostInfo().then((thisDevice) => {
+          connectDevice(config.remote.if, config.position, thisDevice)
+          global.device.remote = config.remote
+          capture.setConnectionPeer(global.device.remote.if, config.position)
+          capture.startCapture()
+    
+          clipboardNet.capture()
+        })
+
+      }
+    }
+
     tray.initTray()
     await replay.start()
     await discover.start()

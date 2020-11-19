@@ -2,6 +2,7 @@ const http = require('http')
 
 function request(option) {
   return new Promise((resolve, rejects) => {
+    console.log(option)
     const req = http.request(option, res => {
       res.setEncoding('utf8')
       let body = Buffer.alloc(0)
@@ -26,7 +27,7 @@ function connectDevice(ip, position, thisDevice) {
     method: 'POST',
     port: 2001,
     hostname: ip,
-    path: `/connection?position=${position}&device=${JSON.stringify(thisDevice)}`
+    path: `/connection?position=${encodeURIComponent(position)}&device=${encodeURIComponent(JSON.stringify(thisDevice))}`
   })
 }
 function disconnectDevice(ip, position, thisDevice) {
@@ -34,7 +35,7 @@ function disconnectDevice(ip, position, thisDevice) {
     method: 'DELETE',
     port: 2001,
     hostname: ip,
-    path: `/connection?position=${position}&device=${JSON.stringify(thisDevice)}`
+    path: `/connection?position=${encodeURIComponent(position)}&device=${encodeURIComponent(JSON.stringify(thisDevice))}`
   })
 }
 

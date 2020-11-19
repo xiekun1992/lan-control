@@ -6,6 +6,7 @@ const http = require('http')
 const discover = require('../discover/discover')
 let capture = require('../capture/capture')
 const clipboardNet = require('../clipboard/clipboard')
+const store = require('../store/store')
 
 let window, server
 const port = 2001
@@ -44,6 +45,10 @@ function createWindow() {
     const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
     if (remoteDevice) {
       global.device.remote = remoteDevice
+      store.set({
+        position,
+        remote: global.device.remote
+      })
       
       capture.setConnectionPeer(global.device.remote.if, position)
       capture.startCapture()
