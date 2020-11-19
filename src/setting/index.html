@@ -42,7 +42,8 @@
     </main>
   </div>
   <script>
-    const {ipcRenderer} = require('electron')
+    const { ipcRenderer } = require('electron')
+    const { connectDevice, disconnectDevice } = require('./utils')
     let data = [], deviceDisplays = { left: null, right: null}, _thisDevice = {}
     const types = {
         'desktop': '台式机',
@@ -136,9 +137,7 @@
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
         thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
-        fetch(`http://${device.if}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
-          method: 'POST'
-        }).then(() => {
+        connectDevice(device.if, position, _thisDevice).then(() => {
           ipcRenderer.send('device.connect', {
             remoteIP: device.if,
             position
@@ -171,9 +170,7 @@
     })
     function removeDisplay(elIndex, position, deviceIP) {
       deviceDisplays[position] = null
-      fetch(`http://${deviceIP}:2001/connection?position=${position}&device=${JSON.stringify(_thisDevice)}`, {
-        method: 'DELETE'
-      })
+      disconnectDevice(deviceIP, position, _thisDevice)
       layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
       ipcRenderer.send('device.disconnect', {
         remoteIP: deviceIP,
