@@ -49,12 +49,16 @@ if (!singleInstanceLock) {
     if (config) {
       if (config.remote) {
         getHostInfo().then((thisDevice) => {
-          connectDevice(config.remote.if, config.position, thisDevice)
-          global.device.remote = config.remote
-          capture.setConnectionPeer(global.device.remote.if, config.position)
-          capture.startCapture()
-    
-          clipboardNet.capture()
+          connectDevice(config.remote.if, config.position, thisDevice).then(({statusCode}) => {
+            if (statusCode === 201) {
+              global.device.remotes.push(config.remote)
+              global.device.remote = config.remote
+              capture.setConnectionPeer(global.device.remote.if, config.position)
+              capture.startCapture()
+        
+              clipboardNet.capture()
+            }
+          })
         })
 
       }
