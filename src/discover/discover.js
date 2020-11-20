@@ -42,8 +42,6 @@ function sendAllInterfaces() {
 
 function createServerInstance() {
   server = new UDPPeer(port).server
-  remoteDevicesMap = {}
-  remoteDevices = []
   clearTimeout(timer)
   i = 0
 
@@ -59,12 +57,8 @@ function createServerInstance() {
         return
       }
       const rnetId = deviceNIC.netId
-      // console.log(rnetId)
-      const key = newDevice.nic.map(item => item.mac).join('-')
-      if (!remoteDevicesMap[key]) {
-        remoteDevicesMap[key] = true
-        remoteDevices.push(newDevice)
-  
+
+      if (global.device.addToRemotes(newDevice)) {
         if (!hostInfo.if) {
           hostInfo.if = []
         }
@@ -72,7 +66,8 @@ function createServerInstance() {
         
         // console.log(remoteDevices, hostInfo)
         discoverEmitter.emit('discover', {
-          devices: remoteDevices,
+          devices: global.device.remotes,
+          // devices: remoteDevices,
           thisDevice: hostInfo,
           newDevice
         })

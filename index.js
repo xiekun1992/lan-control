@@ -16,7 +16,21 @@ const { getHostInfo } = require('./src/discover/utils')
 global.device = {
   remotes: [], // devices found in LAN
   remote: null, // connected device
-  local: null // self
+  position: null,
+  local: null, // self
+  addToRemotes(newDevice) {
+    const newDeviceKey = this.getDeviceUniqueId(newDevice)
+    for (const dev of this.remotes) {
+      if (newDeviceKey === this.getDeviceUniqueId(dev)) {
+        return false
+      }
+    }
+    this.remotes.push(newDevice)
+    return true
+  },
+  getDeviceUniqueId(device) {
+    return device.nic.map(item => item.mac).join('-')
+  }
 }
 global.manualExit = false
 
@@ -48,19 +62,21 @@ if (!singleInstanceLock) {
     const config = store.get()
     if (config) {
       if (config.remote) {
-        getHostInfo().then((thisDevice) => {
-          connectDevice(config.remote.if, config.position, thisDevice).then(({statusCode}) => {
-            if (statusCode === 201) {
-              global.device.remotes.push(config.remote)
-              global.device.remote = config.remote
-              capture.setConnectionPeer(global.device.remote.if, config.position)
-              capture.startCapture()
-        
-              clipboardNet.capture()
-            }
-          })
-        })
-
+        const thisDevice = await getHostInfo()
+        try {
+          const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
+          if (statusCode === 201) {
+            global.device.addToRemotes(config.remote)
+            global.device.remote = config.remote
+            global.device.position = config.position
+            capture.setConnectionPeer(global.device.remote.if, config.position)
+            capture.startCapture()
+      
+            clipboardNet.capture()
+          }
+        } catch (ex) {
+          console.log('restore connection error', ex)
+        }
       }
     }
 

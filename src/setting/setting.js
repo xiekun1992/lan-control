@@ -31,20 +31,29 @@ function createWindow() {
     window.hide()
   })
   window.webContents.on('did-finish-load', () => {
-    window.webContents.send('devices', { devices: global.device.remotes, thisDevice: global.device.local })
+    window.webContents.send('devices', {
+      devices: global.device.remotes,
+      thisDevice: global.device.local,
+      remote: global.device.remote,
+      position: global.device.position
+    })
     discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
-      window.webContents.send('devices', { devices, thisDevice })
+      window.webContents.send('devices', {
+        devices,
+        thisDevice,
+        remote: global.device.remote,
+        position: global.device.position
+      })
     })
     window.webContents.send('devices.local', { device: global.device.local })
     discover.event.on('discover.local', ({ device }) => {
       window.webContents.send('devices.local', { device })
     })
   })
-  ipcMain.on('device.connect', (event, { remoteIP, position }) => {
-    // console.log( remoteIP, position)
-    const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
+  ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
     if (remoteDevice) {
       global.device.remote = remoteDevice
+      global.device.position = position
       store.set({
         position,
         remote: global.device.remote
@@ -60,6 +69,7 @@ function createWindow() {
     const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
     if (remoteDevice) {
       global.device.remote = null
+      store.clear()
       
       capture.setConnectionPeer(null, null)
       // capture.closeCapture()
