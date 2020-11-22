@@ -29,7 +29,7 @@ global.device = {
     return true
   },
   getDeviceUniqueId(device) {
-    return device.nic.map(item => item.mac).join('-')
+    return device.uuid
   }
 }
 global.manualExit = false

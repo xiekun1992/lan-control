@@ -35,6 +35,7 @@ async function getHostInfo() {
     osInfo: `${os.type()} ${os.release()} ${os.arch()}`,
     hostname: os.hostname(),
     username: os.userInfo().username,
+    uuid: (await si.system()).uuid,
     mapArea: {
       width: 800,
       height: 600
