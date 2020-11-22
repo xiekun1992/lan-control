@@ -100,9 +100,13 @@ function startServer() {
         
         switch(req.method.toLowerCase()) {
           case 'post': 
-            global.device.remote = remoteDeviceFound
-            clipboardNet.capture()
-            res.statusCode = 201
+            if (!global.device.remote) {
+              global.device.remote = remoteDeviceFound
+              clipboardNet.capture()
+              res.statusCode = 201
+            } else {
+              res.statusCode = 403
+            }
             res.end()
             break
           case 'delete': 

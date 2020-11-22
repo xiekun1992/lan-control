@@ -119,15 +119,16 @@
         if (deviceDisplays[position]) { // dropped on existed device, stop this
           return
         }
-        deviceDisplays[position] = device
-
-        device.netId = device.nic.find(item => item.address === device.if).netId
-        device.position = position
-        event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
-        thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
         connectDevice(device.if, position, _thisDevice).then((statusCode) => {
           if (statusCode === 201) {
+            deviceDisplays[position] = device
+    
+            device.netId = device.nic.find(item => item.address === device.if).netId
+            device.position = position
+            event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
+            thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
+            
             ipcRenderer.send('device.connect', {
               remoteDevice: device,
               position
@@ -151,7 +152,7 @@
       })
       render(data, types, filterEl)
       
-      if (!deviceDisplays[position]) {
+      if (!deviceDisplays[position] && remote) {
         deviceDisplays[position] = remote
         const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
         layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
