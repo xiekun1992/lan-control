@@ -126,11 +126,13 @@
         event.currentTarget.innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
         thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
         // ipcRenderer.invoke('signal.display.add', {direction, device})
-        connectDevice(device.if, position, _thisDevice).then(() => {
-          ipcRenderer.send('device.connect', {
-            remoteDevice: device,
-            position
-          })
+        connectDevice(device.if, position, _thisDevice).then((statusCode) => {
+          if (statusCode === 201) {
+            ipcRenderer.send('device.connect', {
+              remoteDevice: device,
+              position
+            })
+          }
         }).catch((e) => {
 
         })
