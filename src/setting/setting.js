@@ -7,6 +7,8 @@ const discover = require('../discover/discover')
 let capture = require('../capture/capture')
 const clipboardNet = require('../clipboard/clipboard')
 const store = require('../store/store')
+const { connectDevice } = require('./utils')
+const { getHostInfo } = require('../discover/utils')
 
 let window, server
 const port = 2001
@@ -37,7 +39,37 @@ function createWindow() {
       remote: global.device.remote,
       position: global.device.position
     })
-    discover.event.on('discover', ({ devices, newDevice, thisDevice }) => {
+    discover.event.on('discover', async ({ devices, newDevice, thisDevice }) => {
+      if (!global.device.remote && !global.device.position) {
+        const config = store.get()
+        if (config) {
+          if (config.remote) {
+            const thisDevice = await getHostInfo()
+            try {
+              const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
+              if (statusCode === 201) {
+                global.device.addToRemotes(config.remote)
+                global.device.remote = config.remote
+                global.device.position = config.position
+
+                capture.setConnectionPeer(global.device.remote.if, config.position)
+                capture.startCapture()
+          
+                clipboardNet.capture()
+
+                window.webContents.send('devices', {
+                  devices,
+                  thisDevice,
+                  remote: global.device.remote,
+                  position: global.device.position
+                })
+              }
+            } catch (ex) {
+              console.log('restore connection error', ex)
+            }
+          }
+        }
+      }
       window.webContents.send('devices', {
         devices,
         thisDevice,
