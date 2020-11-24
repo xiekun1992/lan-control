@@ -14,6 +14,7 @@ const { connectDevice } = require('./src/setting/utils')
 const { getHostInfo } = require('./src/discover/utils')
 
 global.device = {
+  isController: false,
   remotes: [], // devices found in LAN
   remote: null, // connected device
   position: null,
@@ -67,6 +68,7 @@ if (!singleInstanceLock) {
           const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
           if (statusCode === 201) {
             global.device.addToRemotes(config.remote)
+            global.device.isController = true
             global.device.remote = config.remote
             global.device.position = config.position
             capture.setConnectionPeer(global.device.remote.if, config.position)

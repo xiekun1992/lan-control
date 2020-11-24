@@ -146,7 +146,7 @@
     }
   </script>
   <script>
-    ipcRenderer.on('devices', (event, { devices, thisDevice, remote, position }) => {
+    ipcRenderer.on('devices', (event, { devices, thisDevice, remote, position, isController }) => {
       console.log(devices, thisDevice)
       data = devices
       data = data.map(item => {
@@ -154,11 +154,18 @@
         return item
       })
       render(data, types, filterEl)
-      
-      if (!deviceDisplays[position] && remote) {
-        deviceDisplays[position] = remote
-        const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
-        layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+      if (isController) {
+        if (!deviceDisplays[position] && remote) {
+          deviceDisplays[position] = remote
+          const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
+          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+        }
+      } else {
+        if (!deviceDisplays[position] && remote) {
+          deviceDisplays[position] = remote
+          const positionIndex = 8 - {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
+          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+        }
       }
 
       _thisDevice = thisDevice

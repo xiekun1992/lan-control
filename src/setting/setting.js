@@ -37,7 +37,8 @@ function createWindow() {
       devices: global.device.remotes,
       thisDevice: global.device.local,
       remote: global.device.remote,
-      position: global.device.position
+      position: global.device.position,
+      isController: global.device.isController
     })
     discover.event.on('discover', async ({ devices, newDevice, thisDevice }) => {
       if (!global.device.remote && !global.device.position) {
@@ -51,6 +52,7 @@ function createWindow() {
                 global.device.addToRemotes(config.remote)
                 global.device.remote = config.remote
                 global.device.position = config.position
+                global.device.isController = true
 
                 capture.setConnectionPeer(global.device.remote.if, config.position)
                 capture.startCapture()
@@ -61,7 +63,8 @@ function createWindow() {
                   devices,
                   thisDevice,
                   remote: global.device.remote,
-                  position: global.device.position
+                  position: global.device.position,
+                  isController: global.device.isController
                 })
               }
             } catch (ex) {
@@ -74,7 +77,8 @@ function createWindow() {
         devices,
         thisDevice,
         remote: global.device.remote,
-        position: global.device.position
+        position: global.device.position,
+        isController: global.device.isController
       })
     })
     window.webContents.send('devices.local', { device: global.device.local })
@@ -86,6 +90,7 @@ function createWindow() {
     if (remoteDevice) {
       global.device.remote = remoteDevice
       global.device.position = position
+      global.device.isController = true
       store.set({
         position,
         remote: global.device.remote
@@ -134,6 +139,7 @@ function startServer() {
           case 'post': 
             if (!global.device.remote) {
               global.device.remote = remoteDeviceFound
+              global.device.position = position
               clipboardNet.capture()
               res.statusCode = 201
             } else {
@@ -144,6 +150,7 @@ function startServer() {
           case 'delete': 
             if (global.device.remote === remoteDeviceFound) {
               global.device.remote = null
+              global.device.position = null
               clipboardNet.release()
             }
             res.statusCode = 200
