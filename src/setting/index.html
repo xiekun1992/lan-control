@@ -114,6 +114,9 @@
         if (deviceDisplays.left === device || deviceDisplays.right === device) {
           return
         }
+        if (deviceDisplays.left || deviceDisplays.right) {
+          return
+        }
         
         const position = {3: 'left', 1: 'up', 5: 'right', 7: 'down'}[positionIndex]
         if (deviceDisplays[position]) { // dropped on existed device, stop this
