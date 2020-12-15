@@ -43,11 +43,13 @@ if (!singleInstanceLock) {
   app.quit()
 } else {
   app.whenReady().then(async () => {
-    // auto startup
-    enableAutoBoot()
-  
+    
     const config = store.get()
     if (config) {
+      if (config.autoBoot) {
+        // auto startup
+        enableAutoBoot()
+      }
       if (config.remote) {
         const thisDevice = await getHostInfo()
         try {
