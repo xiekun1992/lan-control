@@ -2,15 +2,16 @@ const { app } = require('electron')
 const os = require('os')
 
 global.linux = os.platform() === 'linux'
+global.appName = require('./package.json').name.replace(/_/ig, ' ')
+global.appPath = app.getPath('exe')
 
-const AutoLaunch = require('auto-launch')
 const discover = require('./src/discover/discover')
 const clipboardNet = require('./src/clipboard/clipboard')
 const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
 const store = require('./src/store/store')
 const capture = require('./src/capture/capture')
-const { connectDevice } = require('./src/setting/utils')
+const { connectDevice, enableAutoBoot } = require('./src/setting/utils')
 const { getHostInfo } = require('./src/discover/utils')
 
 global.device = {
@@ -42,26 +43,13 @@ if (!singleInstanceLock) {
   app.quit()
 } else {
   app.whenReady().then(async () => {
-    // auto startup
-    let autoLaunch = new AutoLaunch({
-      name: 'lan control',
-      path: app.getPath('exe')
-    })
-    autoLaunch.isEnabled().then((isEnabled) => {
-      if (!isEnabled) {
-        autoLaunch.enable()
-      }
-    })
-    // run as administrator can not auto launch, use schedule tasks instead
-    if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
-      const { exec } = require('child_process')
-      const path = require('path')
-      // __dirname will be app.asar path after install
-      exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    }
-  
+    
     const config = store.get()
     if (config) {
+      if (config.autoBoot) {
+        // auto startup
+        enableAutoBoot()
+      }
       if (config.remote) {
         const thisDevice = await getHostInfo()
         try {

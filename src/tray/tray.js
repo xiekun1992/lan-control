@@ -6,13 +6,30 @@ const {
 } = require('electron')
 const path = require('path')
 const setting = require('../setting/setting')
+const { disableAutoBoot, enableAutoBoot } = require('../setting/utils')
 const clipboardNet = require('../clipboard/clipboard')
 const capture = require('../capture/capture')
+const store = require('../store/store')
 
 let tray
 const contextMenu = Menu.buildFromTemplate([
   { 
-    id: 1,  label: '设置', click() {
+    id: 2,  label: '开机自启', type: 'checkbox', checked: true, click() {
+      if (this.checked) {
+        enableAutoBoot()
+        store.set({
+          autoBoot: true
+        })
+      } else {
+        disableAutoBoot()
+        store.set({
+          autoBoot: false
+        })
+      }
+    } 
+  },
+  { 
+    id: 1,  label: '互联设置', click() {
       setting.show()
     } 
   },
