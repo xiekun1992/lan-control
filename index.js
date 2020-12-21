@@ -2,7 +2,7 @@ const { app } = require('electron')
 const os = require('os')
 
 global.linux = os.platform() === 'linux'
-global.appName = require('./package.json').name.replace(/_/ig, ' ')
+global.appName = require('./package.json').name//.replace(/_/ig, ' ')
 global.appPath = app.getPath('exe')
 
 const discover = require('./src/discover/discover')

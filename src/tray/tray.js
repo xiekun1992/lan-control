@@ -14,8 +14,8 @@ const store = require('../store/store')
 let tray
 const contextMenu = Menu.buildFromTemplate([
   { 
-    id: 2,  label: '开机自启', type: 'checkbox', checked: true, click() {
-      if (this.checked) {
+    id: 2,  label: '开机自启', type: 'checkbox', checked: !!store.get().autoBoot, click(menuItem, browserWindow, event) {
+      if (menuItem.checked) {
         enableAutoBoot()
         store.set({
           autoBoot: true

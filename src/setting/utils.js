@@ -1,6 +1,7 @@
 const http = require('http')
 const AutoLaunch = require('auto-launch')
-const Registry = require('winreg')
+const os = require('os')
+const cp = require('child_process')
 
 function request(option) {
   return Promise.race([
@@ -48,6 +49,7 @@ function disconnectDevice(ip, position, thisDevice) {
   })
 }
 function enableAutoBoot() {
+  console.log(global.appName, global.appPath)
   let autoLaunch = new AutoLaunch({
     name: global.appName,
     path: global.appPath
@@ -55,20 +57,12 @@ function enableAutoBoot() {
   autoLaunch.enable()
   // run as administrator can not auto launch, use schedule tasks instead
   if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
-  //  const { exec } = require('child_process')
-  //  const path = require('path')
-  //  // __dirname will be app.asar path after install
-  //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    const regKey = new Registry({
-      hive: Registry.HKLM,
-      key:  '\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
-    })
-    regKey.set(global.appName, Winreg.REG_SZ, "\"" + global.appPath + "\"", function(err) {
-      if (err != null) {
-        return reject(err);
-      }
-      return resolve();
-    });
+    //  const { exec } = require('child_process')
+    //  const path = require('path')
+    //  // __dirname will be app.asar path after install
+    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
+    cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
+    cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
   }
 }
 function disableAutoBoot() {
@@ -79,23 +73,8 @@ function disableAutoBoot() {
   autoLaunch.disable()
   // run as administrator can not auto launch, use schedule tasks instead
   if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
-  //  const { exec } = require('child_process')
-  //  const path = require('path')
-  //  // __dirname will be app.asar path after install
-  //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    const regKey = new Registry({
-      hive: Registry.HKLM,
-      key:  '\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
-    })
-    regKey.remove(global.appName, function(err) {
-      if (err != null) {
-        if (err.message.indexOf('The system was unable to find the specified registry key or value') !== -1) {
-          return resolve(false);
-        }
-        return reject(err);
-      }
-      return resolve();
-    });
+    cp.exec(`reg delete HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
+    cp.exec(`reg delete HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
   }
 }
 
