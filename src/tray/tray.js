@@ -12,9 +12,11 @@ const capture = require('../capture/capture')
 const store = require('../store/store')
 
 let tray
+const config = store.get()
+const autoBoot = (config ? config.autoBoot : true);
 const contextMenu = Menu.buildFromTemplate([
   { 
-    id: 2,  label: '开机自启', type: 'checkbox', checked: !!store.get().autoBoot, click(menuItem, browserWindow, event) {
+    id: 2,  label: '开机自启', type: 'checkbox', checked: autoBoot, click(menuItem, browserWindow, event) {
       if (menuItem.checked) {
         enableAutoBoot()
         store.set({

@@ -20,7 +20,7 @@ class store {
     }
   }
   set(content) {
-    const existedConfig = this.get() || this.defaultConfig
+    const existedConfig = this.get()
     if (existedConfig) {
       existedConfig.autoBoot = !!content.autoBoot || existedConfig.autoBoot
       existedConfig.position = content.position || existedConfig.position
@@ -30,10 +30,10 @@ class store {
   }
   get() {
     try {
-      return JSON.parse(fs.readFileSync(this.storePath))
+      return JSON.parse(fs.readFileSync(this.storePath)) || this.defaultConfig
     } catch(e) {
       console.log('store.getItem fail')
-      return null
+      return  this.defaultConfig
     }
   }
   clear() {

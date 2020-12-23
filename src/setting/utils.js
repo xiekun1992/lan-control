@@ -49,7 +49,6 @@ function disconnectDevice(ip, position, thisDevice) {
   })
 }
 function enableAutoBoot() {
-  console.log(global.appName, global.appPath)
   let autoLaunch = new AutoLaunch({
     name: global.appName,
     path: global.appPath
