@@ -106,6 +106,8 @@ function createWindow() {
     const remoteDevice = global.device.remotes.find(item => item.if === remoteIP)
     if (remoteDevice) {
       global.device.remote = null
+      global.device.position = null
+      global.device.isController = false
       store.clear()
       
       capture.setConnectionPeer(null, null)
@@ -140,6 +142,15 @@ function startServer() {
             if (!global.device.remote) {
               global.device.remote = remoteDeviceFound
               global.device.position = position
+              if (window) {
+                window.webContents.send('devices', {
+                  devices: global.device.remotes,
+                  thisDevice: global.device.local,
+                  remote: global.device.remote,
+                  position: global.device.position,
+                  isController: global.device.isController
+                })
+              }
               clipboardNet.capture()
               res.statusCode = 201
             } else {
@@ -149,8 +160,17 @@ function startServer() {
             break
           case 'delete': 
             if (global.device.remote === remoteDeviceFound) {
-              global.device.remote = null
-              global.device.position = null
+              if (window) {
+                window.webContents.send('devices', {
+                  devices: global.device.remotes,
+                  thisDevice: global.device.local,
+                  remote: null,
+                  position: global.device.position,
+                  isController: global.device.isController
+                })
+                global.device.remote = null
+                global.device.position = null
+              }
               clipboardNet.release()
             }
             res.statusCode = 200

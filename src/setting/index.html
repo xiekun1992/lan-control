@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>设置</title>
+  <title>互联设置</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -146,6 +146,8 @@
     }
   </script>
   <script>
+    const positionObj = {'left': 3, 'up': 1, 'right': 5, 'down': 7}
+    const positionReverseObj = {3: 'left', 1: 'up', 5: 'right', 7: 'down'}
     ipcRenderer.on('devices', (event, { devices, thisDevice, remote, position, isController }) => {
       console.log(devices, thisDevice)
       data = devices
@@ -153,6 +155,7 @@
         item.disabled = false
         return item
       })
+      // 渲染左侧列表
       render(data, types, filterEl)
       if (isController) {
         if (!deviceDisplays[position] && remote) {
@@ -161,10 +164,19 @@
           layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
         }
       } else {
-        if (!deviceDisplays[position] && remote) {
-          deviceDisplays[position] = remote
-          const positionIndex = 8 - {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
-          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+        // 当前是受控端，显示主控端
+        const positionIndex = 8 - positionObj[position]
+        const reversePosition = positionReverseObj[positionIndex]
+        if (!deviceDisplays[reversePosition] && remote) {
+          deviceDisplays[reversePosition] = remote
+          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div></div>`
+
+          const device = remote
+          device.netId = device.nic.find(item => item.address === device.if).netId
+          device.position = reversePosition
+        } else if (!remote && deviceDisplays[reversePosition]) {
+          deviceDisplays[reversePosition] = remote
+          layoutContainerEl.children[positionIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`    
         }
       }
 
