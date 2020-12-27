@@ -55,14 +55,7 @@ function enableAutoBoot() {
   })
   autoLaunch.enable()
   // run as administrator can not auto launch, use schedule tasks instead
-  if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
-    //  const { exec } = require('child_process')
-    //  const path = require('path')
-    //  // __dirname will be app.asar path after install
-    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
-    cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
-  }
+  _winEnableAutoLaunch() 
 }
 function disableAutoBoot() {
   let autoLaunch = new AutoLaunch({
@@ -71,12 +64,44 @@ function disableAutoBoot() {
   })
   autoLaunch.disable()
   // run as administrator can not auto launch, use schedule tasks instead
+  _winDisableAutoLaunch()
+}
+function _winEnableAutoLaunch() {
   if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
-    cp.exec(`reg delete HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
-    cp.exec(`reg delete HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
+    //  const { exec } = require('child_process')
+    //  const path = require('path')
+    //  // __dirname will be app.asar path after install
+    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
+    cp.exec(`reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName}`, function(err, stdout, stderr) {
+      if (err) {
+        cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
+      }
+    })
+    cp.exec(`reg query HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName}`, function(err, stdout, stderr) {
+      if (err) {
+        cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName} /t reg_sz /d ${global.appPath} /f`)
+      }
+    })
   }
 }
-
+function _winDisableAutoLaunch() {
+  if (os.platform() === 'win32' && !process.argv.includes('--dev')) {
+    //  const { exec } = require('child_process')
+    //  const path = require('path')
+    //  // __dirname will be app.asar path after install
+    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
+    cp.exec(`reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName}`, function(err, stdout, stderr) {
+      if (!err) {
+        cp.exec(`reg delete HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
+      }
+    })
+    cp.exec(`reg query HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appName}`, function(err, stdout, stderr) {
+      if (!err) {
+    cp.exec(`reg delete HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${global.appName} /f`)
+      }
+    })
+  }
+}
 module.exports = {
   connectDevice,
   disconnectDevice,
