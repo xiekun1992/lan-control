@@ -153,6 +153,8 @@ function startServer() {
               }
               clipboardNet.capture()
               res.statusCode = 201
+            } else if (global.device.remote.uuid == remoteDeviceFound.uuid) {
+              res.statusCode = 201
             } else {
               res.statusCode = 403
             }
