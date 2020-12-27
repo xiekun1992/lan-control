@@ -132,6 +132,7 @@ function startServer() {
         const position = urlObj.searchParams.get('position')
         const device = JSON.parse(urlObj.searchParams.get('device'))
         const ip = req.socket.remoteAddress
+        device.if = ip
         const remoteDeviceFound = global.device.remotes.find(dev => dev.if === ip) || device
         // add to remotes
         discover.addToRemotesDevice(remoteDeviceFound)
