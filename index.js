@@ -11,7 +11,7 @@ const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
 const store = require('./src/store/store')
 const capture = require('./src/capture/capture')
-const { connectDevice, enableAutoBoot } = require('./src/setting/utils')
+const { connectDevice, enableAutoBoot, keepRemoteShown } = require('./src/setting/utils')
 const { getHostInfo } = require('./src/discover/utils')
 
 global.device = {
@@ -61,8 +61,9 @@ if (!singleInstanceLock) {
             global.device.position = config.position
             capture.setConnectionPeer(global.device.remote.if, config.position)
             capture.startCapture()
-      
             clipboardNet.capture()
+      
+            keepRemoteShown(config.remote, config.position, thisDevice)
           }
         } catch (ex) {
           console.log('restore connection error', ex)

@@ -7,7 +7,7 @@ const discover = require('../discover/discover')
 let capture = require('../capture/capture')
 const clipboardNet = require('../clipboard/clipboard')
 const store = require('../store/store')
-const { connectDevice } = require('./utils')
+const { connectDevice, keepRemoteShown, cancelKeepRemoteShown } = require('./utils')
 const { getHostInfo } = require('../discover/utils')
 
 let window, server
@@ -98,8 +98,9 @@ function createWindow() {
       
       capture.setConnectionPeer(global.device.remote.if, position)
       capture.startCapture()
-
+      
       clipboardNet.capture()
+      keepRemoteShown(global.device.remote, position, global.device.local)
     }
   })
   ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
@@ -114,6 +115,7 @@ function createWindow() {
       // capture.closeCapture()
 
       clipboardNet.release()
+      cancelKeepRemoteShown()
     }
   })
   // window.webContents.openDevTools()
@@ -129,6 +131,7 @@ function startServer() {
     server = http.createServer((req, res) => {
       const urlObj = new URL('http://localhost' + req.url)
       if (urlObj.pathname === '/connection') {
+        const restore = urlObj.searchParams.get('restore')
         const position = urlObj.searchParams.get('position')
         const device = JSON.parse(urlObj.searchParams.get('device'))
         const ip = req.socket.remoteAddress

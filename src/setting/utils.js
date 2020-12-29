@@ -102,9 +102,31 @@ function _winDisableAutoLaunch() {
     })
   }
 }
+// after set remote, keep remote shown in setting window
+let keepping = false
+let keepInterval
+function keepRemoteShown(remote, position, thisDevice) {
+  if (keepping) {
+    return
+  } 
+  keepping = true
+  keepInterval = setInterval(async () => {
+    try {
+      await connectDevice(remote.if, position, thisDevice)
+    } catch (ex) {
+      console.log('keep connection error', ex)
+    }
+  }, 2000)
+}
+function cancelKeepRemoteShown() {
+  clearInterval(keepInterval)
+  keepping = false
+}
 module.exports = {
   connectDevice,
   disconnectDevice,
   enableAutoBoot,
-  disableAutoBoot
+  disableAutoBoot,
+  keepRemoteShown,
+  cancelKeepRemoteShown
 }
