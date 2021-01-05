@@ -22,7 +22,9 @@ class store {
   set(content) {
     const existedConfig = this.get()
     if (existedConfig) {
-      existedConfig.autoBoot = !!content.autoBoot || existedConfig.autoBoot
+      if ('autoBoot' in content) {
+        existedConfig.autoBoot = !!content.autoBoot
+      }
       existedConfig.position = content.position || existedConfig.position
       existedConfig.remote = content.remote || existedConfig.remote
     }
