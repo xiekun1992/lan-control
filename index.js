@@ -10,9 +10,10 @@ const clipboardNet = require('./src/clipboard/clipboard')
 const tray = require('./src/tray/tray')
 const replay = require('./src/replay/replay')
 const store = require('./src/store/store')
-const capture = require('./src/capture/capture')
-const { connectDevice, enableAutoBoot, keepRemoteShown } = require('./src/setting/utils')
-const { getHostInfo } = require('./src/discover/utils')
+// const capture = require('./src/capture/capture')
+const { restoreRemote } = require('./src/setting/setting')
+const { enableAutoBoot } = require('./src/setting/utils')
+// const { getHostInfo } = require('./src/discover/utils')
 
 global.device = {
   isController: false,
@@ -50,26 +51,28 @@ if (!singleInstanceLock) {
         // auto startup
         enableAutoBoot()
       }
-      if (config.remote) {
-        const thisDevice = await getHostInfo()
-        try {
-          const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
-          if (statusCode === 201) {
-            global.device.addToRemotes(config.remote)
-            global.device.isController = true
-            global.device.remote = config.remote
-            global.device.position = config.position
-            capture.setConnectionPeer(global.device.remote.if, config.position)
-            capture.startCapture()
-            clipboardNet.capture()
-      
-            keepRemoteShown(config.remote, config.position, thisDevice)
-          }
-        } catch (ex) {
-          console.log('restore connection error', ex)
-        }
-      }
     }
+    restoreRemote()
+    //   if (config.remote) {
+    //     const thisDevice = await getHostInfo()
+    //     try {
+    //       const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
+    //       if (statusCode === 201) {
+    //         global.device.addToRemotes(config.remote)
+    //         global.device.isController = true
+    //         global.device.remote = config.remote
+    //         global.device.position = config.position
+    //         capture.setConnectionPeer(global.device.remote.if, config.position)
+    //         capture.startCapture()
+    //         clipboardNet.capture()
+      
+    //         keepRemoteShown(config.remote, config.position, thisDevice)
+    //       }
+    //     } catch (ex) {
+    //       console.log('restore connection error', ex)
+    //     }
+    //   }
+    // }
 
     tray.initTray()
     await replay.start()

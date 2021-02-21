@@ -2,6 +2,8 @@ const http = require('http')
 const AutoLaunch = require('auto-launch')
 const os = require('os')
 const cp = require('child_process')
+let capture = require('../capture/capture')
+const clipboardNet = require('../clipboard/clipboard')
 
 function request(option) {
   return Promise.race([
@@ -111,10 +113,30 @@ function keepRemoteShown(remote, position, thisDevice) {
   } 
   keepping = true
   keepInterval = setInterval(async () => {
+    // try {
+    //   const result = await connectDevice(remote.if, position, thisDevice)
+    //   console.log(result)
+    // } catch (ex) {
+    //   // lost remote connection
+      
+    //   console.log('keep connection error', ex)
+    // }
     try {
-      await connectDevice(remote.if, position, thisDevice)
+      const { statusCode } = await connectDevice(remote.if, position, thisDevice)
+      if (statusCode === 201) {
+        global.device.addToRemotes(remote)
+        global.device.isController = true
+        global.device.remote = remote
+        global.device.position = position
+        capture.setConnectionPeer(global.device.remote.if, position)
+        capture.startCapture()
+        clipboardNet.capture()
+
+        cancelKeepRemoteShown()
+      }
+      keepRemoteShown(remote, position, thisDevice)
     } catch (ex) {
-      console.log('keep connection error', ex)
+      console.log('restore connection error', ex)
     }
   }, 2000)
 }

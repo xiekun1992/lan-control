@@ -41,38 +41,38 @@ function createWindow() {
       isController: global.device.isController
     })
     discover.event.on('discover', async ({ devices, newDevice, thisDevice }) => {
-      if (!global.device.remote && !global.device.position) {
-        const config = store.get()
-        if (config) {
-          if (config.remote) {
-            const thisDevice = await getHostInfo()
-            try {
-              const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
-              if (statusCode === 201) {
-                global.device.addToRemotes(config.remote)
-                global.device.remote = config.remote
-                global.device.position = config.position
-                global.device.isController = true
+      // if (!global.device.remote && !global.device.position) {
+      //   const config = store.get()
+      //   if (config) {
+      //     if (config.remote) {
+      //       const thisDevice = await getHostInfo()
+      //       try {
+      //         const { statusCode } = await connectDevice(config.remote.if, config.position, thisDevice)
+      //         if (statusCode === 201) {
+      //           global.device.addToRemotes(config.remote)
+      //           global.device.remote = config.remote
+      //           global.device.position = config.position
+      //           global.device.isController = true
 
-                capture.setConnectionPeer(global.device.remote.if, config.position)
-                capture.startCapture()
+      //           capture.setConnectionPeer(global.device.remote.if, config.position)
+      //           capture.startCapture()
           
-                clipboardNet.capture()
+      //           clipboardNet.capture()
 
-                window.webContents.send('devices', {
-                  devices,
-                  thisDevice,
-                  remote: global.device.remote,
-                  position: global.device.position,
-                  isController: global.device.isController
-                })
-              }
-            } catch (ex) {
-              console.log('restore connection error', ex)
-            }
-          }
-        }
-      }
+      //           window.webContents.send('devices', {
+      //             devices,
+      //             thisDevice,
+      //             remote: global.device.remote,
+      //             position: global.device.position,
+      //             isController: global.device.isController
+      //           })
+      //         }
+      //       } catch (ex) {
+      //         console.log('restore connection error', ex)
+      //       }
+      //     }
+      //   }
+      // }
       window.webContents.send('devices', {
         devices,
         thisDevice,
@@ -194,8 +194,18 @@ function startServer() {
     })
   }
 }
+async function restoreRemote() {
+  const config = store.get()
+  if (config) {
+    if (config.remote) {
+      const thisDevice = await getHostInfo()
+      keepRemoteShown(config.remote, config.position, thisDevice)
+    }
+  }
+}
 
 module.exports = {
   show,
-  startServer
+  startServer,
+  restoreRemote
 }
