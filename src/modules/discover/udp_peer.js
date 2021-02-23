@@ -15,7 +15,7 @@ class UDPPeer {
     
     this.server.on('listening', () => {
       const address = this.server.address();
-      console.log(`server listening ${address.address}:${address.port}`);
+      console.log(`discover IGMP server listening ${address.address}:${address.port}`);
     });
     
   }

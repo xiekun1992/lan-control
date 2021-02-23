@@ -1,9 +1,8 @@
-const os = require('os')
 const path = require('path')
 const fs = require('fs')
 
-class store {
-  constructor(dir = os.homedir(), filename = '.lan_control') {
+class Store {
+  constructor(dir, filename) {
     this.defaultConfig = {
       autoBoot: true,
       position: null,
@@ -43,4 +42,6 @@ class store {
   }
 }
 
-module.exports = new store()
+module.exports = {
+  Store
+}

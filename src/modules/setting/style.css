@@ -166,6 +166,9 @@ ul, li {padding: 0;margin:0;list-style: none;}
 .filter-list .filter-item div.type-icon.notebook {
   background-image: url('./images/laptop.png');
 }
+.layout-item .disabled {
+  color: #ccc;
+}
 .layout-item .type span,
 .layout-item .os span,
 .layout-item .resolution span,

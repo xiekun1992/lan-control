@@ -2,7 +2,8 @@ const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
 const { screen } = require('electron')
-// const clipboardNet = require('../clipboard/clipboard')
+const { hide, createWindow } = require('./overlay')
+const { calcEdge } = require('./utils')
 
 let initialized = false
 let address = null
@@ -12,8 +13,8 @@ let controlling = false, mouseSet = false
 let position // left, right
 let leftmost = 0, rightmost = 0
 // linux ubuntu with 1920x1080 resolution, the mouse movement range is 1919x1079
-const screenWidthGap = global.linux? 1: 0
-const screenHeightGap = global.linux? 1: 0
+const screenWidthGap = global.appState.platform.linux? 1: 0
+const screenHeightGap = global.appState.platform.linux? 1: 0
 // use a small area to capture mouse movement, 800x600 is the smallest screen resolution
 // the least screen size recommended is 1024x768, considering windows taskbar height is 40
 let mapArea = {
@@ -32,53 +33,54 @@ let mapArea = {
   }
 }
 
-// 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
-inputAuto.event.on('mousemove', event => {
-  // console.log(event)
-  checkInsideValidRange(event)
-
-  send({
-    type: 'mousemove',
-    x: event.x - mapArea.left,
-    y: event.y - mapArea.top
+function _captureInput() {
+  // 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
+  inputAuto.event.on('mousemove', event => {
+    // console.log(event)
+    _checkInsideValidRange(event)
+  
+    _send({
+      type: 'mousemove',
+      x: event.x - mapArea.left,
+      y: event.y - mapArea.top
+    })
   })
-})
-inputAuto.event.on('mousedown', event => {
-  send({
-    type: 'mousedown',
-    button: event.button
+  inputAuto.event.on('mousedown', event => {
+    _send({
+      type: 'mousedown',
+      button: event.button
+    })
   })
-})
-inputAuto.event.on('mouseup', event => {
-  send({
-    type: 'mouseup',
-    button: event.button
+  inputAuto.event.on('mouseup', event => {
+    _send({
+      type: 'mouseup',
+      button: event.button
+    })
   })
-})
-inputAuto.event.on('mousewheel', event => {
-  send({
-    type: 'mousewheel',
-    direction: event.direction
+  inputAuto.event.on('mousewheel', event => {
+    _send({
+      type: 'mousewheel',
+      direction: event.direction
+    })
   })
-})
-// let ctrl = false
-inputAuto.event.on('keydown', event => {
-  // console.log(event)
-  const char = inputAuto.keycodeToChar(event.vkCode)
-  send({
-    type: 'keydown',
-    char
+  // let ctrl = false
+  inputAuto.event.on('keydown', event => {
+    // console.log(event)
+    const char = inputAuto.keycodeToChar(event.vkCode)
+    _send({
+      type: 'keydown',
+      char
+    })
   })
-})
-inputAuto.event.on('keyup', event => {
-  const char = inputAuto.keycodeToChar(event.vkCode)
-  send({
-    type: 'keyup',
-    char
+  inputAuto.event.on('keyup', event => {
+    const char = inputAuto.keycodeToChar(event.vkCode)
+    _send({
+      type: 'keyup',
+      char
+    })
   })
-})
-
-function checkInsideValidRange(event) {
+}
+function _checkInsideValidRange(event) {
   if (!position) {
     return
   }
@@ -86,7 +88,7 @@ function checkInsideValidRange(event) {
     // console.log(mapArea)
     controlling = true
     
-    require('../overlay/overlay').createWindow(function() {
+    createWindow(function() {
       const timer1 = setTimeout(() => {
         const timer2 = setTimeout(() => {
           clearTimeout(timer2)
@@ -108,7 +110,7 @@ function checkInsideValidRange(event) {
       if (position === 'left') {
         controlling = false
         shouldForward = false
-        require('../overlay/overlay').hide()
+        hide()
         inputAuto.mousemove(leftmost + 2, event.y)
         mouseSet = false
       } else {
@@ -119,7 +121,7 @@ function checkInsideValidRange(event) {
       if (position === 'right') {
         controlling = false
         shouldForward = false
-        require('../overlay/overlay').hide()
+        hide()
         inputAuto.mousemove(rightmost - 2, event.y)
         mouseSet = false
       } else {
@@ -137,41 +139,50 @@ function checkInsideValidRange(event) {
     }
   }
 }
-function send(msg) {
+function _send(msg) {
   // console.log(msg)
   if (shouldForward && address) {
     server.send(JSON.stringify(msg), port, address)
   }
 }
-
-module.exports = {
-  /**
-   * set remote ip and relative position
-   * @param {string} targetAddress ip address, eg: 192.168.1.1
-   * @param {string} devicePosition relative position, eg: left or right
-   */
-  setConnectionPeer(targetAddress, devicePosition) {
-    address = targetAddress
-    position = devicePosition
-  },
-  startCapture() {
-    mapArea.init()
-    // sync clipboard content
-    // clipboardNet.sync()
-    if (!initialized) {
-      initialized = true
-      
-      const edge = require('./utils').calcEdge()
-      leftmost = edge.leftmost
-      rightmost = edge.rightmost - screenWidthGap
-      
-      inputAuto.init()
-    }
-  },
-  closeCapture() {
-    if (initialized) {
-      initialized = false
-      inputAuto.release()
-    }
+function destroy() {
+  if (server) {
+    inputAuto.release()
+    server.close(() => {})
   }
+}
+/**
+ * set remote ip and relative position
+ * @param {string} targetAddress ip address, eg: 192.168.1.1
+ * @param {string} devicePosition relative position, eg: left or right
+ */
+function setConnectionPeer(targetAddress, devicePosition) {
+  address = targetAddress
+  position = devicePosition
+}
+function init() {
+  _captureInput()
+  mapArea.init()
+  // sync clipboard content
+  global.appState.modules.clipboard.sync()
+  if (!initialized) {
+    initialized = true
+    
+    const edge = calcEdge()
+    leftmost = edge.leftmost
+    rightmost = edge.rightmost - screenWidthGap
+    
+    inputAuto.init()
+  }
+}
+// function closeCapture() {
+//   if (initialized) {
+//     initialized = false
+//     inputAuto.release()
+//   }
+// }
+module.exports = {
+  setConnectionPeer,
+  init,
+  destroy
 }

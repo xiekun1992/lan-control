@@ -1,8 +1,4 @@
-const Emitter = require('events')
-const { resolve } = require('path')
 const UDPPeer = require('./udp_peer')
-
-const discoverEmitter = new Emitter()
 
 const port = 1234
 const multicastAddress = '224.0.0.114'
@@ -46,9 +42,7 @@ function createServerInstance() {
   i = 0
 
   server.on('message', (msg, rinfo) => {
-    // console.log(JSON.parse(msg), rinfo)
     if (!hostInfo.nic.find(item => item.address === rinfo.address)) {
-      // console.log(JSON.parse(msg), rinfo)
       const newDevice = JSON.parse(msg)
       // mark which ip the remote connects from
       newDevice.if = rinfo.address
@@ -58,19 +52,11 @@ function createServerInstance() {
       }
       const rnetId = deviceNIC.netId
 
-      if (global.device.addToRemotes(newDevice)) {
+      if (global.appState.addToRemotes(newDevice)) {
         if (!hostInfo.if) {
           hostInfo.if = []
         }
         hostInfo.if = hostInfo.nic.find(item => item.netId === rnetId).address // only support one remote device
-        
-        // console.log(remoteDevices, hostInfo)
-        discoverEmitter.emit('discover', {
-          devices: global.device.remotes,
-          // devices: remoteDevices,
-          thisDevice: hostInfo,
-          newDevice
-        })
       }
     }
   })
@@ -86,15 +72,24 @@ function createServerInstance() {
     sendAllInterfaces()
   })
 }
+function destroy() {
+  if (server) {
+    server.close(() => {
+      server = null
+    })
+  }
+}
+
 
 module.exports = {
-  event: discoverEmitter,
-  async start() {
-    require('./utils').monitNetwork().on('update', (data) => {
+  destroy,
+  init() {
+    hostInfo = global.appState.state.local
+    createServerInstance()
+
+    global.appState.event.emit('global.nic:changed', (data) => {
+      console.log('network interface changed')
       hostInfo = data.hostInfo
-      discoverEmitter.emit('discover.local', {
-        device: hostInfo
-      })
       // nodejs cannot listen network interface up and down, thus cannot properly dropmembership,
       // restart server to solve this
       if (server) {
@@ -106,17 +101,17 @@ module.exports = {
       }, 2000)
     })
   },
-  addToRemotesDevice(device) {
-    const key = device.nic.map(item => item.mac).join('-')
-    if (!remoteDevicesMap[key]) {
-      remoteDevicesMap[key] = true
-      remoteDevices.push(device)
+  // addToRemotesDevice(device) {
+  //   const key = device.nic.map(item => item.mac).join('-')
+  //   if (!remoteDevicesMap[key]) {
+  //     remoteDevicesMap[key] = true
+  //     remoteDevices.push(device)
 
-      discoverEmitter.emit('discover', {
-        devices: remoteDevices,
-        thisDevice: hostInfo,
-        newDevice: device
-      })
-    }
-  }
+  //     global.appState.event.emit('discover', {
+  //       devices: remoteDevices,
+  //       thisDevice: hostInfo,
+  //       newDevice: device
+  //     })
+  //   }
+  // }
 }

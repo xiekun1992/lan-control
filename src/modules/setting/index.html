@@ -88,7 +88,7 @@
       } else {
         ipFragHTML = `<div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address}</span>`).join('<br>')}</div>`
       }
-      return `<div>
+      return `<div class="${device.disabled? 'disabled': ''}">
           <div class="type-icon ${device.type}"></div>
           <div class="detail">
               <div class="type"><b>型号: </b><div>${device.name}</div></div>
@@ -158,11 +158,11 @@
       // 渲染左侧列表
       render(data, types, filterEl)
       if (isController) {
-        if (!deviceDisplays[position] && remote) {
+        // if (!deviceDisplays[position] && remote) {
           deviceDisplays[position] = remote
           const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
           layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
-        }
+        // }
       } else {
         // 当前是受控端，显示主控端
         const positionIndex = 8 - positionObj[position]
@@ -189,7 +189,7 @@
     })
     function removeDisplay(elIndex, position, deviceIP) {
       deviceDisplays[position] = null
-      disconnectDevice(deviceIP, position, _thisDevice)
+      disconnectDevice(deviceIP, position, _thisDevice).then(console.log).catch(console.log)
       layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
       ipcRenderer.send('device.disconnect', {
         remoteIP: deviceIP,

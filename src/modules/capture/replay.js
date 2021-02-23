@@ -11,13 +11,13 @@ let width, height, scaleFactor
 server.on('message', (msg, rinfo) => {
   msg = JSON.parse(msg)
   // console.log(msg)
-  if (global.device.remote) {
+  if (global.appState.state.remote) {
     switch(msg.type) {
       case 'mousemove': 
         // console.log(msg.x, msg.y, width, height, scaleFactor)
         inputAuto.mousemove(
-          msg.x * width / global.device.remote.mapArea.width * scaleFactor,
-          msg.y * height / global.device.remote.mapArea.height * scaleFactor
+          msg.x * width / global.appState.state.remote.mapArea.width * scaleFactor,
+          msg.y * height / global.appState.state.remote.mapArea.height * scaleFactor
         )
         break
       case 'mousedown': 
@@ -49,15 +49,21 @@ server.on('message', (msg, rinfo) => {
     }
   }
 })
-
+function destroy() {
+  if (server) {
+    inputAuto.release()
+    server.close(() => {})
+  }
+}
 
 module.exports = {
-  start() {
+  destroy,
+  init() {
     ({ bounds: { width, height }, scaleFactor } = screen.getPrimaryDisplay())
     return new Promise((resolve, reject) => {
       server.bind(port, address, () => {
         resolve()
-        console.log('server started!!')
+        console.log(`replay UDP server listening ${address}:${port}`)
       })
     })
   }
