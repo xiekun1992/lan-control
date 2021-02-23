@@ -15,7 +15,10 @@ if (!singleInstanceLock) {
     await core.bootstrap(__dirname)
   })
 }
-
+// prevent window closed causes app quit
+app.on('window-all-closed', (event) => {
+  event.preventDefault()
+})
 app.on('will-quit', (event) => {
   if (!global.manualExit) {
     event.preventDefault()
