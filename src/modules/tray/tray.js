@@ -31,7 +31,7 @@ function init() {
     }
   ])
 
-  const iconName = global.linux? '64x64.png': 'app.ico'
+  const iconName = global.appState.platform.linux? '64x64.png': 'app.ico'
   tray = new Tray(path.resolve(global.appState.path, `assets/${iconName}`))
   tray.setIgnoreDoubleClickEvents(true)
   tray.setToolTip(global.appState.name)

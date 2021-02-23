@@ -27,14 +27,14 @@ server.on('message', (msg, rinfo) => {
         inputAuto.mouseup(msg.button)
         break
       case 'mousewheel': 
-        if (global.linux) {
+        if (global.appState.platform.linux) {
           inputAuto.mousewheel(msg.direction / -Math.abs(msg.direction))
         } else {
           inputAuto.mousewheel(msg.direction)
         }
         break
       case 'mousewheel': 
-        if (global.linux) {
+        if (global.appState.platform.linux) {
           inputAuto.mousewheel(msg.direction / -Math.abs(msg.direction))
         } else {
           inputAuto.mousewheel(msg.direction)
