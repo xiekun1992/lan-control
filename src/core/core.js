@@ -1,14 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
-const AutoLaunch = require('auto-launch')
-const cp = require('child_process')
 
 const { GlobalEvent } = require('./event')
 const { State, Device } = require('./state')
 const { Store } = require('./store')
+const { monitNetwork, enableAutoBoot, disableAutoBoot } = require('./utils')
 
-let appState = {}, nicNum = 0
+let appState = {}
 
 async function bootstrap(launchPath) {
   appState = {
@@ -80,7 +79,7 @@ async function bootstrap(launchPath) {
     if ('autoBoot' in store) {
       if (appState.autoBoot !== !!store.autoBoot) {
         appState.autoBoot = !!store.autoBoot
-        appState.autoBoot? _enableAutoBoot(): _disableAutoBoot()
+        appState.autoBoot? enableAutoBoot(): disableAutoBoot()
       }
     }
     if ('position' in store) {
@@ -110,7 +109,7 @@ async function bootstrap(launchPath) {
   }
   appState.state.remote = configFile.remote // todo: to much extra info added
 
-  appState.autoBoot? _enableAutoBoot(): _disableAutoBoot()
+  appState.autoBoot? enableAutoBoot(): disableAutoBoot()
 
   // launch application modules
   for (const mod in appState.modules) {
@@ -120,93 +119,13 @@ async function bootstrap(launchPath) {
   }
 
   // check network interface change
-  _monitNetwork()
+  monitNetwork()
 }
 function destroy() {
   // destroy application modules
   for (const mod in appState.modules) {
     console.log(`${mod} destroy`)
     typeof appState.modules[mod].destroy === 'function'? appState.modules[mod].destroy(): console.log(`${mod}.destroy function not exist`)
-  }
-}
-
-function _monitNetwork() {
-  setInterval(_nicCheck, 1000)
-}
-async function _nicCheck() {
-  const ifs = os.networkInterfaces()
-  let currentNicNum = 0
-  for (const name in ifs) { // count available interfaces
-    if (ifs[name].some(item => item.internal === false)) {
-      currentNicNum++
-    }
-  }
-  // check if new interface available or any interface is unavailable
-  if (nicNum !== currentNicNum) { // todo: only check number, same number with different ip will not work
-    nicNum = currentNicNum
-    // update global device info
-    await appState.state.local.updateHostInfo()
-
-    appState.event.emit('global.nic:changed', {
-      hostInfo: appState.state.local
-    })
-    appState.event.emit('global.state.local:updated', {
-      device: appState.state.local
-    })
-  }
-}
-function _enableAutoBoot() {
-  let autoLaunch = new AutoLaunch({
-    name: appState.name,
-    path: appState.path
-  })
-  autoLaunch.enable()
-  // run as administrator can not auto launch, use schedule tasks instead
-  _winEnableAutoLaunch() 
-}
-function _disableAutoBoot() {
-  let autoLaunch = new AutoLaunch({
-    name: appState.name,
-    path: appState.path
-  })
-  autoLaunch.disable()
-  // run as administrator can not auto launch, use schedule tasks instead
-  _winDisableAutoLaunch()
-}
-function _winEnableAutoLaunch() {
-  if (appState.platform.windows && !process.argv.includes('--dev')) {
-    //  const { exec } = require('child_process')
-    //  const path = require('path')
-    //  // __dirname will be app.asar path after install
-    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    cp.exec(`reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name}`, function(err, stdout, stderr) {
-      if (err) {
-        cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name} /t reg_sz /d ${appState.path} /f`)
-      }
-    })
-    cp.exec(`reg query HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name}`, function(err, stdout, stderr) {
-      if (err) {
-        cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name} /t reg_sz /d ${appState.path} /f`)
-      }
-    })
-  }
-}
-function _winDisableAutoLaunch() {
-  if (appState.platform.windows && !process.argv.includes('--dev')) {
-    //  const { exec } = require('child_process')
-    //  const path = require('path')
-    //  // __dirname will be app.asar path after install
-    //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
-    cp.exec(`reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name}`, function(err, stdout, stderr) {
-      if (!err) {
-        cp.exec(`reg delete HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${appState.name} /f`)
-      }
-    })
-    cp.exec(`reg query HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${appState.name}`, function(err, stdout, stderr) {
-      if (!err) {
-    cp.exec(`reg delete HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run\ /v ${appState.name} /f`)
-      }
-    })
   }
 }
 
