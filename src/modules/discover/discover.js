@@ -6,7 +6,7 @@ const multicastAddress = '224.0.0.114'
 let hostInfo
 let server = null
 
-let i = 0, timer, timeout = 1000
+let i = 0, timer, timeout = 50
 let remoteDevices = []
 let remoteDevicesMap = {}
 
