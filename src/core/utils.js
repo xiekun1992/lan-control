@@ -30,43 +30,49 @@ async function _nicCheck() {
   }
 }
 function enableAutoBoot() {
-  let autoLaunch = new AutoLaunch({
-    name: global.appState.name,
-    path: global.appState.path
-  })
-  autoLaunch.enable()
-  // run as administrator can not auto launch, use schedule tasks instead
-  _winEnableAutoLaunch() 
+  if (global.appState.platform.windows) {
+    // run as administrator can not auto launch
+    _winEnableAutoLaunch() 
+  } else {
+    let autoLaunch = new AutoLaunch({
+      name: global.appState.name,
+      path: global.appState.path
+    })
+    autoLaunch.enable()
+  }
 }
 function disableAutoBoot() {
-  let autoLaunch = new AutoLaunch({
-    name: global.appState.name,
-    path: global.appState.path
-  })
-  autoLaunch.disable()
-  // run as administrator can not auto launch, use schedule tasks instead
-  _winDisableAutoLaunch()
+  if (global.appState.platform.windows) {
+    // run as administrator can not auto launchs
+    _winDisableAutoLaunch()
+  } else {
+    let autoLaunch = new AutoLaunch({
+      name: global.appState.name,
+      path: global.appState.path
+    })
+    autoLaunch.disable()  
+  }
 }
-function _winEnableAutoLaunch() {
-  if (global.appState.platform.windows && !process.argv.includes('--dev')) {
+function _winEnableAutoLaunch() { // require administrator privilege
+  if (!process.argv.includes('--dev')) {
     //  const { exec } = require('child_process')
     //  const path = require('path')
     //  // __dirname will be app.asar path after install
     //  exec(`schtasks /create /f /tn "lan control auto start" /tr ${path.join(__dirname, '../../lan_control.exe')} /sc onlogon /rl highest`)
     cp.exec(`reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name}`, function(err, stdout, stderr) {
       if (err) {
-        cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name} /t reg_sz /d ${global.appState.path} /f`)
+        cp.exec(`reg add HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name} /t reg_sz /d ${global.appState.exePath} /f`)
       }
     })
     cp.exec(`reg query HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name}`, function(err, stdout, stderr) {
       if (err) {
-        cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name} /t reg_sz /d ${global.appState.path} /f`)
+        cp.exec(`reg add HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run /v ${global.appState.name} /t reg_sz /d ${global.appState.exePath} /f`)
       }
     })
   }
 }
-function _winDisableAutoLaunch() {
-  if (global.appState.platform.windows && !process.argv.includes('--dev')) {
+function _winDisableAutoLaunch() { // require administrator privilege
+  if (!process.argv.includes('--dev')) {
     //  const { exec } = require('child_process')
     //  const path = require('path')
     //  // __dirname will be app.asar path after install

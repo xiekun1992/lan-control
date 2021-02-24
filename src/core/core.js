@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
+const { app } = require('electron')
 
 const { GlobalEvent } = require('./event')
 const { State, Device } = require('./state')
@@ -12,6 +13,7 @@ let appState = {}
 async function bootstrap(launchPath) {
   appState = {
     name: require(path.resolve(launchPath, 'package.json')).name,
+    exePath: app.getPath('exe'),
     path: launchPath,
     platform: {
       linux: os.platform() === 'linux',
