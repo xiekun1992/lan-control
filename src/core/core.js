@@ -7,14 +7,14 @@ const { GlobalEvent } = require('./event')
 const { State, Device } = require('./state')
 const { Store } = require('./store')
 const { monitNetwork, enableAutoBoot, disableAutoBoot } = require('./utils')
-
-let appState = {}
+const { checkForUpdate } = require('./update')
 
 async function bootstrap(launchPath) {
-  appState = {
+  global.appState = {
     name: require(path.resolve(launchPath, 'package.json')).name,
     exePath: app.getPath('exe'),
     path: launchPath,
+    updateURL: 'http://127.0.0.1:10000/', // should be hard coded,  require(path.resolve(launchPath, 'package.json')).build.publish[0].url,
     platform: {
       linux: os.platform() === 'linux',
       windows: os.platform() === 'win32'
@@ -45,8 +45,13 @@ async function bootstrap(launchPath) {
       return Device.stringify(device)
     }
   }
+  const appState = global.appState
+  
+  if (appState.platform.windows) {
+    checkForUpdate(appState.updateURL)
+  }
+
   await appState.state.local.updateHostInfo()
-  global.appState = appState
   
   // register all application modules
   const modules = fs.readdirSync(path.resolve(launchPath, 'src/modules'))

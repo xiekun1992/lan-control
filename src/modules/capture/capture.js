@@ -172,7 +172,7 @@ function init() {
     leftmost = edge.leftmost
     rightmost = edge.rightmost - screenWidthGap
     
-    inputAuto.init()
+    inputAuto.init() // todo: cause linux cpu too much overhead
   }
 }
 // function closeCapture() {

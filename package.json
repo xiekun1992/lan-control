@@ -1,6 +1,6 @@
 {
   "name": "lan_control",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "a remote control in LAN, support keyboard, mouse, clipboard capture and replay",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,12 @@
     "electronDownload": {
       "mirror": "https://npm.taobao.org/mirrors/electron/"
     },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://127.0.0.1:10000/"
+      }
+    ],
     "win": {
       "target": "nsis",
       "requestedExecutionLevel": "requireAdministrator",
@@ -43,6 +49,7 @@
     "@xiekun1992/node-addon-keyboard-auto": "github:xiekun1992/node-addon-keyboard-auto",
     "@xiekun1992/node-addon-transparent-window": "github:xiekun1992/node-addon-transparent-window",
     "auto-launch": "^5.0.5",
+    "electron-updater": "^4.3.8",
     "systeminformation": "^4.31.1"
   }
 }
