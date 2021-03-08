@@ -14,7 +14,7 @@ async function bootstrap(launchPath) {
     name: require(path.resolve(launchPath, 'package.json')).name,
     exePath: app.getPath('exe'),
     path: launchPath,
-    updateURL: 'http://127.0.0.1:10000/', // should be hard coded,  require(path.resolve(launchPath, 'package.json')).build.publish[0].url,
+    updateURL: 'http://home.xuexuesoft.com:5023/lan_control/download/latest/', // should be hard coded,  require(path.resolve(launchPath, 'package.json')).build.publish[0].url,
     platform: {
       linux: os.platform() === 'linux',
       windows: os.platform() === 'win32'

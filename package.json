@@ -20,7 +20,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "http://127.0.0.1:10000/"
+        "url": "http://home.xuexuesoft.com:5023/lan_control/download/latest/"
       }
     ],
     "win": {
