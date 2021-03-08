@@ -39,9 +39,9 @@ function checkForUpdate(updateURL) {
     })
   })
   autoUpdater.on('error', (msg) => {
-    dialog.showMessageBox({
-      message: `error: ${msg}`
-    })
+    // dialog.showMessageBox({
+    //   message: `error: ${msg}`
+    // })
   })
   autoUpdater.checkForUpdates()
 }
