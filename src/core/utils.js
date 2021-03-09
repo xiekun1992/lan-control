@@ -24,7 +24,7 @@ async function _nicCheck() {
     global.appState.event.emit('global.nic:changed', {
       hostInfo: global.appState.state.local
     })
-    global.appState.event.emit('', {
+    global.appState.event.emit('global.state.local:updated', {
       device: global.appState.state.local
     })
   }

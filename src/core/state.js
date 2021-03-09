@@ -4,6 +4,7 @@ const os = require('os')
 
 class Device {
   constructor ({
+    timestamp = 0,
     iface = '',
     disabled = false,
     netId = '',
@@ -23,6 +24,7 @@ class Device {
       height: 600
     }
   }) {
+    this.timestamp = timestamp || 0
     this.if = iface
     this.disabled = disabled
     this.netId = netId
@@ -107,6 +109,29 @@ class State {
     this.remote = null // connected device
     this.position = '' // left | right
     this.local = new Device({}) // self
+  }
+  /**
+   * update device info in remotes
+   * @param {Device} device 
+   * @returns {Boolean} result
+   */
+  refreshDeviceInfo(device) {
+    if (this.getDeviceUniqueId(device) === this.getDeviceUniqueId(this.remote)) {
+      this.remote.resolution = device.resolution
+      this.remote.nic = device.nic
+      this.remote.timestamp = device.timestamp
+    }
+
+    for (let i = 0; i < this.remotes.length; i++) {
+      const oldDevice = this.remotes[i]
+      if (this.getDeviceUniqueId(device) === this.getDeviceUniqueId(oldDevice)) {
+        oldDevice.resolution = device.resolution
+        oldDevice.nic = device.nic
+        oldDevice.timestamp = device.timestamp
+        return true
+      }
+    }
+    return false
   }
   /**
    * find device in remote list by given ip

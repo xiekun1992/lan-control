@@ -9,11 +9,11 @@ const address = '0.0.0.0', port = 2000
 function _capture() {
   if (!captureInited) {
     captureInited = true
-  console.log('clipboard capture')
-  clipboardAuto.capture(() => {
-    console.log('clipboard capture callback')
-    sync()
-  })
+    console.log('clipboard capture')
+    clipboardAuto.capture(() => {
+      console.log('clipboard capture callback')
+      sync()
+    })
   }
 }
 function destroy() {

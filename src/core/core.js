@@ -25,6 +25,7 @@ async function bootstrap(launchPath) {
     event: new GlobalEvent(),
     store: new Store(os.homedir(), '.lan_control'),
     addToRemotes(newDevice) {
+      newDevice.timestamp = Date.now()
       const result = this.state.addToRemotes(newDevice)
       if (result) {
         appState.event.emit('global.state.remotes:updated', {
@@ -43,6 +44,18 @@ async function bootstrap(launchPath) {
     },
     deviceStringify(device) {
       return Device.stringify(device)
+    },
+    refreshDeviceInfo(device) {
+      // refresh remotes
+      if (this.state.refreshDeviceInfo(device)) {
+        global.appState.event.emit('global.state.remotes:updated', {
+          devices: this.state.remotes,
+          thisDevice: this.state.local,
+          newDevice: device
+        })
+        return true
+      }
+      return false
     }
   }
   const appState = global.appState
