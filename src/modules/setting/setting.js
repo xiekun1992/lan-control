@@ -5,7 +5,7 @@ const path = require('path')
 const http = require('http')
 const { connectDevice } = require('./utils')
 
-let window, server
+let window, server, keepRemoteTimer
 const address = '0.0.0.0', port = 2001
 
 function _createWindow() {
@@ -36,13 +36,13 @@ function _createWindow() {
     // new device found
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote, position, isController } = global.appState.state
-      window.webContents.send('devices', {
+      window && window.webContents.send('devices', {
         devices, thisDevice, remote, position, isController
       })
     })
     // update network info
     global.appState.event.on('global.state.local:updated', ({ device }) => {
-      window.webContents.send('devices.local', { device })
+      window && window.webContents.send('devices.local', { device })
     })
   })
   ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
@@ -162,6 +162,7 @@ function init() {
         switch(req.method.toLowerCase()) {
           case 'post': 
             if (!global.appState.state.remote) {
+              remoteDeviceFound.disabled = false
               global.appState.event.emit('global.state:update', {
                 position: positionArg,
                 remote: remoteDeviceFound
@@ -174,6 +175,32 @@ function init() {
               }
               res.statusCode = 201
             } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
+              remoteDeviceFound.disabled = false
+              global.appState.event.emit('global.state:update', {
+                position: positionArg,
+                remote: remoteDeviceFound
+              })
+              const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+              if (window) {
+                window.webContents.send('devices', {
+                  devices, thisDevice, remote, position, isController
+                })
+              }
+              // global.appState.state.remote.timestamp = Date.now()
+              clearTimeout(keepRemoteTimer)
+              keepRemoteTimer = setTimeout(() => {
+                remoteDeviceFound.disabled = true
+                global.appState.event.emit('global.state:update', {
+                  position: positionArg,
+                  remote: remoteDeviceFound
+                })
+                const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+                if (window) {
+                  window.webContents.send('devices', {
+                    devices, thisDevice, remote, position, isController
+                  })
+                }
+              }, 2500)
               res.statusCode = 201
             } else {
               res.statusCode = 403
@@ -181,7 +208,7 @@ function init() {
             res.end()
             break
           case 'delete': 
-            if (global.appState.state.remote === remoteDeviceFound) {
+            if (global.appState.state.remote && global.appState.state.remote.uuid === remoteDeviceFound.uuid) {
               global.appState.event.emit('global.state:update', {
                 position: '',
                 remote: null

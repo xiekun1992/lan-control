@@ -170,13 +170,15 @@
         if (!deviceDisplays[reversePosition] && remote) {
           deviceDisplays[reversePosition] = remote
           layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div></div>`
-
+          
           const device = remote
           device.netId = device.nic.find(item => item.address === device.if).netId
           device.position = reversePosition
         } else if (!remote && deviceDisplays[reversePosition]) {
           deviceDisplays[reversePosition] = remote
           layoutContainerEl.children[positionIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`    
+        } else if (remote && deviceDisplays[reversePosition]) {
+          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div></div>`
         }
       }
 

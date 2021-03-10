@@ -116,7 +116,7 @@ class State {
    * @returns {Boolean} result
    */
   refreshDeviceInfo(device) {
-    if (this.getDeviceUniqueId(device) === this.getDeviceUniqueId(this.remote)) {
+    if (device && this.remote && this.getDeviceUniqueId(device) === this.getDeviceUniqueId(this.remote)) {
       this.remote.resolution = device.resolution
       this.remote.nic = device.nic
       this.remote.timestamp = device.timestamp

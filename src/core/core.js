@@ -92,6 +92,9 @@ async function bootstrap(launchPath) {
   appState.event.on('global.state:update', function({ position, remote }) {
     appState.state.position = position
     appState.state.remote = remote
+    if (appState.state.remote) {
+      appState.state.remote.timestamp = Date.now()
+    }
     appState.event.emit('global.state:updated', { state: appState.state })
   })
   // config file change
