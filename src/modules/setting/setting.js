@@ -177,16 +177,18 @@ function init() {
               }
               res.statusCode = 201
             } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
-              remoteDeviceFound.disabled = false
-              global.appState.event.emit('global.state:update', {
-                position: positionArg,
-                remote: remoteDeviceFound
-              })
-              const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-              if (window) {
-                window.webContents.send('devices', {
-                  devices, thisDevice, remote, position, isController
+              if (global.appState.state.remote.disabled) {
+                remoteDeviceFound.disabled = false
+                global.appState.event.emit('global.state:update', {
+                  position: positionArg,
+                  remote: remoteDeviceFound
                 })
+                const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+                if (window) {
+                  window.webContents.send('devices', {
+                    devices, thisDevice, remote, position, isController
+                  })
+                }
               }
               // global.appState.state.remote.timestamp = Date.now()
               clearTimeout(keepRemoteTimer)
