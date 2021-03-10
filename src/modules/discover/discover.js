@@ -45,7 +45,7 @@ function checkRemotesAlive() {
       global.appState.state.remotes.splice(i, 1)
     }
   }
-  if (global.appState.state.remote && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
+  if (global.appState.state.remote && !global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
     global.appState.state.remote.disabled = true
     global.appState.modules.capture.setConnectionPeer(null, null)
     modified = true

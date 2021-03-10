@@ -98,13 +98,15 @@ function _keepRemoteShown(remote, position, thisDevice) {
         }
         global.appState.modules.capture.setConnectionPeer(remote.if, position)
       } else {
-        global.appState.state.remote.disabled = false
+        if (global.appState.state.remote.disabled) {
+          global.appState.state.remote.disabled = false
 
-        const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-        if (window) {
-          window.webContents.send('devices', {
-            devices, thisDevice, remote, position, isController
-          })
+          const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+          if (window) {
+            window.webContents.send('devices', {
+              devices, thisDevice, remote, position, isController
+            })
+          }
         }
       }
       _keepRemoteShown(remote, position, thisDevice)

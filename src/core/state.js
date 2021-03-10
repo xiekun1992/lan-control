@@ -125,10 +125,19 @@ class State {
     for (let i = 0; i < this.remotes.length; i++) {
       const oldDevice = this.remotes[i]
       if (this.getDeviceUniqueId(device) === this.getDeviceUniqueId(oldDevice)) {
-        oldDevice.resolution = device.resolution
-        oldDevice.nic = device.nic
-        oldDevice.timestamp = device.timestamp
-        return true
+        let updated = false
+        if (oldDevice.resolution !== device.resolution) {
+          oldDevice.resolution = device.resolution
+          updated = true
+        }
+        if (JSON.stringify(oldDevice.nic) !== JSON.stringify(device.nic)) {
+          oldDevice.nic = device.nic
+          updated = true
+        }
+        if (oldDevice.timestamp !== device.timestamp) {
+          oldDevice.timestamp = device.timestamp
+        }
+        return updated
       }
     }
     return false
