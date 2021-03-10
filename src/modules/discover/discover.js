@@ -45,7 +45,7 @@ function checkRemotesAlive() {
       global.appState.state.remotes.splice(i, 1)
     }
   }
-  if (now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
+  if (global.appState.state.remote && !global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
     global.appState.state.remote.disabled = true
     global.appState.modules.capture.setConnectionPeer(null, null)
     modified = true
@@ -112,7 +112,7 @@ module.exports = {
     hostInfo = global.appState.state.local
     createServerInstance()
 
-    global.appState.event.emit('global.nic:changed', (data) => {
+    global.appState.event.on('global.nic:changed', (data) => {
       console.log('network interface changed')
       hostInfo = data.hostInfo
       // nodejs cannot listen network interface up and down, thus cannot properly dropmembership,

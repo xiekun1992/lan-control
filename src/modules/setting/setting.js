@@ -36,13 +36,13 @@ function _createWindow() {
     // new device found
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote, position, isController } = global.appState.state
-      window.webContents.send('devices', {
+      window && window.webContents.send('devices', {
         devices, thisDevice, remote, position, isController
       })
     })
     // update network info
     global.appState.event.on('global.state.local:updated', ({ device }) => {
-      window.webContents.send('devices.local', { device })
+      window && window.webContents.send('devices.local', { device })
     })
   })
   ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
@@ -98,13 +98,15 @@ function _keepRemoteShown(remote, position, thisDevice) {
         }
         global.appState.modules.capture.setConnectionPeer(remote.if, position)
       } else {
-        global.appState.state.remote.disabled = false
+        if (global.appState.state.remote.disabled) {
+          global.appState.state.remote.disabled = false
 
-        const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-        if (window) {
-          window.webContents.send('devices', {
-            devices, thisDevice, remote, position, isController
-          })
+          const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+          if (window) {
+            window.webContents.send('devices', {
+              devices, thisDevice, remote, position, isController
+            })
+          }
         }
       }
       _keepRemoteShown(remote, position, thisDevice)
