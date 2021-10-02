@@ -1,15 +1,15 @@
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
 const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
-const { screen } = require('electron')
+import { screen } from 'electron'
 
 const port = 8888
 const address = '0.0.0.0'
 
-let width, height, scaleFactor
+let width: number, height: number, scaleFactor: number
 
-server.on('message', (msg, rinfo) => {
-  msg = JSON.parse(msg)
+server.on('message', (message: string, rinfo: any) => {
+  const msg = JSON.parse(message)
   // console.log(msg)
   if (global.appState.state.remote) {
     switch(msg.type) {
@@ -60,7 +60,7 @@ module.exports = {
   destroy,
   init() {
     ({ bounds: { width, height }, scaleFactor } = screen.getPrimaryDisplay())
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Function, reject) => {
       server.bind(port, address, () => {
         resolve()
         console.log(`replay UDP server listening ${address}:${port}`)

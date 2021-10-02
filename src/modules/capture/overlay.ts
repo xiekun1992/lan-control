@@ -3,7 +3,7 @@ const transparentWindow = require('@xiekun1992/node-addon-transparent-window')
 let initialized = false
 
 module.exports = {
-  createWindow (callback) {
+  createWindow (callback: Function) {
     if (!initialized) {
       initialized = true
       transparentWindow.create(function() {

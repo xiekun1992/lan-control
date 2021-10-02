@@ -1,12 +1,17 @@
-const path = require('path')
-const fs = require('fs')
+import path from 'path'
+import fs from 'fs'
+import { Device } from './states/Device';
+// import { Config, Device } from '../../types'
 
 class Store {
-  constructor(dir, filename) {
+  defaultConfig: LAN.Config;
+  storePath: string = '';
+
+  constructor(dir: string, filename: string) {
     this.defaultConfig = {
       autoBoot: true,
-      position: null,
-      remote: null
+      position: '',
+      remote: new Device()
     }
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, {
@@ -18,8 +23,8 @@ class Store {
       this.clear()
     }
   }
-  set(content) {
-    const existedConfig = this.get()
+  set(content: LAN.Config): void {
+    const existedConfig: LAN.Config = this.get()
     if (existedConfig) {
       if ('autoBoot' in content) {
         existedConfig.autoBoot = !!content.autoBoot
@@ -29,19 +34,19 @@ class Store {
     }
     fs.writeFileSync(this.storePath, JSON.stringify(existedConfig, null, 2))
   }
-  get() {
+  get(): LAN.Config {
     try {
-      return JSON.parse(fs.readFileSync(this.storePath)) || this.defaultConfig
+      return JSON.parse(fs.readFileSync(this.storePath).toString()) || this.defaultConfig
     } catch(e) {
       console.log('store.getItem fail')
       return  this.defaultConfig
     }
   }
-  clear() {
+  clear(): void {
     this.set(this.defaultConfig)
   }
 }
 
-module.exports = {
+export {
   Store
 }

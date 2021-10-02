@@ -1,31 +1,31 @@
-const { dialog } = require('electron')
-const { autoUpdater } = require('electron-updater')
+import { dialog } from 'electron'
+import { autoUpdater } from 'electron-updater'
 
-function checkForUpdate(updateURL) {
+function checkForUpdate(updateURL: string): void {
   // https://www.electron.build/auto-update
   autoUpdater.setFeedURL(updateURL)
-  autoUpdater.on('checking-for-update', () => {
+  // autoUpdater.on('checking-for-update', () => {
     // dialog.showMessageBox({
     //   message: '正在检查更新...'
     // })
-  })
-  autoUpdater.on('update-available', (info) => {
+  // })
+  // autoUpdater.on('update-available', (info) => {
     // dialog.showMessageBox({
     //   title: '自动更新',
     //   message: `发现新版本:${info.version}`
     // })
-  })
-  autoUpdater.on('update-not-available', (info) => {
+  // })
+  // autoUpdater.on('update-not-available', (info) => {
     // dialog.showMessageBox({
     //   message: 'update-not-available'
     // })
-  })
-  autoUpdater.on('download-progress', (progress, bytesPerSecond, percent, total, transferred) => {
+  // })
+  // autoUpdater.on('download-progress', (progress, bytesPerSecond, percent, total, transferred) => {
     // dialog.showMessageBox({
     //   message: 'download-progress'
     // })
-  })
-  autoUpdater.on('update-downloaded', (info) => {
+  // })
+  autoUpdater.on('update-downloaded', (info: any) => {
     const dialogOpts = {
       type: 'info',
       buttons: ['是', '否'],
@@ -38,15 +38,17 @@ function checkForUpdate(updateURL) {
       }
     })
   })
-  autoUpdater.on('error', (msg) => {
+  // autoUpdater.on('error', (msg: string) => {
     // dialog.showMessageBox({
     //   message: `error: ${msg}`
     // })
-  })
-  autoUpdater.checkForUpdates()
+  // })
+  if (global.appState.platform.windows) {
+    // autoUpdater.checkForUpdates()
+  }
 }
 
 
-module.exports = {
+export {
   checkForUpdate
 }

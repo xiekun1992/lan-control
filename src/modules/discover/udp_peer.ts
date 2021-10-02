@@ -1,10 +1,11 @@
-const dgram = require('dgram')
+import dgram from 'dgram'
 
-class UDPPeer {
+export class UDPPeer {
+  server: dgram.Socket
   constructor() {
     this.server = dgram.createSocket({ reuseAddr: true, type: 'udp4'})
     
-    this.server.on('error', (err) => {
+    this.server.on('error', (err: Error) => {
       console.log(`server error:\n${err.stack}`);
       this.server.close();
     });
@@ -19,9 +20,7 @@ class UDPPeer {
     });
     
   }
-  bind(ip, port) {
-    this.server.bind(ip, port);
+  bind(port: number, ip?: string) {
+    this.server.bind(port, ip);
   }
 }
-
-module.exports = UDPPeer

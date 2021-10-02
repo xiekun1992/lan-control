@@ -1,6 +1,14 @@
-const { app } = require('electron')
+import { app } from 'electron'
+import core from './core/core'
+import path from 'path'
 
-const core = require('./src/core/core')
+declare global {
+  namespace NodeJS {
+    interface Global {
+      manualExit: boolean
+    }
+  }
+}
 
 global.manualExit = false
 
@@ -12,11 +20,11 @@ if (!singleInstanceLock) {
 } else {
   app.whenReady().then(async () => {
     // app.getPath('exe')
-    await core.bootstrap(__dirname)
+    await core.bootstrap(path.resolve(__dirname, '../'))
   })
 }
 // prevent window closed causes app quit
-app.on('window-all-closed', (event) => {
+app.on('window-all-closed', (event: any) => {
   event.preventDefault()
 })
 app.on('will-quit', (event) => {

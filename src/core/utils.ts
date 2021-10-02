@@ -1,6 +1,6 @@
-const os = require('os')
-const AutoLaunch = require('auto-launch')
-const cp = require('child_process')
+import os from 'os'
+import cp from 'child_process'
+import AutoLaunch from 'auto-launch'
 
 let nicNum = 0
 
@@ -19,7 +19,7 @@ async function _nicCheck() {
   if (nicNum !== currentNicNum) { // todo: only check number, same number with different ip will not work
     nicNum = currentNicNum
     // update global device info
-    await global.appState.state.local.updateHostInfo()
+    await global.appState.state.local?.updateHostInfo()
 
     global.appState.event.emit('global.nic:changed', {
       hostInfo: global.appState.state.local
@@ -90,7 +90,7 @@ function _winDisableAutoLaunch() { // require administrator privilege
   }
 }
 
-module.exports = {
+export {
   monitNetwork,
   enableAutoBoot,
   disableAutoBoot

@@ -1,4 +1,4 @@
-const EventEmitter = require('events')
+import EventEmitter from 'events'
 
 class GlobalEvent extends EventEmitter {
   constructor () {
@@ -6,6 +6,6 @@ class GlobalEvent extends EventEmitter {
   }
 }
 
-module.exports = {
+export {
   GlobalEvent
 }

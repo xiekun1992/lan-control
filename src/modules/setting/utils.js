@@ -21,8 +21,7 @@ function request(option) {
       req.end()
     }),
     new Promise((resolve, rejects) => {
-      const timer = setTimeout(() => {
-        clearTimeout(timer)
+      setTimeout(() => {
         rejects(new Error('request timeout'))
       }, 3000)
     })

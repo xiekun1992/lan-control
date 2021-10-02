@@ -1,6 +1,6 @@
-const {
+import {
   screen
-} = require('electron')
+} from 'electron'
 
 module.exports = {
   calcEdge() {
