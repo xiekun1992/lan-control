@@ -9,9 +9,9 @@ class Discover implements LAN.AppModule {
   server: LAN.Nullable<dgram.Socket> = null
   
   i: number = 0
-  timer: NodeJS.Timeout = new NodeJS.Timeout()
+  timer: number = 0
   timeout: number = 50
-  aliveTimer: NodeJS.Timeout = new NodeJS.Timeout()
+  aliveTimer: number = 0
   // let remoteDevices = []
   // let remoteDevicesMap = {}
   
@@ -40,7 +40,7 @@ class Discover implements LAN.AppModule {
   }
   sendAllInterfaces() {
     clearTimeout(this.timer)
-    this.timer = setTimeout(this.loop, this.timeout)
+    this.timer = setTimeout(this.loop, this.timeout) as unknown as number
   }
   checkRemotesAlive() {
     const now = Date.now()
@@ -129,7 +129,7 @@ class Discover implements LAN.AppModule {
       }, 2000)
     })
     // check wether remote devices available
-    this.aliveTimer = setInterval(this.checkRemotesAlive, 1000)
+    this.aliveTimer = setInterval(this.checkRemotesAlive, 1000) as unknown as number
   }
 }
 

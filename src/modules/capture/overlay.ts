@@ -1,19 +1,22 @@
 const transparentWindow = require('@xiekun1992/node-addon-transparent-window')
 
-let initialized = false
+class Overlay {
+  initialized: boolean = false
 
-module.exports = {
+  constructor() {}
   createWindow (callback: Function) {
-    if (!initialized) {
-      initialized = true
+    if (!this.initialized) {
+      this.initialized = true
       transparentWindow.create(function() {
         callback && callback()
         transparentWindow.topmost()
       })
     }
-  },
+  }
   hide() {
-    initialized = false
+    this.initialized = false
     transparentWindow.close()
   }
 }
+
+export default new Overlay()

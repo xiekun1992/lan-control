@@ -1,21 +1,14 @@
-const {   
-  setConnectionPeer,
-  init: captureInit,
-  destroy: captureDestroy
-} = require('./capture')
-const {
-  init: replayInit,
-  destroy: replayDestroy
-} = require('./replay')
+import capture from './capture'
+import replay from './replay'
 
 module.exports = {
   init() {
-    replayInit()
-    captureInit()
+    replay.init()
+    capture.init()
   },
   destroy() {
-    captureDestroy()
-    replayDestroy()
+    capture.destroy()
+    replay.destroy()
   },
-  setConnectionPeer
+  setConnectionPeer: capture.setConnectionPeer
 }

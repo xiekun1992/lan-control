@@ -1,6 +1,7 @@
-const http = require('http')
+import http from 'http'
+import { Device } from '../../core/states/Device'
 
-function request(option) {
+function request(option: http.RequestOptions) {
   return Promise.race([
     new Promise((resolve, rejects) => {
       const req = http.request(option, res => {
@@ -28,7 +29,7 @@ function request(option) {
   ])
 }
 
-function connectDevice(ip, position, thisDevice) {
+function connectDevice(ip: string, position: string, thisDevice: Device) {
   return request({
     method: 'POST',
     port: 2001,
@@ -36,7 +37,7 @@ function connectDevice(ip, position, thisDevice) {
     path: `/connection?position=${encodeURIComponent(position)}&device=${encodeURIComponent(JSON.stringify(thisDevice))}`
   })
 }
-function disconnectDevice(ip, position, thisDevice) {
+function disconnectDevice(ip: string, position: string, thisDevice: Device) {
   return request({
     method: 'DELETE',
     port: 2001,

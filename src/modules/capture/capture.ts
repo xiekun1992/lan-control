@@ -1,20 +1,9 @@
 const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
-const dgram = require('dgram')
-const server = dgram.createSocket('udp4')
+import dgram from 'dgram'
 import { screen } from 'electron'
-const { hide, createWindow } = require('./overlay')
+import replay from './overlay'
 const { calcEdge } = require('./utils')
 
-let initialized = false
-let address: string = ''
-const port = 8888
-let shouldForward = false
-let controlling = false, mouseSet = false
-let position: string // left, right
-let leftmost = 0, rightmost = 0
-// linux ubuntu with 1920x1080 resolution, the mouse movement range is 1919x1079
-const screenWidthGap = global.appState.platform.linux? 1: 0
-const screenHeightGap = global.appState.platform.linux? 1: 0
 // use a small area to capture mouse movement, 800x600 is the smallest screen resolution
 // the least screen size recommended is 1024x768, considering windows taskbar height is 40
 class MapArea {
@@ -27,15 +16,34 @@ class MapArea {
   constructor() {}
   init() {
     const primaryDisplay = screen.getPrimaryDisplay()
-    mapArea.left = Math.floor((primaryDisplay.bounds.width - mapArea.width) / 2)
-    mapArea.right = mapArea.left + mapArea.width
-    mapArea.top = Math.floor((primaryDisplay.bounds.height - mapArea.height) / 2)
-    mapArea.bottom = mapArea.top + mapArea.height
+    this.left = Math.floor((primaryDisplay.bounds.width - this.width) / 2)
+    this.right = this.left + this.width
+    this.top = Math.floor((primaryDisplay.bounds.height - this.height) / 2)
+    this.bottom = this.top + this.height
   }
 }
-let mapArea = new MapArea()
+enum Position {
+  NONE,
+  LEFT,
+  RIGHT
+}
 
 class AppCapture implements LAN.AppModule {
+  server: dgram.Socket = dgram.createSocket('udp4')
+  initialized: boolean = false
+  address: string = ''
+  port: number = 8888
+  shouldForward: boolean = false
+  controlling: boolean = false
+  mouseSet: boolean = false
+  position: Position = Position.NONE // left, right
+  leftmost: number = 0
+  rightmost: number = 0
+  // linux ubuntu with 1920x1080 resolution, the mouse movement range is 1919x1079
+  screenWidthGap: number = global.appState.platform.linux? 1: 0
+  screenHeightGap: number = global.appState.platform.linux? 1: 0
+  mapArea: MapArea = new MapArea()
+
   constructor() {}
   _captureInput() {
     // 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
@@ -45,8 +53,8 @@ class AppCapture implements LAN.AppModule {
     
       this._send({
         type: 'mousemove',
-        x: event.x - mapArea.left,
-        y: event.y - mapArea.top
+        x: event.x - this.mapArea.left,
+        y: event.y - this.mapArea.top
       })
     })
     inputAuto.event.on('mousedown', (event: any) => {
@@ -85,59 +93,59 @@ class AppCapture implements LAN.AppModule {
     })
   }
   _checkInsideValidRange(event: any) {
-    if (!position) {
+    if (!this.position) {
       return
     }
-    if (!controlling && ((event.x >= rightmost && position === 'right') || (event.x <= leftmost && position === 'left'))) {
+    if (!this.controlling && ((event.x >= this.rightmost && this.position === Position.RIGHT) || (event.x <= this.leftmost && this.position === Position.LEFT))) {
       // console.log(mapArea)
-      controlling = true
+      this.controlling = true
       
-      createWindow(function() {
+      replay.createWindow(() => {
         const timer1 = setTimeout(() => {
           const timer2 = setTimeout(() => {
             clearTimeout(timer2)
-            shouldForward = true
-            mouseSet = true
+            this.shouldForward = true
+            this.mouseSet = true
           }, 10)
-          if (position === 'left') {
-            inputAuto.mousemove(mapArea.right - 2, event.y)
-          } else if (position === 'right') {
-            inputAuto.mousemove(mapArea.left + 2, event.y)// 鼠标位置设置有问题
+          if (this.position === Position.LEFT) {
+            inputAuto.mousemove(this.mapArea.right - 2, event.y)
+          } else if (this.position === Position.RIGHT) {
+            inputAuto.mousemove(this.mapArea.left + 2, event.y)// 鼠标位置设置有问题
           }
           clearTimeout(timer1)
         }, 100)
       })
-    } else if (controlling && mouseSet) {
-      if (event.x >= mapArea.left && event.x <= mapArea.right && event.y >= mapArea.top && event.y <= mapArea.bottom) {
-        shouldForward = true
-      } else if (event.x > mapArea.right) {
-        if (position === 'left') {
-          controlling = false
-          shouldForward = false
-          hide()
-          inputAuto.mousemove(leftmost + 2, event.y)
-          mouseSet = false
+    } else if (this.controlling && this.mouseSet) {
+      if (event.x >= this.mapArea.left && event.x <= this.mapArea.right && event.y >= this.mapArea.top && event.y <= this.mapArea.bottom) {
+        this.shouldForward = true
+      } else if (event.x > this.mapArea.right) {
+        if (this.position === Position.LEFT) {
+          this.controlling = false
+          this.shouldForward = false
+          replay.hide()
+          inputAuto.mousemove(this.leftmost + 2, event.y)
+          this.mouseSet = false
         } else {
-          shouldForward = true
-          inputAuto.mousemove(mapArea.right, event.y)
+          this.shouldForward = true
+          inputAuto.mousemove(this.mapArea.right, event.y)
         }
-      } else if (event.x < mapArea.left) {
-        if (position === 'right') {
-          controlling = false
-          shouldForward = false
-          hide()
-          inputAuto.mousemove(rightmost - 2, event.y)
-          mouseSet = false
+      } else if (event.x < this.mapArea.left) {
+        if (this.position === Position.RIGHT) {
+          this.controlling = false
+          this.shouldForward = false
+          replay.hide()
+          inputAuto.mousemove(this.rightmost - 2, event.y)
+          this.mouseSet = false
         } else {
-          shouldForward = true
-          inputAuto.mousemove(mapArea.left, event.y)
+          this.shouldForward = true
+          inputAuto.mousemove(this.mapArea.left, event.y)
         }
-      } else if (event.y > mapArea.bottom) {
-        shouldForward = true
-        inputAuto.mousemove(event.x, mapArea.bottom)
-      } else if (event.y < mapArea.top) {
-        shouldForward = true
-        inputAuto.mousemove(event.x, mapArea.top)
+      } else if (event.y > this.mapArea.bottom) {
+        this.shouldForward = true
+        inputAuto.mousemove(event.x, this.mapArea.bottom)
+      } else if (event.y < this.mapArea.top) {
+        this.shouldForward = true
+        inputAuto.mousemove(event.x, this.mapArea.top)
       } else {
         // shouldForward = false
       }
@@ -145,14 +153,14 @@ class AppCapture implements LAN.AppModule {
   }
   _send(msg: Object) {
     // console.log(msg)
-    if (shouldForward && address) {
-      server.send(JSON.stringify(msg), port, address)
+    if (this.shouldForward && this.address) {
+      this.server.send(JSON.stringify(msg), this.port, this.address)
     }
   }
   destroy() {
-    if (server) {
+    if (this.server) {
       inputAuto.release()
-      server.close(() => {})
+      this.server.close(() => {})
     }
   }
   /**
@@ -160,28 +168,28 @@ class AppCapture implements LAN.AppModule {
    * @param {string} targetAddress ip address, eg: 192.168.1.1
    * @param {string} devicePosition relative position, eg: left or right
    */
-  setConnectionPeer(targetAddress: string, devicePosition: string) {
-    address = targetAddress
-    position = devicePosition
+  setConnectionPeer(targetAddress: string, devicePosition: Position) {
+    this.address = targetAddress
+    this.position = devicePosition
   }
   init() {
     this._captureInput()
-    mapArea.init()
+    this.mapArea.init()
     // sync clipboard content
     global.appState.modules.get('clipboard').sync()
-    if (!initialized) {
-      initialized = true
+    if (!this.initialized) {
+      this.initialized = true
       
       const edge = calcEdge()
-      leftmost = edge.leftmost
-      rightmost = edge.rightmost - screenWidthGap
+      this.leftmost = edge.leftmost
+      this.rightmost = edge.rightmost - this.screenWidthGap
       
       inputAuto.init() // todo: cause linux cpu too much overhead
     }
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote } = global.appState.state
       if (remote?.disabled) {
-        hide()
+        replay.hide()
       }
     })
   }
@@ -192,4 +200,4 @@ class AppCapture implements LAN.AppModule {
 //     inputAuto.release()
 //   }
 // }
-module.exports = new AppCapture()
+export default new AppCapture()
