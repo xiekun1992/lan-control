@@ -9,7 +9,7 @@ class Discover implements LAN.AppModule {
   server: LAN.Nullable<dgram.Socket> = null
   
   i: number = 0
-  timeout: number = 50
+  timeout: number = 1000
   aliveTimer: number = 0
   // let remoteDevices = []
   // let remoteDevicesMap = {}
@@ -69,24 +69,28 @@ class Discover implements LAN.AppModule {
     this.i = 0
   
     this.server.on('message', (msg, rinfo) => {
-      if (!this.hostInfo?.nic.find(item => item.address === rinfo.address)) { // exclude self
-        const newDevice: Device = JSON.parse(msg.toString())
-        // mark which ip the remote connects from
-        newDevice.if = rinfo.address
-        const deviceNIC = newDevice.nic.find(item => item.address === newDevice.if)
-        if (!deviceNIC) {
-          return
+      try {
+        if (!this.hostInfo?.nic.find(item => item.address === rinfo.address)) { // exclude self
+          const newDevice: Device = JSON.parse(msg.toString())
+          // mark which ip the remote connects from
+          newDevice.if = rinfo.address
+          const deviceNIC = newDevice.nic.find(item => item.address === newDevice.if)
+          if (!deviceNIC) {
+            return
+          }
+          // const rnetId = deviceNIC.netId
+    
+          if (global.appState.addToRemotes(newDevice)) {
+            // if (!hostInfo.if) {
+            //   hostInfo.if = []
+            // }
+            // hostInfo.if = hostInfo.nic.find(item => item.netId === rnetId).address // only support one remote device
+          } else {
+            global.appState.refreshDeviceInfo(newDevice)
+          }
         }
-        // const rnetId = deviceNIC.netId
-  
-        if (global.appState.addToRemotes(newDevice)) {
-          // if (!hostInfo.if) {
-          //   hostInfo.if = []
-          // }
-          // hostInfo.if = hostInfo.nic.find(item => item.netId === rnetId).address // only support one remote device
-        } else {
-          global.appState.refreshDeviceInfo(newDevice)
-        }
+      } catch (e) {
+        console.error('discover: error ', e)
       }
     })
   
