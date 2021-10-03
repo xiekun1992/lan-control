@@ -81,7 +81,7 @@ export class Device {
         const subnetDecimals = item.ip4subnet.split('.').map((item: string) => +item)
         const netIdDecimals = []
         for (let i = 0; i < ipv4Decimals.length; i++) {
-          netIdDecimals[i] = ipv4Decimals[i] & subnetDecimals[i]
+          netIdDecimals[i] = ipv4Decimals[i] & subnetDecimals[i] | (subnetDecimals[i] ^ 255)
         }
         const netId = netIdDecimals.join('.')
         return {address: item.ip4, mac: item.mac, mask: item.ip4subnet, netId }

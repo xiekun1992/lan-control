@@ -4,12 +4,11 @@ import { UDPPeer } from './udp_peer'
 
 class Discover implements LAN.AppModule {
   port: number = 1234
-  multicastAddress: string = '224.0.0.114'
+  address: string = '0.0.0.0'
   hostInfo: LAN.Nullable<Device> = null
   server: LAN.Nullable<dgram.Socket> = null
   
   i: number = 0
-  timer: number = 0
   timeout: number = 50
   aliveTimer: number = 0
   // let remoteDevices = []
@@ -22,9 +21,10 @@ class Discover implements LAN.AppModule {
     const item = this.hostInfo?.nic[this.i]
     if (item) {
       try {
-        this.server?.setMulticastInterface(item.address) // manually close network may cause `Error: addMembership EINVAL`
+        const broadcastAddress = item.netId
+        // this.server?.setMulticastInterface(item.address) // manually close network may cause `Error: addMembership EINVAL`
         const msg = Buffer.from(JSON.stringify(this.hostInfo))
-        this.server?.send(msg, 0, msg.length, this.port, this.multicastAddress, (err, sentBytes) => {
+        this.server?.send(msg, 0, msg.length, this.port, broadcastAddress, (err, sentBytes) => {
           // console.log(sentBytes, item.address)
           if (this.hostInfo?.nic?.length) {
             this.i = (this.i + 1) % this.hostInfo?.nic?.length
@@ -39,8 +39,7 @@ class Discover implements LAN.AppModule {
     }
   }
   sendAllInterfaces() {
-    clearTimeout(this.timer)
-    this.timer = setTimeout(this.loop.bind(this), this.timeout) as unknown as number
+    setTimeout(this.loop.bind(this), this.timeout)
   }
   checkRemotesAlive() {
     const now = Date.now()
@@ -67,7 +66,6 @@ class Discover implements LAN.AppModule {
   }
   createServerInstance() {
     this.server = new UDPPeer().server
-    clearTimeout(this.timer)
     this.i = 0
   
     this.server.on('message', (msg, rinfo) => {
@@ -92,14 +90,7 @@ class Discover implements LAN.AppModule {
       }
     })
   
-    this.server.bind(this.port, '0.0.0.0', () => {
-      this.hostInfo?.nic.forEach(item => {
-        try {
-          this.server?.addMembership(this.multicastAddress, item.address)
-        } catch (e: any) {
-          console.error('addMembership fail: ', item.address, e.toString())
-        }
-      })
+    this.server.bind(this.port, this.address, () => {
       this.sendAllInterfaces()
     })
   }
