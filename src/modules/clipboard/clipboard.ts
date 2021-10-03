@@ -1,6 +1,6 @@
 import http from 'http'
 import { clipboard } from 'electron'
-import clipboardAuto from '@xiekun1992/node-addon-clipboard-auto'
+const clipboardAuto = require('@xiekun1992/node-addon-clipboard-auto')
 
 class Clipboard implements LAN.AppModule {
   prevContent: string = ''
