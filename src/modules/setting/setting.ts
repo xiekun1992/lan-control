@@ -16,8 +16,8 @@ class Setting implements LAN.AppModule {
   keepInterval: number = 0
   constructor() {}
   _createWindow() {
-    if (window) {
-      return window
+    if (this.window) {
+      return this.window
     }
     this.window = new BrowserWindow({
       show: false,
@@ -95,11 +95,11 @@ class Setting implements LAN.AppModule {
             global.appState.state.remote.disabled = false
   
             const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-            if (window) {
-              this.window?.webContents.send('devices', {
-                devices, thisDevice, remote, position, isController
-              })
-            }
+            
+            this.window?.webContents.send('devices', {
+              devices, thisDevice, remote, position, isController
+            })
+            
           }
           global.appState.modules.get('capture').setConnectionPeer(remote.if, position)
         } else {
@@ -107,11 +107,10 @@ class Setting implements LAN.AppModule {
             global.appState.state.remote.disabled = false
   
             const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-            if (window) {
-              this.window?.webContents.send('devices', {
-                devices, thisDevice, remote, position, isController
-              })
-            }
+            
+            this.window?.webContents.send('devices', {
+              devices, thisDevice, remote, position, isController
+            })
           }
         }
         this._keepRemoteShown(remote, position, thisDevice)

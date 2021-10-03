@@ -40,7 +40,7 @@ class Discover implements LAN.AppModule {
   }
   sendAllInterfaces() {
     clearTimeout(this.timer)
-    this.timer = setTimeout(this.loop, this.timeout) as unknown as number
+    this.timer = setTimeout(this.loop.bind(this), this.timeout) as unknown as number
   }
   checkRemotesAlive() {
     const now = Date.now()
@@ -129,7 +129,7 @@ class Discover implements LAN.AppModule {
       }, 2000)
     })
     // check wether remote devices available
-    this.aliveTimer = setInterval(this.checkRemotesAlive, 1000) as unknown as number
+    this.aliveTimer = setInterval(this.checkRemotesAlive.bind(this), 1000) as unknown as number
   }
 }
 

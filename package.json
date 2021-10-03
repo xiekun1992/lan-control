@@ -8,6 +8,7 @@
     "start": "electron . --dev",
     "build:win": "electron-builder --win --x64 --publish=never",
     "build:linux": "electron-builder --linux --x64",
+    "build:ts": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
@@ -47,6 +48,7 @@
     "electron-builder": "^22.9.1",
     "gulp": "^4.0.2",
     "gulp-run-electron": "^3.0.2",
+    "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "typescript": "^4.4.2"
   },

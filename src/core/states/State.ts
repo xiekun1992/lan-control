@@ -11,7 +11,7 @@ export class State {
     this.remotes = [] // devices found in LAN
     this.remote = null // connected device
     this.position = '' // left | right
-    this.local = null // self
+    this.local = new Device() // self
   }
   /**
    * update device info in remotes
