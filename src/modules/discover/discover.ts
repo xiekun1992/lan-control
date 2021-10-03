@@ -26,11 +26,11 @@ class Discover implements LAN.AppModule {
         const msg = Buffer.from(JSON.stringify(this.hostInfo))
         this.server?.send(msg, 0, msg.length, this.port, broadcastAddress, (err, sentBytes) => {
           // console.log(sentBytes, item.address)
-          if (this.hostInfo?.nic?.length) {
-            this.i = (this.i + 1) % this.hostInfo?.nic?.length
-            this.sendAllInterfaces()
-          }
         })
+        if (this.hostInfo?.nic?.length) {
+          this.i = (this.i + 1) % this.hostInfo?.nic?.length
+          this.sendAllInterfaces()
+        }
       } catch (e) {
         this.i = 0
       }
