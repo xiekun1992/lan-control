@@ -5,6 +5,7 @@ import { checkForUpdate } from './update'
 import { AppState } from './states/AppState'
 import { State } from './states/State'
 import { Device } from './states/Device'
+import { Config } from './store'
 
 
 declare global {
@@ -42,7 +43,7 @@ async function bootstrap(launchPath: string) {
     appState.event.emit('global.state:updated', { state: appState.state })
   })
   // config file change
-  appState.event.on('global.store:update', function(store: LAN.Config) {
+  appState.event.on('global.store:update', function(store: Config) {
     if ('autoBoot' in store) {
       if (appState.autoBoot !== !!store.autoBoot) {
         appState.autoBoot = !!store.autoBoot

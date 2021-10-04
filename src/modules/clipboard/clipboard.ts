@@ -2,6 +2,10 @@ import http from 'http'
 import { clipboard } from 'electron'
 const clipboardAuto = require('@xiekun1992/node-addon-clipboard-auto')
 
+interface ClipboardRequestParam {
+  text: string
+}
+
 class Clipboard implements LAN.AppModule {
   prevContent: string = ''
   captureInited: boolean = false
@@ -72,7 +76,7 @@ class Clipboard implements LAN.AppModule {
           body += chunk
         })
         req.on('end', () => {
-          const bodyObj: LAN.ClipboardRequestParam = JSON.parse(body)
+          const bodyObj: ClipboardRequestParam = JSON.parse(body)
           switch (req.url) {
             case '/text': 
               this.prevContent = bodyObj.text

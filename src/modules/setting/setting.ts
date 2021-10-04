@@ -4,6 +4,7 @@ import {
 import path from 'path'
 import http from 'http'
 import { Device } from '../../core/states/Device';
+import { Position } from '../../core/enums/Position';
 const { connectDevice } = require('./utils')
 
 class Setting implements LAN.AppModule {
@@ -81,7 +82,7 @@ class Setting implements LAN.AppModule {
     })
     // window.webContents.openDevTools()
   }
-  _keepRemoteShown(remote: Device, position: string, thisDevice: Device) {
+  _keepRemoteShown(remote: Device, position: Position, thisDevice: Device) {
     if (this.keepping) {
       return
     } 

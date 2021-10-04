@@ -7,12 +7,17 @@ import { GlobalEvent } from '../event'
 import { State } from './State'
 import { Device } from './Device'
 
+interface Platform {
+  linux: boolean
+  windows: boolean
+}
+
 export class AppState {
   name: string
   exePath: string
   path: string
   updateURL: string
-  platform: LAN.Platform
+  platform: Platform
   autoBoot: boolean
   modules: Map<string, any>
   state: State

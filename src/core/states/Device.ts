@@ -2,6 +2,45 @@ import si from 'systeminformation'
 import { screen } from 'electron'
 import os from 'os'
 
+// use a small area to capture mouse movement, 800x600 is the smallest screen resolution
+// the least screen size recommended is 1024x768, considering windows taskbar height is 40
+export class MapArea {
+  width: number = 800
+  height: number = 600
+  left: number = 0
+  right: number = 0
+  top: number = 0
+  bottom: number = 0
+  constructor() {}
+  init() {
+    const primaryDisplay = screen.getPrimaryDisplay()
+    this.left = Math.floor((primaryDisplay.bounds.width - this.width) / 2)
+    this.right = this.left + this.width
+    this.top = Math.floor((primaryDisplay.bounds.height - this.height) / 2)
+    this.bottom = this.top + this.height
+  }
+}
+
+export class NIC {
+  /**
+   * IP地址
+   */
+  address: string = ''
+  /**
+   * MAC地址
+   */
+  mac: string = ''
+  /**
+   * 子网掩码
+   */
+  mask: string = ''
+  /**
+   * 广播地址
+   * */ 
+  netId: string = ''
+  constructor() {}
+}
+
 export class Device {
   timestamp: number = 0
   if: string = ''
@@ -13,15 +52,12 @@ export class Device {
   cpuCores: number = 0
   cpuDesc: string = ''
   memory: string = ''
-  nic: LAN.NIC[] = new Array<LAN.NIC>()
+  nic: NIC[] = new Array<NIC>()
   osInfo: string = ''
   hostname: string = ''
   username: string = ''
   uuid: string = ''
-  mapArea: LAN.MapArea = {
-    width: 800,
-    height: 600
-  }
+  mapArea: MapArea = new MapArea()
 
   constructor (arg?: Device) {
     if (arg) {
@@ -72,7 +108,7 @@ export class Device {
     const system = await si.system()
     const interfaces = await si.networkInterfaces()
   
-    let ifIpv4 = [] as Array<LAN.NIC>
+    let ifIpv4 = [] as Array<NIC>
     ifIpv4 = ifIpv4.concat(
       interfaces.filter(
         (item: any) => !item.internal && item.ip4

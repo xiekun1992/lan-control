@@ -1,32 +1,10 @@
 const inputAuto = require('@xiekun1992/node-addon-keyboard-auto')()
 import dgram from 'dgram'
 import { screen } from 'electron'
+import { Position } from '../../core/enums/Position'
+import { MapArea } from '../../core/states/Device'
 import replay from './overlay'
 const { calcEdge } = require('./utils')
-
-// use a small area to capture mouse movement, 800x600 is the smallest screen resolution
-// the least screen size recommended is 1024x768, considering windows taskbar height is 40
-class MapArea {
-  width: number = 800
-  height: number = 600
-  left: number = 0
-  right: number = 0
-  top: number = 0
-  bottom: number = 0
-  constructor() {}
-  init() {
-    const primaryDisplay = screen.getPrimaryDisplay()
-    this.left = Math.floor((primaryDisplay.bounds.width - this.width) / 2)
-    this.right = this.left + this.width
-    this.top = Math.floor((primaryDisplay.bounds.height - this.height) / 2)
-    this.bottom = this.top + this.height
-  }
-}
-enum Position {
-  NONE,
-  LEFT,
-  RIGHT
-}
 
 class AppCapture implements LAN.AppModule {
   server: dgram.Socket = dgram.createSocket('udp4')
@@ -96,7 +74,12 @@ class AppCapture implements LAN.AppModule {
     if (!this.position) {
       return
     }
-    if (!this.controlling && ((event.x >= this.rightmost && this.position === Position.RIGHT) || (event.x <= this.leftmost && this.position === Position.LEFT))) {
+    if (
+      !this.controlling && (
+        (event.x >= this.rightmost && this.position === Position.RIGHT) ||
+        (event.x <= this.leftmost && this.position === Position.LEFT)
+      )
+    ) {
       // console.log(mapArea)
       this.controlling = true
       

@@ -1,16 +1,17 @@
+import { Position } from '../enums/Position'
 import { Device } from './Device'
 
 export class State {
   isController: boolean
   remotes: Array<Device>
   remote: LAN.Nullable<Device>
-  position: string
+  position: Position
   local: LAN.Nullable<Device>
   constructor () {
     this.isController = false
     this.remotes = [] // devices found in LAN
     this.remote = null // connected device
-    this.position = '' // left | right
+    this.position = Position.NONE // left | right
     this.local = new Device() // self
   }
   /**
