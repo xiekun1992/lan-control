@@ -14,8 +14,10 @@ class Overlay {
     }
   }
   hide() {
-    this.initialized = false
-    // transparentWindow.close()
+    if (this.initialized) {
+      this.initialized = false
+      transparentWindow.close()
+    }
   }
 }
 

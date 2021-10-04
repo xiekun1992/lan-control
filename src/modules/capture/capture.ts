@@ -27,6 +27,7 @@ class AppCapture implements LAN.AppModule {
     // 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
     inputAuto.event.on('mousemove', (event: any) => {
       // console.log(event)
+      // console.log(this.position, '----')
       this._checkInsideValidRange(event)
     
       this._send({
@@ -53,7 +54,6 @@ class AppCapture implements LAN.AppModule {
         direction: event.direction
       })
     })
-    // let ctrl = false
     inputAuto.event.on('keydown', (event: any) => {
       // console.log(event)
       const char = inputAuto.keycodeToChar(event.vkCode)
@@ -71,6 +71,7 @@ class AppCapture implements LAN.AppModule {
     })
   }
   _checkInsideValidRange(event: any) {
+    // console.log(this.position)
     if (!this.position) {
       return
     }
@@ -154,6 +155,7 @@ class AppCapture implements LAN.AppModule {
   setConnectionPeer(targetAddress: string, devicePosition: Position) {
     this.address = targetAddress
     this.position = devicePosition
+    // console.log(this.position)
   }
   init() {
     this._captureInput()

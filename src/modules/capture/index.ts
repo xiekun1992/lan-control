@@ -10,5 +10,5 @@ module.exports = {
     capture.destroy()
     replay.destroy()
   },
-  setConnectionPeer: capture.setConnectionPeer
+  setConnectionPeer: capture.setConnectionPeer.bind(capture)
 }

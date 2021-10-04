@@ -61,7 +61,7 @@ async function bootstrap(launchPath: string) {
     appState.store.set({
       autoBoot: appState.autoBoot,
       position: appState.state.position,
-      remote: appState.state.remote ?? new Device()
+      remote: appState.state.remote
     })
 
     appState.event.emit('global.store:updated')
