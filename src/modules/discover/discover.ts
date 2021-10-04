@@ -7,14 +7,11 @@ class Discover implements LAN.AppModule {
   address: string = '0.0.0.0'
   hostInfo: LAN.Nullable<Device> = null
   server: LAN.Nullable<dgram.Socket> = null
-  
   i: number = 0
   timeout: number = 1000
   aliveTimer: number = 0
-  // let remoteDevices = []
-  // let remoteDevicesMap = {}
   
-  loop() {
+  sendAllInterfaces() {
     if (!this.hostInfo) {
       return
     }
@@ -22,14 +19,13 @@ class Discover implements LAN.AppModule {
     if (item) {
       try {
         const broadcastAddress = item.netId
-        // this.server?.setMulticastInterface(item.address) // manually close network may cause `Error: addMembership EINVAL`
         const msg = Buffer.from(JSON.stringify(this.hostInfo))
-        this.server?.send(msg, 0, msg.length, this.port, broadcastAddress, (err, sentBytes) => {
-          // console.log(sentBytes, item.address)
-        })
+        this.server?.send(msg, 0, msg.length, this.port, broadcastAddress, (err, sentBytes) => {})
         if (this.hostInfo?.nic?.length) {
           this.i = (this.i + 1) % this.hostInfo?.nic?.length
-          this.sendAllInterfaces()
+          setTimeout(() => {
+            this.sendAllInterfaces()
+          }, this.timeout)
         }
       } catch (e) {
         this.i = 0
@@ -37,9 +33,6 @@ class Discover implements LAN.AppModule {
     } else {
       this.i = 0
     }
-  }
-  sendAllInterfaces() {
-    setTimeout(this.loop.bind(this), this.timeout)
   }
   checkRemotesAlive() {
     const now = Date.now()
@@ -100,11 +93,9 @@ class Discover implements LAN.AppModule {
   }
   destroy() {
     clearInterval(this.aliveTimer)
-    if (this.server) {
-      this.server.close(() => {
-        this.server = null
-      })
-    }
+    this.server?.close(() => {
+      this.server = null
+    })
   }
   init() {
     this.hostInfo = global.appState.state.local
@@ -115,11 +106,9 @@ class Discover implements LAN.AppModule {
       this.hostInfo = data.hostInfo
       // nodejs cannot listen network interface up and down, thus cannot properly dropmembership,
       // restart server to solve this
-      if (this.server) {
-        this.server.close()
-      }
-      const delayTimer = setTimeout(() => { // wait for network card
-        clearTimeout(delayTimer)
+      this.server?.close()
+      
+      setTimeout(() => { // wait for network card
         this.createServerInstance()
       }, 2000)
     })

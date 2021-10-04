@@ -16,9 +16,21 @@ declare namespace LAN {
     height: number
   }
   type NIC = {
+    /**
+     * IP地址
+     */
     address: string
+    /**
+     * MAC地址
+     */
     mac: string
+    /**
+     * 子网掩码
+     */
     mask: string
+    /**
+     * 广播地址
+     * */ 
     netId: string
   }
   // class Device {
