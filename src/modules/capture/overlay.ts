@@ -15,7 +15,7 @@ class Overlay {
   }
   hide() {
     this.initialized = false
-    transparentWindow.close()
+    // transparentWindow.close()
   }
 }
 

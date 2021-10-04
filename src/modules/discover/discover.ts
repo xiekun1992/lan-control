@@ -34,29 +34,29 @@ class Discover implements LAN.AppModule {
       this.i = 0
     }
   }
-  checkRemotesAlive() {
-    const now = Date.now()
-    let modified = false
-    for (let i = global.appState.state.remotes.length - 1; i > -1; i--) {
-      const device = global.appState.state.remotes[i]
-      if (now - device.timestamp > 2500) { // longer than 1 second, expired
-        modified = true
-        global.appState.state.remotes.splice(i, 1)
-      }
-    }
-    if (global.appState.state.remote && !global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
-      global.appState.state.remote.disabled = true
-      global.appState.modules.get('capture').setConnectionPeer(null, null)
-      modified = true
-    }
-    if (modified) {
-      global.appState.event.emit('global.state.remotes:updated', {
-        devices: global.appState.state.remotes,
-        thisDevice: global.appState.state.local,
-        newDevice: null
-      })
-    }
-  }
+  // checkRemotesAlive() {
+  //   const now = Date.now()
+  //   let modified = false
+  //   for (let i = global.appState.state.remotes.length - 1; i > -1; i--) {
+  //     const device = global.appState.state.remotes[i]
+  //     if (now - device.timestamp > 2500) { // longer than 1 second, expired
+  //       modified = true
+  //       global.appState.state.remotes.splice(i, 1)
+  //     }
+  //   }
+  //   if (global.appState.state.remote && !global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
+  //     global.appState.state.remote.disabled = true
+  //     global.appState.modules.get('capture').setConnectionPeer(null, null)
+  //     modified = true
+  //   }
+  //   if (modified) {
+  //     global.appState.event.emit('global.state.remotes:updated', {
+  //       devices: global.appState.state.remotes,
+  //       thisDevice: global.appState.state.local,
+  //       newDevice: null
+  //     })
+  //   }
+  // }
   createServerInstance() {
     this.server = new UDPPeer().server
     this.i = 0
@@ -113,7 +113,7 @@ class Discover implements LAN.AppModule {
       }, 2000)
     })
     // check wether remote devices available
-    this.aliveTimer = setInterval(this.checkRemotesAlive.bind(this), 1000) as unknown as number
+    // this.aliveTimer = setInterval(this.checkRemotesAlive.bind(this), 1000) as unknown as number
   }
 }
 

@@ -1,5 +1,5 @@
 export enum Position {
-  NONE,
-  LEFT,
-  RIGHT
+  NONE = '',
+  LEFT = 'left',
+  RIGHT = 'right'
 }

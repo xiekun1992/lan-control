@@ -15,6 +15,7 @@ class Setting implements LAN.AppModule {
   port: number = 2001
   keepping: boolean = false
   keepInterval: number = 0
+
   constructor() {}
   _createWindow() {
     if (this.window) {
@@ -41,44 +42,6 @@ class Setting implements LAN.AppModule {
       this.window?.webContents.send('devices', {
         devices, thisDevice, remote, position, isController
       })
-      // new device found
-      global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
-        const { remote, position, isController } = global.appState.state
-        this.window?.webContents.send('devices', {
-          devices, thisDevice, remote, position, isController
-        })
-      })
-      // update network info
-      global.appState.event.on('global.state.local:updated', ({ device }) => {
-        this.window?.webContents.send('devices.local', { device })
-      })
-    })
-    ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
-      if (remoteDevice) {
-        global.appState.state.isController = true
-        global.appState.event.emit('global.store:update', {
-          position,
-          remote: remoteDevice
-        })
-        
-        global.appState.modules.get('capture').setConnectionPeer(remoteDevice.if, position)
-  
-        this._keepRemoteShown(remoteDevice, position, global.appState.state.local!)
-      }
-    })
-    ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
-      const remoteDevice = global.appState.findDeviceByIP(remoteIP)
-      if (remoteDevice) {
-        global.appState.state.isController = false
-        global.appState.event.emit('global.store:update', {
-          position: '',
-          remote: null
-        })
-        
-        global.appState.modules.get('capture').setConnectionPeer(null, null)
-  
-        this._cancelKeepRemoteShown()
-      }
     })
     // window.webContents.openDevTools()
   }
@@ -155,7 +118,46 @@ class Setting implements LAN.AppModule {
         })
         
       })
-  
+      // new device found
+      global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
+        const { remote, position, isController } = global.appState.state
+        this.window?.webContents.send('devices', {
+          devices, thisDevice, remote, position, isController
+        })
+      })
+      // update network info
+      global.appState.event.on('global.state.local:updated', ({ device }) => {
+        this.window?.webContents.send('devices.local', { device })
+      })
+
+      ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
+        if (remoteDevice) {
+          global.appState.state.isController = true
+          global.appState.event.emit('global.store:update', {
+            position,
+            remote: remoteDevice
+          })
+          
+          global.appState.modules.get('capture').setConnectionPeer(remoteDevice.if, position)
+    
+          this._keepRemoteShown(remoteDevice, position, global.appState.state.local!)
+        }
+      })
+      ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
+        const remoteDevice = global.appState.findDeviceByIP(remoteIP)
+        if (remoteDevice) {
+          global.appState.state.isController = false
+          global.appState.event.emit('global.store:update', {
+            position: '',
+            remote: null
+          })
+          
+          global.appState.modules.get('capture').setConnectionPeer(null, null)
+    
+          this._cancelKeepRemoteShown()
+        }
+      })
+
       this.server = http.createServer((req, res) => {
         const urlObj = new URL('http://localhost' + req.url)
         if (urlObj.pathname === '/connection') {
