@@ -191,12 +191,12 @@
     })
     function removeDisplay(elIndex, position, deviceIP) {
       deviceDisplays[position] = null
-      disconnectDevice(deviceIP, position, _thisDevice).then(console.log).catch(console.log)
       layoutContainerEl.children[elIndex].innerHTML = `<div class="hint">从左侧列表拖拽设备以添加</div>`
       ipcRenderer.send('device.disconnect', {
         remoteIP: deviceIP,
         position
       })
+      disconnectDevice(deviceIP, position, _thisDevice).then(console.log).catch(console.log)
       thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
     }
   </script>

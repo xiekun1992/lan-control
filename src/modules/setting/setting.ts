@@ -146,6 +146,9 @@ class Setting implements LAN.AppModule {
       ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
         const remoteDevice = global.appState.findDeviceByIP(remoteIP)
         if (remoteDevice) {
+          this._cancelKeepRemoteShown()
+          clearTimeout(this.keepRemoteTimer)
+
           global.appState.state.isController = false
           global.appState.event.emit('global.store:update', {
             position: '',
@@ -153,82 +156,66 @@ class Setting implements LAN.AppModule {
           })
           
           global.appState.modules.get('capture').setConnectionPeer(null, null)
-    
-          this._cancelKeepRemoteShown()
         }
       })
 
       this.server = http.createServer((req, res) => {
-        const urlObj = new URL('http://localhost' + req.url)
+        const urlObj = new URL(`http://localhost${req.url}`)
+        
+        const updateDevice = (positionArg: Position, remoteDeviceFound: Device) => {
+          global.appState.event.emit('global.state:update', {
+            position: positionArg,
+            remote: remoteDeviceFound
+          })
+          const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+          
+          this.window?.webContents.send('devices', {
+            devices, thisDevice, remote, position, isController
+          })
+        }
+
         if (urlObj.pathname === '/connection') {
           const restore = urlObj.searchParams.get('restore')
-          const positionArg = urlObj.searchParams.get('position')
+          const positionArg = urlObj.searchParams.get('position') as unknown as Position
           const device: Device = JSON.parse(urlObj.searchParams.get('device')!)
           const ip = req.socket.remoteAddress
           if (ip) {
             device.if = ip
             const remoteDeviceFound = global.appState.findDeviceByIP(ip) || device
             switch(req.method?.toLowerCase()) {
-              case 'post': 
-                if (!global.appState.state.remote) {
-                  remoteDeviceFound.disabled = false
-                  global.appState.event.emit('global.state:update', {
-                    position: positionArg,
-                    remote: remoteDeviceFound
-                  })
-                  const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-                  
-                  this.window?.webContents.send('devices', {
-                    devices, thisDevice, remote, position, isController
-                  })
-                  
-                  res.statusCode = 201
-                } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
-                  if (global.appState.state.remote.disabled) {
+              case 'post': {
+                  if (!global.appState.state.remote) {
+                    // 远程设备不存在，第一次添加
                     remoteDeviceFound.disabled = false
+                    updateDevice(positionArg, remoteDeviceFound)
+                    res.statusCode = 201
+                  } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
+                    // 已经被控制且重复收到相同设备信息
+                    if (global.appState.state.remote.disabled) {
+                      remoteDeviceFound.disabled = false
+                      updateDevice(positionArg, remoteDeviceFound)
+                    }
+                    res.statusCode = 201
+                  } else {
+                    res.statusCode = 403
+                  }
+                  res.end()
+                }
+                break
+              case 'delete': {
+                  if (global.appState.state.remote && global.appState.state.remote.uuid === remoteDeviceFound.uuid) {
                     global.appState.event.emit('global.state:update', {
-                      position: positionArg,
-                      remote: remoteDeviceFound
+                      position: '',
+                      remote: null
                     })
                     const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-
                     this.window?.webContents.send('devices', {
-                      devices, thisDevice, remote, position, isController
+                      devices, thisDevice, remote, position: positionArg, isController
                     })
                   }
-                  // global.appState.state.remote.timestamp = Date.now()
-                  clearTimeout(this.keepRemoteTimer)
-                  this.keepRemoteTimer = setTimeout(() => {
-                    remoteDeviceFound.disabled = true
-                    global.appState.event.emit('global.state:update', {
-                      position: positionArg,
-                      remote: remoteDeviceFound
-                    })
-                    const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-                    
-                    this.window?.webContents.send('devices', {
-                      devices, thisDevice, remote, position, isController
-                    })
-                  }, 2500) as unknown as number
-                  res.statusCode = 201
-                } else {
-                  res.statusCode = 403
+                  res.statusCode = 200
+                  res.end()
                 }
-                res.end()
-                break
-              case 'delete': 
-                if (global.appState.state.remote && global.appState.state.remote.uuid === remoteDeviceFound.uuid) {
-                  global.appState.event.emit('global.state:update', {
-                    position: '',
-                    remote: null
-                  })
-                  const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-                  this.window?.webContents.send('devices', {
-                    devices, thisDevice, remote, position: positionArg, isController
-                  })
-                }
-                res.statusCode = 200
-                res.end()
                 break
               default: res.end('settings HTTP server respond')
             }
