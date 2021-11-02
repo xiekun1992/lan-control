@@ -113,10 +113,10 @@ function registerModules(launchPath: string) {
 }
 function destroy() {
   // destroy application modules
-  for (const mod in global.appState.modules) {
-    console.log(`${mod} destroy`)
-    typeof global.appState.modules.get(mod).destroy === 'function'? global.appState.modules.get(mod).destroy(): console.log(`${mod}.destroy function not exist`)
-  }
+  global.appState.modules.forEach((mod, modName) => {
+    console.log(`${modName} destroy`)
+    typeof mod.destroy === 'function'? mod.destroy(): console.log(`${modName}.destroy function not exist`)
+  })
 }
 
 export default {
