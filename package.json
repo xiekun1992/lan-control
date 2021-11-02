@@ -5,7 +5,7 @@
   "main": "src_build/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "start": "electron . --dev",
+    "start": "npm run build:ts && electron . --dev",
     "build:win": "npm run build:ts && electron-builder --win --x64 --publish=never",
     "build:linux": "npm run build:ts && electron-builder --linux --x64",
     "build:ts": "tsc && gulp assets",
