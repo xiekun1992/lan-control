@@ -88,6 +88,12 @@ ul, li {padding: 0;margin:0;list-style: none;}
   text-align: left;
   font-size: 12px;
   border-bottom: 0;
+  height: calc(100% - 10px);
+  display: flex;
+  flex-direction: column;
+}
+.layout-item>div>div:nth-of-type(1) {
+  flex: 1;
 }
 .layout-item {
   position: relative;
@@ -121,9 +127,9 @@ ul, li {padding: 0;margin:0;list-style: none;}
   outline: 0;
   border: 1px solid #aaa;
   padding: 5px 0;
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  /* position: absolute; */
+  /* bottom: 0;
+  left: 0; */
   width: 100%;
 }
 .layout-item .del-btn:hover{

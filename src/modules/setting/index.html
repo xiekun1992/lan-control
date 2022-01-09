@@ -129,7 +129,7 @@
     
             device.netId = device.nic.find(item => item.address === device.if).netId
             device.position = position
-            layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
+            layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="openFileTransferWindow()">文件传输</button><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
             thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
             
             ipcRenderer.send('device.connect', {
@@ -161,7 +161,7 @@
         // if (!deviceDisplays[position] && remote) {
           deviceDisplays[position] = remote
           const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
-          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="openFileTransferWindow()">文件传输</button><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
         // }
       } else {
         // 当前是受控端，显示主控端
@@ -183,11 +183,11 @@
       }
 
       _thisDevice = thisDevice
-      thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
+      thisDeviceEl.innerHTML = `<div><div>${deviceToHTML(_thisDevice)}</div></div>`
     })
     ipcRenderer.on('devices.local', (event, { device }) => {
       _thisDevice = device
-      thisDeviceEl.innerHTML = deviceToHTML(device)
+      thisDeviceEl.innerHTML = `<div><div>${deviceToHTML(device)}</div></div>`
     })
     function removeDisplay(elIndex, position, deviceIP) {
       deviceDisplays[position] = null
@@ -197,7 +197,10 @@
         position
       })
       disconnectDevice(deviceIP, position, _thisDevice).then(console.log).catch(console.log)
-      thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
+      thisDeviceEl.innerHTML = `<div><div>${deviceToHTML(_thisDevice)}</div></div>`
+    }
+    function openFileTransferWindow() {
+      ipcRenderer.send('file-transfer.open')
     }
   </script>
 </body>

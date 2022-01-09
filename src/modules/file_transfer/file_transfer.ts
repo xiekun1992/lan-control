@@ -1,6 +1,7 @@
 import {
   app,
-  BrowserWindow
+  BrowserWindow,
+  ipcMain
 } from 'electron'
 import path from 'path'
 import http from 'http'
@@ -24,7 +25,10 @@ class FileTransfer implements LAN.AppModule {
         }
       });
       this.window.loadFile(path.resolve(__dirname, 'index.html'))
-      this.window.webContents.openDevTools()
+      // this.window.webContents.openDevTools()
+      this.window.once('closed', () => {
+        this.window = null
+      })
     }
   }
   hide() {
@@ -40,6 +44,9 @@ class FileTransfer implements LAN.AppModule {
     }
   }
   init() {
+    ipcMain.on('file-transfer.open', (event, args) => {
+      this.show()
+    })
     global.appState.httpServer
       .route('/file')
       .post((req, res) => {

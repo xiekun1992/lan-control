@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>文件传输</title>
+</head>
+<body>
+  <main>
+    <div>
+      <div class="title">local</div>
+      <ul>
+        <li><a href="javascript:void(0)">..</a></li>
+        <li><a href="javascript:void(0)">desktop</a></li>
+        <li><a href="javascript:void(0)">downloads</a></li>
+        <li><a href="javascript:void(0)">document</a></li>
+      </ul>
+    </div>
+    <div class="space">
+      <button>&gt;</button>
+      <br>
+      <button>&lt;</button>
+    </div>
+    <div>
+      <div class="title">remote</div>
+      <ul>
+        <li><a href="javascript:void(0)">..</a></li>
+        <li><a href="javascript:void(0)">desktop</a></li>
+        <li><a href="javascript:void(0)">downloads</a></li>
+        <li><a href="javascript:void(0)">document</a></li>
+      </ul>
+    </div>
+  </main>
+  <footer>
+    <div>1/3</div>
+    <ul class="progress">
+      <li class="progress-bar">
+        <div title="filefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefile 1">filefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefilefile 1</div>
+        <div class="progress-percent">
+          <div style="width: 100%;">100%</div>
+        </div>
+      </li>
+      <li class="progress-bar">
+        <div>file 2</div>
+        <div class="progress-percent">
+          <div style="width: 20%;">20%</div>
+        </div>
+      </li>
+      <li class="progress-bar">
+        <div>file 3</div>
+        <div class="progress-percent">
+          <div style="width: 0%;">0%</div>
+        </div>
+      </li>
+    </ul>
+  </footer>
+  <script>
+    const { app } = require('electron')
+    const fs = require('fs')
+    console.log(fs.readdir(app.getPath('home')))
+  </script>
+</body>
+</html>
