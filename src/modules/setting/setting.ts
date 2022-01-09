@@ -1,15 +1,13 @@
 import {
-  BrowserWindow, app, ipcMain
+  BrowserWindow, ipcMain
 } from 'electron'
 import path from 'path'
-import http from 'http'
 import { Device } from '../../core/states/Device';
 import { Position } from '../../core/enums/Position';
 const { connectDevice } = require('./utils')
 
 class Setting implements LAN.AppModule {
   window: LAN.Nullable<Electron.BrowserWindow> = null;
-  server: LAN.Nullable<http.Server> = null;
   keepRemoteTimer: number = 0
   address: string = '0.0.0.0'
   port: number = 2001
@@ -99,69 +97,62 @@ class Setting implements LAN.AppModule {
     }
     this.window?.show()
   }
-  destroy() {
-    if (this.server) {
-      this.server.close(() => {
-        this.server = null
-      })
-    }
-  }
+  destroy() {}
   init() {
-    if (!this.server) {
-      global.appState.event.on('global.store:updated', () => {
-        const {
-          remotes: devices, local: thisDevice, remote, position, isController
-        } = global.appState.state
-        
-        this.window?.webContents.send('devices', {
-          devices, thisDevice, remote, position, isController
+    global.appState.event.on('global.store:updated', () => {
+      const {
+        remotes: devices, local: thisDevice, remote, position, isController
+      } = global.appState.state
+      
+      this.window?.webContents.send('devices', {
+        devices, thisDevice, remote, position, isController
+      })
+      
+    })
+    // new device found
+    global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
+      const { remote, position, isController } = global.appState.state
+      this.window?.webContents.send('devices', {
+        devices, thisDevice, remote, position, isController
+      })
+    })
+    // update network info
+    global.appState.event.on('global.state.local:updated', ({ device }) => {
+      this.window?.webContents.send('devices.local', { device })
+    })
+
+    ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
+      if (remoteDevice) {
+        global.appState.state.isController = true
+        global.appState.event.emit('global.store:update', {
+          position,
+          remote: remoteDevice
         })
         
-      })
-      // new device found
-      global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
-        const { remote, position, isController } = global.appState.state
-        this.window?.webContents.send('devices', {
-          devices, thisDevice, remote, position, isController
+        global.appState.modules.get('capture').setConnectionPeer(remoteDevice.if, position)
+  
+        this._keepRemoteShown(remoteDevice, position, global.appState.state.local!)
+      }
+    })
+    ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
+      const remoteDevice = global.appState.findDeviceByIP(remoteIP)
+      if (remoteDevice) {
+        this._cancelKeepRemoteShown()
+        clearTimeout(this.keepRemoteTimer)
+
+        global.appState.state.isController = false
+        global.appState.event.emit('global.store:update', {
+          position: '',
+          remote: null
         })
-      })
-      // update network info
-      global.appState.event.on('global.state.local:updated', ({ device }) => {
-        this.window?.webContents.send('devices.local', { device })
-      })
-
-      ipcMain.on('device.connect', (event, { remoteDevice, position }) => {
-        if (remoteDevice) {
-          global.appState.state.isController = true
-          global.appState.event.emit('global.store:update', {
-            position,
-            remote: remoteDevice
-          })
-          
-          global.appState.modules.get('capture').setConnectionPeer(remoteDevice.if, position)
-    
-          this._keepRemoteShown(remoteDevice, position, global.appState.state.local!)
-        }
-      })
-      ipcMain.on('device.disconnect', (event, { remoteIP, position }) => {
-        const remoteDevice = global.appState.findDeviceByIP(remoteIP)
-        if (remoteDevice) {
-          this._cancelKeepRemoteShown()
-          clearTimeout(this.keepRemoteTimer)
-
-          global.appState.state.isController = false
-          global.appState.event.emit('global.store:update', {
-            position: '',
-            remote: null
-          })
-          
-          global.appState.modules.get('capture').setConnectionPeer(null, null)
-        }
-      })
-
-      this.server = http.createServer((req, res) => {
-        const urlObj = new URL(`http://localhost${req.url}`)
         
+        global.appState.modules.get('capture').setConnectionPeer(null, null)
+      }
+    })
+
+    global.appState.httpServer
+      .route('/connection')
+      .post((req, res) => {
         const updateDevice = (positionArg: Position, remoteDeviceFound: Device) => {
           global.appState.event.emit('global.state:update', {
             position: positionArg,
@@ -173,62 +164,52 @@ class Setting implements LAN.AppModule {
             devices, thisDevice, remote, position, isController
           })
         }
-
-        if (urlObj.pathname === '/connection') {
-          const restore = urlObj.searchParams.get('restore')
-          const positionArg = urlObj.searchParams.get('position') as unknown as Position
-          const device: Device = JSON.parse(urlObj.searchParams.get('device')!)
-          const ip = req.socket.remoteAddress
-          if (ip) {
-            device.if = ip
-            const remoteDeviceFound = global.appState.findDeviceByIP(ip) || device
-            switch(req.method?.toLowerCase()) {
-              case 'post': {
-                  if (!global.appState.state.remote) {
-                    // 远程设备不存在，第一次添加
-                    remoteDeviceFound.disabled = false
-                    updateDevice(positionArg, remoteDeviceFound)
-                    res.statusCode = 201
-                  } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
-                    // 已经被控制且重复收到相同设备信息
-                    if (global.appState.state.remote.disabled) {
-                      remoteDeviceFound.disabled = false
-                      updateDevice(positionArg, remoteDeviceFound)
-                    }
-                    res.statusCode = 201
-                  } else {
-                    res.statusCode = 403
-                  }
-                  res.end()
-                }
-                break
-              case 'delete': {
-                  if (global.appState.state.remote && global.appState.state.remote.uuid === remoteDeviceFound.uuid) {
-                    global.appState.event.emit('global.state:update', {
-                      position: '',
-                      remote: null
-                    })
-                    const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
-                    this.window?.webContents.send('devices', {
-                      devices, thisDevice, remote, position: positionArg, isController
-                    })
-                  }
-                  res.statusCode = 200
-                  res.end()
-                }
-                break
-              default: res.end('settings HTTP server respond')
+        const restore = req.query.restore
+        const positionArg = req.query.position as unknown as Position
+        const device: Device = JSON.parse(req.query.device as string)
+        const ip = req.socket.remoteAddress
+        if (ip) {
+          device.if = ip
+          const remoteDeviceFound = global.appState.findDeviceByIP(ip) || device
+          if (!global.appState.state.remote) {
+            // 远程设备不存在，第一次添加
+            remoteDeviceFound.disabled = false
+            updateDevice(positionArg, remoteDeviceFound)
+            res.status(201)
+          } else if (global.appState.state.remote.uuid == remoteDeviceFound.uuid) {
+            // 已经被控制且重复收到相同设备信息
+            if (global.appState.state.remote.disabled) {
+              remoteDeviceFound.disabled = false
+              updateDevice(positionArg, remoteDeviceFound)
             }
+            res.status(201)
+          } else {
+            res.status(403)
           }
-        } else {
-          res.statusCode = 404
           res.end()
         }
       })
-      this.server.listen(this.port, this.address, () => {
-        console.log(`setting HTTP server listening ${this.address}:${this.port}`)
+      .delete((req, res) => {
+        const restore = req.query.restore
+        const positionArg = req.query.position as unknown as Position
+        const device: Device = JSON.parse(req.query.device as string)
+        const ip = req.socket.remoteAddress
+        if (ip) {
+          device.if = ip
+          const remoteDeviceFound = global.appState.findDeviceByIP(ip) || device
+          if (global.appState.state.remote && global.appState.state.remote.uuid === remoteDeviceFound.uuid) {
+            global.appState.event.emit('global.state:update', {
+              position: '',
+              remote: null
+            })
+            const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+            this.window?.webContents.send('devices', {
+              devices, thisDevice, remote, position: positionArg, isController
+            })
+          }
+          res.status(200).end()
+        }
       })
-    }
     this._restoreRemote()
   }
 }

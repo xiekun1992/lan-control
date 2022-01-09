@@ -2,6 +2,8 @@
 import os from 'os'
 import { app } from 'electron'
 import path from 'path'
+import express from 'express'
+import bodyParser from 'body-parser'
 import { Store } from '../store'
 import { GlobalEvent } from '../event'
 import { State } from './State'
@@ -12,6 +14,8 @@ interface Platform {
   windows: boolean
 }
 
+const port = 2001
+const host = '0.0.0.0'
 export class AppState {
   name: string
   exePath: string
@@ -23,6 +27,7 @@ export class AppState {
   state: State
   event: GlobalEvent
   store: Store
+  httpServer: express.Express
 
   constructor(launchPath: string) {
     this.name = require(path.resolve(launchPath, 'package.json')).name
@@ -38,6 +43,11 @@ export class AppState {
     this.state = new State()
     this.event = new GlobalEvent()
     this.store = new Store(os.homedir(), '.lan_control')
+    this.httpServer = express()
+    this.httpServer.use(bodyParser.json())
+    this.httpServer.listen(port, host, () => {
+      console.log(`http server listen at ${host}:${port}`)
+    })
   }
   addToRemotes(newDevice: Device): boolean {
     newDevice.timestamp = Date.now()

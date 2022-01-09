@@ -9,9 +9,6 @@ interface ClipboardRequestParam {
 class Clipboard implements LAN.AppModule {
   prevContent: string = ''
   captureInited: boolean = false
-  server: LAN.Nullable<http.Server> = null
-  address: string = '0.0.0.0'
-  port: number = 2000
 
   _capture() {
     if (!this.captureInited) {
@@ -26,12 +23,7 @@ class Clipboard implements LAN.AppModule {
   destroy() {
     if (this.captureInited) {
       clipboardAuto.release()
-      if (this.server) {
-        this.server.close(() => {
-          this.server = null
-          this.captureInited = false
-        })
-      }
+      this.captureInited = false
     }
   }
   sync() {
@@ -47,7 +39,7 @@ class Clipboard implements LAN.AppModule {
     }
     const req = http.request({
       hostname: global.appState.state.remote.if,
-      port: 2000,
+      port: 2001,
       path: '/text',
       method: 'POST',
       headers: {
@@ -68,32 +60,14 @@ class Clipboard implements LAN.AppModule {
     req.end()
   }
   init() {
-    if (!this.server) {
-      this.server = http.createServer((req, res) => {
-        req.setEncoding('utf-8')
-        let body = ''
-        req.on('data', (chunk) => {
-          body += chunk
-        })
-        req.on('end', () => {
-          const bodyObj: ClipboardRequestParam = JSON.parse(body)
-          switch (req.url) {
-            case '/text': 
-              this.prevContent = bodyObj.text
-              clipboard.writeText(bodyObj.text)
-              break
-          }
-          res.statusCode = 200
-          res.end()
-        })
-        req.on('error', console.log)
-        // console.log(req.url, req.body)
-      })
-      this.server.listen(this.port, this.address, () => {
-        console.log(`clipboard HTTP server listening ${this.address}:${this.port}`)
-        this._capture()
-      })
-    }
+    global.appState.httpServer.post('/text', (req, res) => {
+      req.setEncoding('utf-8')
+      const bodyObj: ClipboardRequestParam = req.body
+      this.prevContent = bodyObj.text
+      clipboard.writeText(bodyObj.text)
+      res.status(200).end()
+    })
+    this._capture()
   }
 }
 
