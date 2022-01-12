@@ -18,7 +18,7 @@ gulp.task('scripts', function() {
 })
 
 gulp.task('assets', function() {
-  return gulp.src(['src/**/*.jpg', 'src/**/*.png', 'src/**/*.css', 'src/**/*.html'])
+  return gulp.src(['src/**/*.*'])
             .pipe(gulp.dest('src_build'))
 })
 

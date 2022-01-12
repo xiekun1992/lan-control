@@ -158,19 +158,19 @@ ul, li {padding: 0;margin:0;list-style: none;}
 .filter-list .filter-item div.type-icon {
   display: inline-block;
   vertical-align: top;
-  width: calc(187px * 0.3);
-  height: calc(160px * 0.3);
+  width: 64px;
+  height: 64px;
   background-size: contain;
   background-position: center top;
   background-repeat: no-repeat;
 }
 .layout-item div.type-icon.desktop,
 .filter-list .filter-item div.type-icon.desktop {
-  background-image: url('./images/desktop.png');
+  background-image: url('./images/ico27.ico');
 }
 .layout-item div.type-icon.notebook,
 .filter-list .filter-item div.type-icon.notebook {
-  background-image: url('./images/laptop.png');
+  background-image: url('./images/ico2068.ico');
 }
 .layout-item .disabled {
   color: #ccc;
