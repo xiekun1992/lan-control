@@ -91,6 +91,7 @@ async function bootstrap(launchPath: string) {
     }
   })
 
+  appState.startServer()
   // check network interface change
   monitNetwork()
 }

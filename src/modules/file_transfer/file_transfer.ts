@@ -127,7 +127,7 @@ class FileTransfer implements LAN.AppModule {
             }
           })
           let parentPath = path.resolve(dirPath, '..')
-          if (/^[A-Za-z]:\\$/.test(dirPath)) {
+          if (/^[A-Za-z]:\\$/.test(dirPath) && global.appState.platform.windows) {
             parentPath = '/'
             result.unshift({
               path: parentPath,
@@ -141,7 +141,7 @@ class FileTransfer implements LAN.AppModule {
               isSocket: false,
               isSymbolicLink: false,
             })
-          } else {
+          } else if (dirPath !== '/') {
             const stat = fs.lstatSync(parentPath)
             result.unshift({
               path: parentPath.replace(/\\/g, '\\\\'),
@@ -155,7 +155,6 @@ class FileTransfer implements LAN.AppModule {
               isSocket: stat.isSocket(),
               isSymbolicLink: stat.isSymbolicLink(),
             })
-  
           }
           res.status(200).json(result)
         } else {
