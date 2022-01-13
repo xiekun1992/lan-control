@@ -5,8 +5,10 @@
 }
 body {
   margin: 0;
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
+  display: grid;
+  grid-template-rows: 500px auto;
   height: 100%;
   position: fixed;
   width: 100%;
@@ -26,25 +28,60 @@ body {
   padding: 10px;
 }
 main {
-  flex: 5;
+  /* flex: 5; */
   border-bottom: 1px solid;
   display: grid;
-  grid-template-columns: auto 100px auto;
+  grid-template-columns: 500px 100px 500px;
   /* grid-template-rows: 100px 100px 100px; */
   /* display: flex; */
 }
 footer {
-  flex: 2;
+  /* flex: 2; */
 }
 main .title {
   border-bottom: 1px solid;
   padding: 5px;
 }
+main>div ul {
+  max-height: 467px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 main>div ul>li>a {
   color: #000;
   padding: 5px;
   text-decoration: none;
-  display: block;
+  display: inline-block;
+  vertical-align: bottom;
+  width: 100%;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+main>div ul>li>a:before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url('./images/ico1004.ico');
+  background-size: contain;
+  background-position: center center;
+  vertical-align: bottom;
+  background-repeat: no-repeat;
+  margin-right: 4px;
+}
+main>div ul>li.file>a:before {
+  background-image: url('./images/ico1.ico');
+}
+main>div ul>li.directory>a:before {
+  background-image: url('./images/ico4.ico');
+}
+main>div ul>li.symbolic-link>a:before {
+  background-image: url('./images/ico16769.ico');
+}
+main>div ul>li.disk>a:before {
+  background-image: url('./images/ico166.ico');
 }
 main>div ul>li.active>a,
 main>div ul>li>a:hover {

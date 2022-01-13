@@ -6,6 +6,7 @@ import {
 import path from 'path'
 import http from 'http'
 import fs from 'fs'
+import child from 'child_process'
 
 class FileTransfer implements LAN.AppModule {
   private window: LAN.Nullable<Electron.BrowserWindow>;
@@ -17,7 +18,7 @@ class FileTransfer implements LAN.AppModule {
   show() {
     if (!this.window) {
       this.window = new BrowserWindow({
-        width: 800,
+        width: 1100,
         height: 600,
         show: true,
         webPreferences: {
@@ -71,14 +72,81 @@ class FileTransfer implements LAN.AppModule {
     
     global.appState.httpServer.get('/dirs', (req, res) => {
       this.requestWrapper(res, () => {
-        const dirPath = req.query.path as string ?? app.getPath('home')
-        if (fs.lstatSync(dirPath).isDirectory()) {
+        const dirPath = req.query.path as string || app.getPath('home')
+        if ('/' === dirPath && global.appState.platform.windows) {
+          child.exec('wmic logicaldisk get name', (error, stdout) => {
+            const driverNames = stdout.split('\r\r\n')
+                                    .filter(value => /[A-Za-z]:/.test(value))
+                                    .map(value => value.trim())
+            const result = driverNames.map(name => ({
+              path: name + '\\\\',
+              name,
+              isRoot: true,
+              isDirectory: false,
+              isFile: false,
+              isBlockDevice: false,
+              isCharacterDevice: false,
+              isFIFO: false,
+              isSocket: false,
+              isSymbolicLink: false,
+            }))
+            res.status(200).json(result)
+          });
+        } else if (fs.lstatSync(dirPath).isDirectory()) {
           const dirs = fs.readdirSync(dirPath)
           const result = dirs.map(filename => {
-            console.log(filename)
-            const stat = fs.lstatSync(path.resolve(dirPath, filename))
-            return {
-              name: filename,
+            let filePath = path.resolve(dirPath, filename)
+            console.log(filePath)
+            try {
+              const stat = fs.lstatSync(filePath)
+              return {
+                path: filePath.replace(/\\/g, '\\\\'),
+                name: filename,
+                isRoot: false,
+                isDirectory: stat.isDirectory(),
+                isFile: stat.isFile(),
+                isBlockDevice: stat.isBlockDevice(),
+                isCharacterDevice: stat.isCharacterDevice(),
+                isFIFO: stat.isFIFO(),
+                isSocket: stat.isSocket(),
+                isSymbolicLink: stat.isSymbolicLink(),
+              }
+            } catch (e) {
+              return {
+                path: filePath.replace(/\\/g, '\\\\'),
+                name: filename,
+                isRoot: false,
+                isDirectory: false,
+                isFile: false,
+                isBlockDevice: false,
+                isCharacterDevice: false,
+                isFIFO: false,
+                isSocket: false,
+                isSymbolicLink: false,
+              }
+            }
+          })
+          let parentPath = path.resolve(dirPath, '..')
+          if (/^[A-Za-z]:\\$/.test(dirPath)) {
+            parentPath = '/'
+            result.unshift({
+              path: parentPath,
+              name: '..',
+              isRoot: false,
+              isDirectory: true,
+              isFile: false,
+              isBlockDevice: false,
+              isCharacterDevice: false,
+              isFIFO: false,
+              isSocket: false,
+              isSymbolicLink: false,
+            })
+          } else {
+            const stat = fs.lstatSync(parentPath)
+            result.unshift({
+              path: parentPath.replace(/\\/g, '\\\\'),
+              name: '..',
+              isRoot: false,
               isDirectory: stat.isDirectory(),
               isFile: stat.isFile(),
               isBlockDevice: stat.isBlockDevice(),
@@ -86,9 +154,12 @@ class FileTransfer implements LAN.AppModule {
               isFIFO: stat.isFIFO(),
               isSocket: stat.isSocket(),
               isSymbolicLink: stat.isSymbolicLink(),
-            }
-          })
+            })
+  
+          }
           res.status(200).json(result)
+        } else {
+          res.status(404).end()
         }
       })
     })

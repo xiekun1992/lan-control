@@ -11,7 +11,7 @@
   <main>
     <div>
       <div class="title">local</div>
-      <ul>
+      <ul id="localFilesEl">
         <li><a href="javascript:void(0)">..</a></li>
         <li><a href="javascript:void(0)">desktop</a></li>
         <li><a href="javascript:void(0)">downloads</a></li>
@@ -57,9 +57,37 @@
     </ul>
   </footer>
   <script>
-    const { app } = require('electron')
-    const fs = require('fs')
-    console.log(fs.readdir(app.getPath('home')))
+    // const { app } = require('electron')
+    // const fs = require('fs')
+    const path = require('path')
+
+    function openDirectory(filePath, isDirectory) {
+      if (!isDirectory) {
+        const liEl = window.event.target.parentNode
+        if (liEl.classList.contains('active')) {
+          liEl.classList.remove('active')
+        } else {
+          liEl.classList.add('active')
+        }
+      } else {
+        fetch(`http://localhost:2001/dirs?path=${filePath}`).then(res => res.json()).then((data) => {
+          console.log(data)
+          let html = ''
+          data.forEach(row => {
+            let type = ''
+            switch (true) {
+              case row.isDirectory: type = 'directory'; break
+              case row.isSymbolicLink: type = 'symbolic-link'; break
+              case row.isFile: type = 'file'; break
+              case row.isRoot: type = 'disk'; break
+            }
+            html += `<li class="${type}"><a onclick="openDirectory(\'${row.path}\', ${row.isDirectory || row.isRoot})" title="${row.name}">${row.name}</a></li>`
+          })
+          localFilesEl.innerHTML = html
+        })
+      }
+    }
+    openDirectory('', true)
   </script>
 </body>
 </html>
