@@ -11,12 +11,7 @@
   <main>
     <div>
       <div class="title">local</div>
-      <ul id="localFilesEl">
-        <li><a href="javascript:void(0)">..</a></li>
-        <li><a href="javascript:void(0)">desktop</a></li>
-        <li><a href="javascript:void(0)">downloads</a></li>
-        <li><a href="javascript:void(0)">document</a></li>
-      </ul>
+      <ul id="localFilesEl"></ul>
     </div>
     <div class="space">
       <button>&gt;</button>
@@ -25,12 +20,7 @@
     </div>
     <div>
       <div class="title">remote</div>
-      <ul>
-        <li><a href="javascript:void(0)">..</a></li>
-        <li><a href="javascript:void(0)">desktop</a></li>
-        <li><a href="javascript:void(0)">downloads</a></li>
-        <li><a href="javascript:void(0)">document</a></li>
-      </ul>
+      <ul id="remoteFilesEl"></ul>
     </div>
   </main>
   <footer>
@@ -61,7 +51,7 @@
     // const fs = require('fs')
     const path = require('path')
 
-    function openDirectory(filePath, isDirectory) {
+    function openLocalDirectory(filePath, isDirectory) {
       if (!isDirectory) {
         const liEl = window.event.target.parentNode
         if (liEl.classList.contains('active')) {
@@ -81,13 +71,41 @@
               case row.isFile: type = 'file'; break
               case row.isRoot: type = 'disk'; break
             }
-            html += `<li class="${type}"><a onclick="openDirectory(\'${row.path}\', ${row.isDirectory || row.isRoot})" title="${row.name}">${row.name}</a></li>`
+            html += `<li class="${type}"><a onclick="openLocalDirectory(\'${row.path}\', ${row.isDirectory || row.isRoot})" title="${row.name}">${row.name}</a></li>`
           })
           localFilesEl.innerHTML = html
         })
       }
     }
-    openDirectory('', true)
+    openLocalDirectory('', true)
+
+    function openRemoteDirectory(filePath, isDirectory) {
+      if (!isDirectory) {
+        const liEl = window.event.target.parentNode
+        if (liEl.classList.contains('active')) {
+          liEl.classList.remove('active')
+        } else {
+          liEl.classList.add('active')
+        }
+      } else {
+        fetch(`http://192.168.1.89:2001/dirs?path=${filePath}`).then(res => res.json()).then((data) => {
+          console.log(data)
+          let html = ''
+          data.forEach(row => {
+            let type = ''
+            switch (true) {
+              case row.isDirectory: type = 'directory'; break
+              case row.isSymbolicLink: type = 'symbolic-link'; break
+              case row.isFile: type = 'file'; break
+              case row.isRoot: type = 'disk'; break
+            }
+            html += `<li class="${type}"><a onclick="openRemoteDirectory(\'${row.path}\', ${row.isDirectory || row.isRoot})" title="${row.name}">${row.name}</a></li>`
+          })
+          remoteFilesEl.innerHTML = html
+        })
+      }
+    }
+    openRemoteDirectory('', true)
   </script>
 </body>
 </html>

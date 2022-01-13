@@ -18,8 +18,8 @@ class FileTransfer implements LAN.AppModule {
   show() {
     if (!this.window) {
       this.window = new BrowserWindow({
-        width: 1100,
-        height: 600,
+        width: 1117,
+        height: 800,
         show: true,
         webPreferences: {
           nodeIntegration: true
