@@ -45,6 +45,8 @@ export class AppState {
     this.store = new Store(os.homedir(), '.lan_control')
     this.httpServer = express()
     this.httpServer.use(bodyParser.json())
+  }
+  startServer() {
     this.httpServer.listen(port, host, () => {
       console.log(`http server listen at ${host}:${port}`)
     })
