@@ -21,9 +21,9 @@ class AppCapture implements LAN.AppModule {
   screenWidthGap: number = global.appState.platform.linux? 1: 0
   screenHeightGap: number = global.appState.platform.linux? 1: 0
   mapArea: MapArea = new MapArea()
+  isMouseDown: boolean = false // 鼠标按下的时候不进行转发操作
 
-  constructor() {}
-  _captureInput() {
+  private _captureInput() {
     // 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
     inputAuto.event.on('mousemove', (event: any) => {
       // console.log(event)
@@ -37,12 +37,14 @@ class AppCapture implements LAN.AppModule {
       })
     })
     inputAuto.event.on('mousedown', (event: any) => {
+      this.isMouseDown = true
       this._send({
         type: 'mousedown',
         button: event.button
       })
     })
     inputAuto.event.on('mouseup', (event: any) => {
+      this.isMouseDown = false
       this._send({
         type: 'mouseup',
         button: event.button
@@ -70,12 +72,14 @@ class AppCapture implements LAN.AppModule {
       })
     })
   }
-  _checkInsideValidRange(event: any) {
+
+  private _checkInsideValidRange(event: any) {
     // console.log(this.position)
     if (!this.position) {
       return
     }
     if (
+      !this.isMouseDown &&
       !this.controlling && (
         (event.x >= this.rightmost && this.position === Position.RIGHT) ||
         (event.x <= this.leftmost && this.position === Position.LEFT)
@@ -85,9 +89,8 @@ class AppCapture implements LAN.AppModule {
       this.controlling = true
       
       replay.createWindow(() => {
-        const timer1 = setTimeout(() => {
-          const timer2 = setTimeout(() => {
-            clearTimeout(timer2)
+        setTimeout(() => {
+          setTimeout(() => {
             this.shouldForward = true
             this.mouseSet = true
           }, 10)
@@ -96,7 +99,6 @@ class AppCapture implements LAN.AppModule {
           } else if (this.position === Position.RIGHT) {
             inputAuto.mousemove(this.mapArea.left + 2, event.y)// 鼠标位置设置有问题
           }
-          clearTimeout(timer1)
         }, 100)
       })
     } else if (this.controlling && this.mouseSet) {
@@ -135,13 +137,15 @@ class AppCapture implements LAN.AppModule {
       }
     }
   }
-  _send(msg: Object) {
+
+  private _send(msg: Object) {
     // console.log(msg)
     if (this.shouldForward && this.address) {
       this.server.send(JSON.stringify(msg), this.port, this.address)
     }
   }
-  destroy() {
+
+  public destroy() {
     if (this.server) {
       inputAuto.release()
       this.server.close(() => {})
@@ -152,12 +156,13 @@ class AppCapture implements LAN.AppModule {
    * @param {string} targetAddress ip address, eg: 192.168.1.1
    * @param {string} devicePosition relative position, eg: left or right
    */
-  setConnectionPeer(targetAddress: string, devicePosition: Position) {
+  public setConnectionPeer(targetAddress: string, devicePosition: Position) {
     this.address = targetAddress
     this.position = devicePosition
     // console.log(this.position)
   }
-  init() {
+
+  public init() {
     this._captureInput()
     this.mapArea.init()
     // sync clipboard content
