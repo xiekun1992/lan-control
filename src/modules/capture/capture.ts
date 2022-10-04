@@ -57,8 +57,8 @@ class AppCapture implements LAN.AppModule {
       })
     })
     inputAuto.event.on('keydown', (event: any) => {
-      // console.log(event)
       const char = inputAuto.keycodeToChar(event.vkCode)
+      // console.log(event, char)
       this._send({
         type: 'keydown',
         char
@@ -93,6 +93,11 @@ class AppCapture implements LAN.AppModule {
           setTimeout(() => {
             this.shouldForward = true
             this.mouseSet = true
+            if (this.shouldForward) {
+              inputAuto.setBlock(true)
+            } else {
+              inputAuto.setBlock(false)
+            }
           }, 10)
           if (this.position === Position.LEFT) {
             inputAuto.mousemove(this.mapArea.right - 2, event.y)
@@ -135,11 +140,15 @@ class AppCapture implements LAN.AppModule {
       } else {
         // shouldForward = false
       }
+      if (this.shouldForward) {
+        inputAuto.setBlock(true)
+      } else {
+        inputAuto.setBlock(false)
+      }
     }
   }
 
   private _send(msg: Object) {
-    // console.log(msg)
     if (this.shouldForward && this.address) {
       this.server.send(JSON.stringify(msg), this.port, this.address)
     }
