@@ -170,11 +170,6 @@ class AppCapture implements LAN.AppModule {
   public setConnectionPeer(targetAddress: string, devicePosition: Position) {
     this.address = targetAddress
     this.position = devicePosition
-    if (!this.address || !this.position) { // 断开连接
-      inputAuto.setBlock(false)
-      replay.relaseActions() // 释放按下操作，避免不停重复按键
-    }
-    // console.log(this.position)
   }
 
   public init() {
@@ -193,8 +188,12 @@ class AppCapture implements LAN.AppModule {
     }
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote } = global.appState.state
-      if (remote?.disabled) {
+      if (!remote || remote?.disabled) {
         overlay.hide()
+        this.shouldForward = false
+        this.controlling = false
+        inputAuto.setBlock(false)
+        replay.relaseActions() // 释放按下操作，避免不停重复按键
       }
     })
   }
