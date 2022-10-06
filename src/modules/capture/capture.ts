@@ -3,7 +3,8 @@ import dgram from 'dgram'
 import { screen } from 'electron'
 import { Position } from '../../core/enums/Position'
 import { MapArea } from '../../core/states/Device'
-import replay from './overlay'
+import overlay from './overlay'
+import replay from './replay'
 const { calcEdge } = require('./utils')
 
 class AppCapture implements LAN.AppModule {
@@ -88,7 +89,7 @@ class AppCapture implements LAN.AppModule {
       // console.log(mapArea)
       this.controlling = true
       
-      replay.createWindow(() => {
+      overlay.createWindow(() => {
         setTimeout(() => {
           setTimeout(() => {
             this.shouldForward = true
@@ -113,7 +114,7 @@ class AppCapture implements LAN.AppModule {
         if (this.position === Position.LEFT) {
           this.controlling = false
           this.shouldForward = false
-          replay.hide()
+          overlay.hide()
           inputAuto.mousemove(this.leftmost + 2, event.y)
           this.mouseSet = false
         } else {
@@ -124,7 +125,7 @@ class AppCapture implements LAN.AppModule {
         if (this.position === Position.RIGHT) {
           this.controlling = false
           this.shouldForward = false
-          replay.hide()
+          overlay.hide()
           inputAuto.mousemove(this.rightmost - 2, event.y)
           this.mouseSet = false
         } else {
@@ -149,6 +150,7 @@ class AppCapture implements LAN.AppModule {
   }
 
   private _send(msg: Object) {
+    console.log(this.shouldForward, this.address, msg)
     if (this.shouldForward && this.address) {
       this.server.send(JSON.stringify(msg), this.port, this.address)
     }
@@ -168,8 +170,9 @@ class AppCapture implements LAN.AppModule {
   public setConnectionPeer(targetAddress: string, devicePosition: Position) {
     this.address = targetAddress
     this.position = devicePosition
-    if (!this.address || !this.position) {
+    if (!this.address || !this.position) { // 断开连接
       inputAuto.setBlock(false)
+      replay.relaseActions() // 释放按下操作，避免不停重复按键
     }
     // console.log(this.position)
   }
@@ -191,7 +194,7 @@ class AppCapture implements LAN.AppModule {
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote } = global.appState.state
       if (remote?.disabled) {
-        replay.hide()
+        overlay.hide()
       }
     })
   }
