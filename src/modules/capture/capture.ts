@@ -57,8 +57,8 @@ class AppCapture implements LAN.AppModule {
       })
     })
     inputAuto.event.on('keydown', (event: any) => {
+      console.log(event)
       const char = inputAuto.keycodeToChar(event.vkCode)
-      // console.log(event, char)
       this._send({
         type: 'keydown',
         char
@@ -168,6 +168,9 @@ class AppCapture implements LAN.AppModule {
   public setConnectionPeer(targetAddress: string, devicePosition: Position) {
     this.address = targetAddress
     this.position = devicePosition
+    if (!this.address || !this.position) {
+      inputAuto.setBlock(false)
+    }
     // console.log(this.position)
   }
 

@@ -45,10 +45,19 @@ class Discover implements LAN.AppModule {
         global.appState.state.remotes.splice(i, 1)
       }
     }
-    if (global.appState.state.remote && !global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) { // expire time 2500 should bigger than keep remote shown timeout 2000
-      global.appState.state.remote.disabled = true
-      global.appState.modules.get('capture').setConnectionPeer(null, null)
-      modified = true
+    if (global.appState.state.remote) {
+      if (!global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp > 2500) {// expire time 2500 should bigger than keep remote shown timeout 2000
+        global.appState.state.remote.disabled = true
+        global.appState.modules.get('capture').setConnectionPeer(null, null)
+        modified = true
+      } else if (global.appState.state.remote.disabled && now - global.appState.state.remote.timestamp <= 2500) {
+        global.appState.state.remote.disabled = false
+        global.appState.modules.get('capture').setConnectionPeer(
+          global.appState.state.remote.if,
+          global.appState.state.position
+        )
+        modified = true
+      }
     }
     if (modified) {
       global.appState.event.emit('global.state.remotes:updated', {
@@ -66,20 +75,21 @@ class Discover implements LAN.AppModule {
           const newDevice: Device = JSON.parse(msg.toString())
           // mark which ip the remote connects from
           newDevice.if = rinfo.address
-          const deviceNIC = newDevice.nic.find(item => item.address === newDevice.if)
-          if (!deviceNIC) {
-            return
-          }
+          // const deviceNIC = newDevice.nic.find(item => item.address === newDevice.if)
+          // if (!deviceNIC) {
+          //   return
+          // }
           // const rnetId = deviceNIC.netId
     
-          if (global.appState.addToRemotes(newDevice)) {
+          // if (global.appState.addToRemotes(newDevice)) {
             // if (!hostInfo.if) {
             //   hostInfo.if = []
             // }
             // hostInfo.if = hostInfo.nic.find(item => item.netId === rnetId).address // only support one remote device
-          } else {
-            global.appState.refreshDeviceInfo(newDevice)
-          }
+          // }
+          global.appState.addToRemotes(newDevice)
+          // 更新设备列表
+          global.appState.refreshDeviceInfo(newDevice)
         }
       } catch (e) {
         console.error('discover: error ', e)

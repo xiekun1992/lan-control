@@ -20,6 +20,7 @@ export class State {
    * @returns {Boolean} result
    */
   refreshDeviceInfo(device: Device): boolean {
+    let updated = false
     if (device && this.remote && this.getDeviceUniqueId(device) === this.getDeviceUniqueId(this.remote)) {
       this.remote.resolution = device.resolution
       this.remote.nic = device.nic
@@ -29,7 +30,6 @@ export class State {
     for (let i = 0; i < this.remotes.length; i++) {
       const oldDevice = this.remotes[i]
       if (this.getDeviceUniqueId(device) === this.getDeviceUniqueId(oldDevice)) {
-        let updated = false
         if (oldDevice.resolution !== device.resolution) {
           oldDevice.resolution = device.resolution
           updated = true
@@ -41,10 +41,9 @@ export class State {
         if (oldDevice.timestamp !== device.timestamp) {
           oldDevice.timestamp = device.timestamp
         }
-        return updated
       }
     }
-    return false
+    return updated
   }
   /**
    * find device in remote list by given ip

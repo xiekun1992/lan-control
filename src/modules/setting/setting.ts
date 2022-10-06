@@ -53,27 +53,27 @@ class Setting implements LAN.AppModule {
         const { statusCode } = await connectDevice(remote.if, position, thisDevice)
         if (statusCode === 201) {
           global.appState.addToRemotes(remote)
-          if (global.appState.state.remote?.disabled) {
-            global.appState.state.remote.disabled = false
+          // if (global.appState.state.remote?.disabled) {
+          //   global.appState.state.remote.disabled = false
   
-            const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+          //   const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
             
-            this.window?.webContents.send('devices', {
-              devices, thisDevice, remote, position, isController
-            })
+          //   this.window?.webContents.send('devices', {
+          //     devices, thisDevice, remote, position, isController
+          //   })
             
-          }
-          global.appState.modules.get('capture').setConnectionPeer(remote.if, position)
+          // }
+          // global.appState.modules.get('capture').setConnectionPeer(remote.if, position)
         } else {
-          if (global.appState.state.remote?.disabled) {
-            global.appState.state.remote.disabled = false
+          // if (global.appState.state.remote?.disabled) {
+          //   global.appState.state.remote.disabled = false
   
-            const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
+          //   const { remotes: devices, local: thisDevice, remote, position, isController } = global.appState.state
             
-            this.window?.webContents.send('devices', {
-              devices, thisDevice, remote, position, isController
-            })
-          }
+          //   this.window?.webContents.send('devices', {
+          //     devices, thisDevice, remote, position, isController
+          //   })
+          // }
         }
         this._keepRemoteShown(remote, position, thisDevice)
       } catch (ex: any) {
