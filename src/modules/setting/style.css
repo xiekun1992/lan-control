@@ -122,20 +122,25 @@ ul, li {padding: 0;margin:0;list-style: none;}
 .layout-item .detail>div>b+div>span.connected.right {
   background-color: #b52c2c;
 }
-.layout-item .del-btn{
+.layout-item .btn{
   transition: background-color .2s, border .2s;
   outline: 0;
   border: 1px solid #aaa;
   padding: 5px 0;
+  margin-top: 8px;
   /* position: absolute; */
   /* bottom: 0;
   left: 0; */
   width: 100%;
 }
+.layout-item .btn:hover{
+  color: #fff;
+  border-color: rgb(41, 112, 219);
+  background-color: rgb(61 132 239);
+}
 .layout-item .del-btn:hover{
   border-color: rgb(175, 20, 20);
   background: rgb(202, 23, 23);
-  color: #fff;
 }
 .layout-item div.detail,
 .filter-list .filter-item div.detail {

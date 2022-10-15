@@ -77,16 +77,16 @@
         ipFragHTML += '<div>'
         device.nic.forEach((item) => {
           if (deviceDisplays.left && item.netId === deviceDisplays.left.netId) {
-            ipFragHTML += `<span class="connected left">${item.address}</span><br>`
+            ipFragHTML += `<span class="connected left">${item.address} - ${item.mac}</span><br>`
           } else if (deviceDisplays.right && item.netId === deviceDisplays.right.netId) {
-            ipFragHTML += `<span class="connected right">${item.address}</span><br>`
+            ipFragHTML += `<span class="connected right">${item.address} - ${item.mac}</span><br>`
           } else {
-            ipFragHTML += `<span>${item.address}</span><br>`
+            ipFragHTML += `<span>${item.address} - ${item.mac}</span><br>`
           }
         })
         ipFragHTML += '</div>'
       } else {
-        ipFragHTML = `<div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address}</span>`).join('<br>')}</div>`
+        ipFragHTML = `<div>${device.nic.map(item => `<span class="${device.if === item.address? 'connected': ''}">${item.address} - ${item.mac}</span>`).join('<br>')}</div>`
       }
       return `<div class="${device.disabled? 'disabled': ''}">
           <div class="type-icon ${device.type}"></div>
@@ -127,9 +127,15 @@
           if (statusCode === 201) {
             deviceDisplays[position] = device
     
-            device.netId = device.nic.find(item => item.address === device.if).netId
+            const nic = device.nic.find(item => item.address === device.if)
+            device.netId = nic.netId
             device.position = position
-            layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(device)}</div><button class="del-btn" onclick="openFileTransferWindow()">文件传输</button><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button></div>`
+            layoutContainerEl.children[positionIndex].innerHTML = `<div>
+              <div>${deviceToHTML(device)}</div>
+              <button class="btn" onclick="wakeOnLAN('${nic.mac}', '${nic.netId}')">唤醒</button>
+              <button class="btn" onclick="openFileTransferWindow()">文件传输</button>
+              <button class="del-btn btn" onclick="removeDisplay(${positionIndex}, '${position}', '${device.if}')">删除设备</button>
+            </div>`
             thisDeviceEl.innerHTML = deviceToHTML(_thisDevice)
             
             ipcRenderer.send('device.connect', {
@@ -160,8 +166,14 @@
       if (isController) {
         // if (!deviceDisplays[position] && remote) {
           deviceDisplays[position] = remote
+          const nic = remote.nic.find(item => item.address === remote.if)
           const positionIndex = {'left': 3, 'up': 1, 'right': 5, 'down': 7}[position]
-          layoutContainerEl.children[positionIndex].innerHTML = `<div><div>${deviceToHTML(remote)}</div><button class="del-btn" onclick="openFileTransferWindow()">文件传输</button><button class="del-btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button></div>`
+          layoutContainerEl.children[positionIndex].innerHTML = `<div>
+            <div>${deviceToHTML(remote)}</div>
+            <button class="btn" onclick="wakeOnLAN('${nic.mac}', '${nic.netId}')">唤醒</button>
+            <button class="btn" onclick="openFileTransferWindow()">文件传输</button>
+            <button class="del-btn btn" onclick="removeDisplay(${positionIndex}, '${position}', '${remote.if}')">删除设备</button>
+          </div>`
         // }
       } else {
         // 当前是受控端，显示主控端
@@ -201,6 +213,10 @@
     }
     function openFileTransferWindow() {
       ipcRenderer.send('file-transfer.open')
+    }
+
+    function wakeOnLAN(macStr, broadcastAddr) {
+      ipcRenderer.send('device.wake-on-lan', { macStr, broadcastAddr })
     }
   </script>
 </body>

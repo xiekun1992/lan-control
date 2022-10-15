@@ -5,6 +5,7 @@ import path from 'path'
 import { Device } from '../../core/states/Device';
 import { Position } from '../../core/enums/Position';
 const { connectDevice } = require('./utils')
+const dgram = require('dgram')
 
 class Setting implements LAN.AppModule {
   window: LAN.Nullable<Electron.BrowserWindow> = null;
@@ -148,6 +149,25 @@ class Setting implements LAN.AppModule {
         
         global.appState.modules.get('capture').setConnectionPeer(null, null)
       }
+    })
+    ipcMain.on('device.wake-on-lan', (event, { macStr, broadcastAddr }) => {
+      const server = dgram.createSocket('udp4')
+      const mac = macStr.split(':').map((hex: string) => parseInt(hex, 16))//[0x3c, 0x97, 0x0e, 0x93, 0x43, 0x9c]
+      const packet = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+      // const broadcastAddr = '192.168.1.255'
+      const port = 7 // random port
+      // construct WOL packet
+      for (let i = 0; i < 16; i++) {
+        packet.push(...mac)
+      }
+      server.send(Buffer.from(packet), port, broadcastAddr, (err: Error, bytes: number) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(`wake on LAN: ${bytes} bytes sent`)
+        }
+        server.close()
+      })
     })
 
     global.appState.httpServer
