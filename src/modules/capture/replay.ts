@@ -28,10 +28,10 @@ class Replay {
     this.server.on('message', (message: string, rinfo: any) => {
       const msg = JSON.parse(message)
       // console.log(msg)
-      if (global.appState.state.remote) {
+      if (global.appState.state.remote && !global.appState.state.isController) {
         switch(msg.type) {
           case 'mousemove': 
-            // console.log(msg.x, msg.y, width, height, scaleFactor)
+            console.log('replay mousemove', msg.x, msg.y)
             inputAuto.mousemove(
               msg.x * this.width / global.appState.state.remote.mapArea.width * this.scaleFactor,
               msg.y * this.height / global.appState.state.remote.mapArea.height * this.scaleFactor

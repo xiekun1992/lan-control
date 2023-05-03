@@ -3,7 +3,6 @@ import dgram from 'dgram'
 import { screen } from 'electron'
 import { Position } from '../../core/enums/Position'
 import { MapArea } from '../../core/states/Device'
-import overlay from './overlay'
 import replay from './replay'
 const { calcEdge } = require('./utils')
 
@@ -14,7 +13,6 @@ class AppCapture implements LAN.AppModule {
   port: number = 8888
   shouldForward: boolean = false
   controlling: boolean = false
-  mouseSet: boolean = false
   position: Position = Position.NONE // left, right
   leftmost: number = 0
   rightmost: number = 0
@@ -23,19 +21,16 @@ class AppCapture implements LAN.AppModule {
   screenHeightGap: number = global.appState.platform.linux? 1: 0
   mapArea: MapArea = new MapArea()
   isMouseDown: boolean = false // 鼠标按下的时候不进行转发操作
+  remoteMousePos = { x: 0, y: 0 }
 
   private _captureInput() {
     // 需要以管理员权限运行不然任务管理器获得焦点后会阻塞消息循环
     inputAuto.event.on('mousemove', (event: any) => {
       // console.log(event)
       // console.log(this.position, '----')
-      this._checkInsideValidRange(event)
-    
-      this._send({
-        type: 'mousemove',
-        x: event.x - this.mapArea.left,
-        y: event.y - this.mapArea.top
-      })
+      if (!this.controlling) {
+        this._checkInsideValidRange(event)
+      }
     })
     inputAuto.event.on('mousedown', (event: any) => {
       this.isMouseDown = true
@@ -58,7 +53,7 @@ class AppCapture implements LAN.AppModule {
       })
     })
     inputAuto.event.on('keydown', (event: any) => {
-      console.log(event)
+      // console.log(event)
       const char = inputAuto.keycodeToChar(event.vkCode)
       this._send({
         type: 'keydown',
@@ -70,6 +65,42 @@ class AppCapture implements LAN.AppModule {
       this._send({
         type: 'keyup',
         char
+      })
+    })
+    inputAuto.event.on('mousemoverel', ({ x, y }) => {
+      if (!this.controlling) return
+      if (x > 1024 || y > 1024) {
+        return
+      }
+      this.remoteMousePos.x += x
+      this.remoteMousePos.y += y
+
+      if (this.remoteMousePos.y < this.mapArea.top) {
+        this.remoteMousePos.y = this.mapArea.top
+      }
+      if (this.remoteMousePos.y > this.mapArea.bottom) {
+        this.remoteMousePos.y = this.mapArea.bottom
+      }
+      if (this.position === Position.RIGHT && this.remoteMousePos.x > this.mapArea.right) {
+        this.remoteMousePos.x = this.mapArea.right
+      }
+      
+      // console.log('rel', x, y, this.remoteMousePos, this.position, this.mapArea.left)
+
+      // 从左|右侧屏幕移动回来
+      if (
+        // (this.position === Position.LEFT && this.remoteMousePos.x > this.mapArea.right) || 
+       (this.position === Position.RIGHT && this.remoteMousePos.x < this.mapArea.left)
+      ) {
+        this.controlling = false
+        this.shouldForward = false
+        inputAuto.setBlock(this.shouldForward)
+      }
+      
+      this._send({
+        type: 'mousemove',
+        x: this.remoteMousePos.x - this.mapArea.left,
+        y: this.remoteMousePos.y - this.mapArea.top
       })
     })
   }
@@ -88,63 +119,28 @@ class AppCapture implements LAN.AppModule {
     ) {
       // console.log(mapArea)
       this.controlling = true
-      
-      overlay.createWindow(() => {
-        setTimeout(() => {
-          setTimeout(() => {
-            this.shouldForward = true
-            this.mouseSet = true
-            if (this.shouldForward) {
-              inputAuto.setBlock(true)
-            } else {
-              inputAuto.setBlock(false)
-            }
-          }, 10)
-          if (this.position === Position.LEFT) {
-            inputAuto.mousemove(this.mapArea.right - 2, event.y)
-          } else if (this.position === Position.RIGHT) {
-            inputAuto.mousemove(this.mapArea.left + 2, event.y)// 鼠标位置设置有问题
-          }
-        }, 100)
-      })
-    } else if (this.controlling && this.mouseSet) {
-      if (event.x >= this.mapArea.left && event.x <= this.mapArea.right && event.y >= this.mapArea.top && event.y <= this.mapArea.bottom) {
-        this.shouldForward = true
-      } else if (event.x > this.mapArea.right) {
-        if (this.position === Position.LEFT) {
-          this.controlling = false
-          this.shouldForward = false
-          overlay.hide()
-          inputAuto.mousemove(this.leftmost + 2, event.y)
-          this.mouseSet = false
-        } else {
-          this.shouldForward = true
-          inputAuto.mousemove(this.mapArea.right, event.y)
-        }
-      } else if (event.x < this.mapArea.left) {
-        if (this.position === Position.RIGHT) {
-          this.controlling = false
-          this.shouldForward = false
-          overlay.hide()
-          inputAuto.mousemove(this.rightmost - 2, event.y)
-          this.mouseSet = false
-        } else {
-          this.shouldForward = true
-          inputAuto.mousemove(this.mapArea.left, event.y)
-        }
-      } else if (event.y > this.mapArea.bottom) {
-        this.shouldForward = true
-        inputAuto.mousemove(event.x, this.mapArea.bottom)
-      } else if (event.y < this.mapArea.top) {
-        this.shouldForward = true
-        inputAuto.mousemove(event.x, this.mapArea.top)
-      } else {
-        // shouldForward = false
-      }
-      if (this.shouldForward) {
-        inputAuto.setBlock(true)
-      } else {
-        inputAuto.setBlock(false)
+      this.shouldForward = true
+
+      inputAuto.setBlock(this.shouldForward)
+
+      if (this.position === Position.LEFT) {
+        this.remoteMousePos.x = this.mapArea.right - 2
+        this.remoteMousePos.y = event.y
+
+        this._send({
+          type: 'mousemove',
+          x: this.remoteMousePos.x - this.mapArea.left,
+          y: this.remoteMousePos.y - this.mapArea.top
+        })
+      } else if (this.position === Position.RIGHT) {
+        this.remoteMousePos.x = this.mapArea.left + 2
+        this.remoteMousePos.y = event.y
+
+        this._send({
+          type: 'mousemove',
+          x: this.remoteMousePos.x - this.mapArea.left,
+          y: this.remoteMousePos.y - this.mapArea.top
+        })
       }
     }
   }
@@ -189,7 +185,6 @@ class AppCapture implements LAN.AppModule {
     global.appState.event.on('global.state.remotes:updated', async ({ devices, newDevice, thisDevice }) => {
       const { remote } = global.appState.state
       if (!remote || remote?.disabled) {
-        overlay.hide()
         this.shouldForward = false
         this.controlling = false
         inputAuto.setBlock(false)
