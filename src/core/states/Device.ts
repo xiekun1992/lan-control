@@ -115,7 +115,7 @@ export class Device {
       ).map((item: any) => {
         const ipv4Decimals = item.ip4.split('.').map((item: string) => +item)
         const subnetDecimals = item.ip4subnet.split('.').map((item: string) => +item)
-        const netIdDecimals = []
+        const netIdDecimals: number[] = []
         for (let i = 0; i < ipv4Decimals.length; i++) {
           netIdDecimals[i] = ipv4Decimals[i] & subnetDecimals[i] | (subnetDecimals[i] ^ 255)
         }

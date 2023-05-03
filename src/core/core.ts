@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { monitNetwork, enableAutoBoot, disableAutoBoot } from './utils'
-import { checkForUpdate } from './update'
+// import { checkForUpdate } from './update'
 import { AppState } from './states/AppState'
 import { State } from './states/State'
 import { Device } from './states/Device'
@@ -21,7 +21,7 @@ async function bootstrap(launchPath: string) {
   const appState = new AppState(launchPath)
   global.appState = appState
   
-  checkForUpdate(appState.updateURL)
+  // checkForUpdate(appState.updateURL)
 
   await appState.state.local?.updateHostInfo()
   

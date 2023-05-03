@@ -11,7 +11,7 @@ async function _nicCheck() {
   const ifs = os.networkInterfaces()
   let currentNicNum = 0
   for (const name in ifs) { // count available interfaces
-    if (ifs[name].some(item => item.internal === false)) {
+    if ((ifs[name] as any[]).some(item => item.internal === false)) {
       currentNicNum++
     }
   }

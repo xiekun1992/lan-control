@@ -42,11 +42,11 @@ class AppTray implements LAN.AppModule {
   
     const iconName = global.appState.platform.linux? '64x64.png': 'app.ico'
     this.tray = new Tray(path.resolve(global.appState.path, `assets/${iconName}`))
-    this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.setToolTip(global.appState.name)
-    this.tray.setTitle(global.appState.name)
-    this.tray.setContextMenu(this.contextMenu)
-    this.tray.on('click', () => {
+    this.tray!.setIgnoreDoubleClickEvents(true)
+    this.tray!.setToolTip(global.appState.name)
+    this.tray!.setTitle(global.appState.name)
+    this.tray!.setContextMenu(this.contextMenu!)
+    this.tray!.on('click', () => {
       global.appState.modules.get('setting').show()
     })
   }
