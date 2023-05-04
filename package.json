@@ -2,6 +2,7 @@
   "name": "lan_control",
   "version": "0.1.0",
   "description": "a remote control in LAN, support keyboard, mouse, clipboard capture and replay",
+  "homepage": "https://xiekun1992.github.io/",
   "main": "src_build/index.js",
   "types": "types/index.d.ts",
   "scripts": {
