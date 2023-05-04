@@ -1,6 +1,20 @@
 # lan-control
 a remote control in LAN, support keyboard, mouse, clipboard capture and replay
 
+## Manual Build
+### Prerequisites
+- Node.js v16.0+
+- NPM v8.0+
+- C++ desktop build tools
+    - MSVC 2019+ for Windows
+    - build-essential for Linux
+- node-gyp v7.0+
+
+### Build
+- run `npm install` to install dependencies
+- run `npm run build:linux` for Linux
+- run `npm run build:win` for Windows
+
 ## Installation
 ### For Ubuntu
 - From repository
