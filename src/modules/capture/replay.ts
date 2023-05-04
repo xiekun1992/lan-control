@@ -31,7 +31,7 @@ class Replay {
       if (global.appState.state.remote && !global.appState.state.isController) {
         switch(msg.type) {
           case 'mousemove': 
-            console.log('replay mousemove', msg.x, msg.y)
+            // console.log('replay mousemove', msg.x, msg.y)
             inputAuto.mousemove(
               msg.x * this.width / global.appState.state.remote.mapArea.width * this.scaleFactor,
               msg.y * this.height / global.appState.state.remote.mapArea.height * this.scaleFactor

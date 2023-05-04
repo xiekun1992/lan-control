@@ -146,7 +146,7 @@ class AppCapture implements LAN.AppModule {
   }
 
   private _send(msg: Object) {
-    console.log(this.shouldForward, this.address, msg)
+    // console.log(this.shouldForward, this.address, msg)
     if (this.shouldForward && this.address) {
       this.server.send(JSON.stringify(msg), this.port, this.address)
     }
