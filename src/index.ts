@@ -9,6 +9,11 @@ declare global {
     }
   }
 }
+// app.commandLine.appendSwitch('disable-gpu')
+// app.disableHardwareAcceleration()
+if (process.platform === "linux") {
+  app.commandLine.appendSwitch('--no-sandbox')
+}
 
 global.manualExit = false
 
