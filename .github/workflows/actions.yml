@@ -59,7 +59,7 @@ jobs:
         overwrite: true
 
   build-win:
-    runs-on: windows-latest  
+    runs-on: windows-2019  
     strategy:
       matrix:
         node-version: [16.x]
