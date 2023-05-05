@@ -73,6 +73,7 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - run: npm i -g node-gyp@8.0.0
     - run: npm ci
     - run: npm run build:win --if-present
 
